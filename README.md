@@ -30,6 +30,6 @@ $ make down
 ```
 
 - Une fois les containers démarrés, vous pouvez accéder à l'application sur l'url suivante:
-`todo-cda.api.local` pour l'api et `todo-cda.front.local` pour le front  
+`todo-cda.api.local` pour l'api et `todo-cda.local` pour le front  
 - La bdd postgresql à une liaison interne au container api via le réseau docker todo-f
 
