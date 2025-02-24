@@ -1,0 +1,36 @@
+services:
+
+  todo-f-api:
+    container_name: todo-f-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - .:/app:delegate
+    networks:
+      - traefik-nseven
+      - todo-f
+
+  todo-f-db:
+    image: postgres:16
+    container_name: todo-f-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - todo-f-db:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - todo-f
+
+volumes:
+  todo-f-db:
+
+networks:
+  traefik-nseven:
+    external: true
+  todo-f:
+    driver: bridge
