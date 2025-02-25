@@ -87,6 +87,9 @@ DATABASES = {
     }
 }
 
+if 'test' in os.sys.argv:
+    DATABASES['default']['NAME'] = os.getenv('POSTGRES_DB_TEST')
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

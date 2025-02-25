@@ -29,8 +29,23 @@ diffsettings: ## Affiche les paramètres Django modifiés
 runserver: ## Démarre le serveur Django avec les logs en mode verbeux
 	@$(PYTHON) manage.py runserver 0.0.0.0:8000 --verbosity 3
 
-test: ## Lance les tests unitaires Django
-	@$(PYTHON) manage.py test
+test: ## Lance tous les tests Django avec verbose=2
+	@$(PYTHON) manage.py test --verbosity 2
+
+test-cibling: ## Lance un test spécifique (exemple : c=tests.test_home.HomePageTest.test_home_page_status_code)
+	@if [ -z "$(c)" ]; then \
+		echo "❌ Spécifie le chemin du test avec c=nom_du_test (ex : c=tests.test_home.HomePageTest.test_home_page_status_code)"; \
+		exit 1; \
+	fi
+	@$(PYTHON) manage.py test $(c) --verbosity 2
+
+test-app: ## Teste une app spécifique (exemple : c=nom_de_lapp)
+	@if [ -z "$(c)" ]; then echo "❌ Spécifie l'app avec c=nom_de_lapp"; exit 1; fi
+	@$(PYTHON) manage.py test $(c) --verbosity 2
+
+coverage: ## Lancer les tests avec un rapport de couverture
+	@$(PYTHON) -m coverage run --source=. manage.py test
+	@$(PYTHON) -m coverage report -m
 
 createsuperuser: ## Crée un super utilisateur pour l'admin Django
 	@$(PYTHON) manage.py createsuperuser

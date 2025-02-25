@@ -32,7 +32,16 @@ logs: ## Affiche les logs du container specifié c="api", c="front" or c="db" (d
 	@echo "🚀 Affichage des logs du container $(c) ---> START"
 	@$(DOCKER) logs -f $(if $(filter $(c),api),$(NAME_CONT_API),$(if $(filter $(c),front),$(NAME_CONT_FRONT),$(if $(filter $(c),db),$(NAME_CONT_DB),$(error "Valeur de c invalide : $(c)"))))
 
-sh: ## OUvre un shell dans le container specifié c="api", c="front" or c="db" (default is api)
+sh: ## Ouvre un shell dans le container specifié c="api", c="front" or c="db" (default is api)
 	@$(eval c ?= api)
 	@echo "🚀 Ouverture d'un shell dans le container $(c) ---> START"
 	@$(DOCKER) exec -it $(if $(filter $(c),api),$(NAME_CONT_API),$(if $(filter $(c),front),$(NAME_CONT_FRONT),$(if $(filter $(c),db),$(NAME_CONT_DB),$(error "Valeur de c invalide : $(c)")))) bash
+
+rebuild: ## Reconstruit uniquement l'image d'un service spécifique (exemple : c="api")
+	@if [ -z "$(c)" ]; then \
+		echo "❌ Spécifie le service avec c=api, front ou db (exemple : make rebuild c=api)"; \
+		exit 1; \
+	fi
+	@echo "🔨 Reconstruction de l'image du service $(c) ---> START"
+	$(DOCKER_COMP) build $(if $(filter $(c),api),$(NAME_CONT_API),$(if $(filter $(c),front),$(NAME_CONT_FRONT),$(if $(filter $(c),db),$(NAME_CONT_DB),$(error "Valeur de c invalide : $(c)"))))
+	@echo "✅ Reconstruction de l'image $(c) ---> END OK"
