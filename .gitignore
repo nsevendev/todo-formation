@@ -1,2 +1,4 @@
 .env
 api/config/__pycache__
+api/**/__pycache__/
+api/.coverage
