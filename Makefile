@@ -22,7 +22,7 @@ dev: ## Lancement des containers en mode dev
 	$(DOCKER_COMP) up -d
 	@echo "✅ Start container dev ---> END OK"
 
-down: ## Arrêt des containers
+stop: ## Arrêt des containers
 	@echo "🚀 Close container dev ---> START"
 	$(DOCKER_COMP) down
 	@echo "✅ Close container dev ---> END OK"
