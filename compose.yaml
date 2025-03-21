@@ -1,0 +1,13 @@
+services:
+  todo-formation-go:
+    build: .
+    image: todo-formation-go
+    container_name: todo-formation-go
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"   # Port pour votre application Go
+      - "2345:2345"   # Port pour le débogage
+    #command: ["sleep", "infinity"]
+    stdin_open: true
+    tty: true
