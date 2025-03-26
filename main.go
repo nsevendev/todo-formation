@@ -1,33 +1,38 @@
 package main
 
-import "fmt"
+import (
+	"todo_formation/app/router"
+	_ "todo_formation/init"
+	"todo_formation/internal/logger"
+	"os"
+	"strings"
 
-type Todo struct {
-	id        int
-	libelle   string
+	"github.com/gin-gonic/gin"
+)
+
+func extractBacktickContent(s string) string {
+	start := strings.Index(s, "`")
+	end := strings.LastIndex(s, "`")
+
+	if start == -1 || end == -1 || start == end {
+		return ""
+	}
+
+	return s[start+1 : end]
 }
 
-var todo = Todo{id: 1, libelle: "coucou"}
-var todo2 = &todo
-var todo3 = Todo{}
+func main() {	
+	serv := gin.Default()
 
-func main() {
-	eh := "coucou"
-	fmt.Printf(eh)
-	display()
-	espace()
-	todo.id = 2
-	espace()
-	display()
-	espace()
-}
+	router.Router(serv)
 
-func espace(){
-	fmt.Println()
-}
+	port := os.Getenv("PORT")
+	host := "0.0.0.0"
+	hostTraefik := extractBacktickContent(os.Getenv("HOST_TRAEFIK"))
 
-func display() {
-	fmt.Printf("todo : %v", todo)
-	fmt.Printf("todo 2 : %v", todo2)
-	fmt.Printf("todo 3 : %v", todo3)
+	logger.Success("Server is running on " + host + ":" + port)
+	logger.Successf("Server is running on https://%v", hostTraefik)
+
+	serv.Run(host + ":" + port)
 }
+ 

@@ -1,13 +1,41 @@
 services:
   todo-formation-go:
-    build: .
-    image: todo-formation-go
-    container_name: todo-formation-go
+    build:
+      target: dev
+      context: .
+      dockerfile: Dockerfile
+    image: hestia-go:latest
+    container_name: hestia-go
     volumes:
       - .:/app
-    ports:
-      - "5000:5000"   # Port pour votre application Go
-      - "2345:2345"   # Port pour le débogage
-    #command: ["sleep", "infinity"]
-    stdin_open: true
-    tty: true
+    env_file:
+      - .env
+    depends_on:
+      - todo-formation-db
+    networks:
+      - todo-formation-net
+      - traefik-nseven
+
+  todo-formation-db:
+    image: postgres:16
+    container_name: hestia-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - todo-formation-db-data:/var/lib/postgresql/data
+    networks:
+      - todo-formation-net
+      - traefik-nseven
+
+networks:
+  todo-formation-net:
+    name: todo-formation-net
+    driver: bridge
+  traefik-nseven:
+    external: true
+
+volumes:
+  todo-formation-db-data:
