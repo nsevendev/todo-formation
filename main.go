@@ -1,15 +1,16 @@
 package main
 
 import (
-	"todo_formation/app/router"
-	_ "todo_formation/init"
-	"todo_formation/internal/logger"
 	"os"
 	"strings"
+	"todof/app/router"
+	_ "todof/init"
+	"todof/internal/logger"
 
 	"github.com/gin-gonic/gin"
 )
 
+// permet de recuperer le nom de l'host traefik qui est dans le .env
 func extractBacktickContent(s string) string {
 	start := strings.Index(s, "`")
 	end := strings.LastIndex(s, "`")
