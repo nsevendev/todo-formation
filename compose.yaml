@@ -1,41 +1,41 @@
 services:
-  todo-formation-go:
+  todof-go:
     build:
       target: dev
       context: .
       dockerfile: Dockerfile
-    image: hestia-go:latest
-    container_name: hestia-go
+    image: ${NSC_NAME_CONTAINER_APP}:latest
+    container_name: ${NSC_NAME_CONTAINER_APP}
     volumes:
       - .:/app
     env_file:
       - .env
     depends_on:
-      - todo-formation-db
+      - todof-db
     networks:
-      - todo-formation-net
+      - todof-net
       - traefik-nseven
 
-  todo-formation-db:
+  todof-db:
     image: postgres:16
-    container_name: hestia-db
+    container_name: todof-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - todo-formation-db-data:/var/lib/postgresql/data
+      - todof-db-data:/var/lib/postgresql/data
     networks:
-      - todo-formation-net
+      - todof-net
       - traefik-nseven
 
 networks:
-  todo-formation-net:
-    name: todo-formation-net
+  todof-net:
+    name: todof-net
     driver: bridge
   traefik-nseven:
     external: true
 
 volumes:
-  todo-formation-db-data:
+  todof-db-data:

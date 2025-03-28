@@ -1,15 +1,15 @@
 services:
-  todo-formation-go:
+  todof-go:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-nseven"
-      - "traefik.http.routers.todo-formation-go.rule=${HOST_TRAEFIK}"
-      - "traefik.http.routers.todo-formation-go.entrypoints=websecure"
-      - "traefik.http.routers.todo-formation-go.tls=true"
-      - "traefik.http.routers.todo-formation-go.tls.certresolver=default"
-      - "traefik.http.services.todo-formation-go.loadbalancer.server.port=${PORT}"
-      - "traefik.http.services.todo-formation-go.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.todof-go.rule=${HOST_TRAEFIK}"
+      - "traefik.http.routers.todof-go.entrypoints=websecure"
+      - "traefik.http.routers.todof-go.tls=true"
+      - "traefik.http.routers.todof-go.tls.certresolver=default"
+      - "traefik.http.services.todof-go.loadbalancer.server.port=${PORT}"
+      - "traefik.http.services.todof-go.loadbalancer.server.scheme=http"
 
-  todo-formation-db:
+  todof-db:
     ports:
-      - "${DB_PORT}:5432"
+      - "${DB_PORT_EX-5432}:5432"

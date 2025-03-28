@@ -9,6 +9,7 @@ FROM golang:1.24-alpine3.21 AS base
 RUN apk add --no-cache git
 # add air
 RUN go install github.com/air-verse/air@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 # Préparer dossier de travail avec les bons droits
 #RUN mkdir -p /app/runtime/go-mod /app/runtime/air && chown -R ${UID}:${GID} /app
 RUN mkdir -p /app/runtime/air
@@ -29,12 +30,12 @@ FROM base AS build
 WORKDIR /app
 #COPY --chown=$UID:$GID . .
 COPY . .
-RUN go build -o dist/hestia main.go
+RUN go build -o dist/todof main.go
 
 FROM alpine:3.21 AS prod
 WORKDIR /app
 # certificats (pour les appels HTTPS éventuels)
 RUN apk add --no-cache ca-certificates
 # uniquement le binaire
-COPY --from=build /app/dist/hestia .
+COPY --from=build /app/dist/todof .
 CMD ["./todo_formation"]
