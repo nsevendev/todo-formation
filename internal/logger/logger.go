@@ -62,9 +62,9 @@ func Fatalf(format string, a ...any) {
 	log.Fatalf("💀 [FATAL] "+format, a...)
 } 
 
-func Init(env string) {
+func InitFromEnv(env string) {
 	logDir := filepath.Join("runtime", "logs", env)
-	logPath := filepath.Join(logDir, "hestia-"+time.Now().Format("2006-01-02")+".log")
+	logPath := filepath.Join(logDir, "todof-"+time.Now().Format("2006-01-02")+".log")
 
 	err := os.MkdirAll(logDir, os.ModePerm)
 	if err != nil {
@@ -87,14 +87,14 @@ func Init(env string) {
 	log.Printf("✅ [SUCCESS] Logger initialisé avec succès")
 }
 
-func InitFromEnv() {
+func Init() {
 	env := os.Getenv("APP_ENV")
 	
 	if env == "" { 
 		env = "dev"
 	}
 	
-	Init(env)
+	InitFromEnv(env)
 }
 
 func Close() {

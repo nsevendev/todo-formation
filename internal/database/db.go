@@ -2,9 +2,9 @@ package database
 
 import (
 	"fmt"
-	"todo_formation/internal/logger"
 	"os"
 	"time"
+	"todof/internal/logger"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,7 +26,7 @@ func buildDSN() string {
 	)
 }
 
-func Connect() {
+func InitConnect() {
 	dsn := buildDSN()
 	maxRetries := 10
 	var err error

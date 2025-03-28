@@ -1,14 +1,14 @@
 package init
 
 import (
-	"todo_formation/internal/database"
-	"todo_formation/internal/logger"
+	"todof/internal/database"
+	"todof/internal/logger"
 )
 
 func init() {
 	initEnv()
-	logger.InitFromEnv()
+	logger.Init()
 	defer logger.Close()
-	database.Connect()
-	database.AutoMigrate()
+	database.InitConnect()
+	initMigration()
 }
