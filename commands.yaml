@@ -1,7 +1,0 @@
-commands:
-  gcm: # goose creation migration (vide et auto incrementer) 
-    description: creation d'une migration incrementée (cela génere un fichier sql) -- env-NSC_NAME_CONTAINER_APP(obligatoire) -- variable nameFile(obligatoire)
-    command: docker exec -i *NSC_NAME_CONTAINER_APP* goose create -s {{nameFile}} sql --dir ./migrations
-  gup: # goose up (applique les migrations) 
-    description: applique les migrations -- env-NSC_NAME_CONTAINER_APP(obligatoire) env-NSC_MIGRATION_DB_URL(obligatoire)
-    command: docker exec -i *NSC_NAME_CONTAINER_APP* goose -dir ./migrations postgres *NSC_MIGRATION_DB_URL* up
