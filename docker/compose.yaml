@@ -13,9 +13,25 @@ services:
     networks:
       - traefik-nseven
       - todof
+    depends_on:
+      - todof-db
+
+  todof-db:
+    image: mongo:7
+    container_name: ${NSC_NAME_CONTAINER_DB}
+    restart: unless-stopped
+    volumes:
+      - todof-db-data:/data/db
+      - ../docker/mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - traefik-nseven
+      - todof
 
 networks:
   traefik-nseven:
     external: true
   todof:
     driver: bridge
+
+volumes:
+  todof-db-data:

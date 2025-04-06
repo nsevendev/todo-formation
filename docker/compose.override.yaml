@@ -9,3 +9,7 @@ services:
       - "traefik.http.routers.todof-go.tls.certresolver=default"
       - "traefik.http.services.todof-go.loadbalancer.server.port=${PORT}"
       - "traefik.http.services.todof-go.loadbalancer.server.scheme=http"
+
+  todof-db:
+    ports:
+      - "${DB_PORT_EX}:27017"

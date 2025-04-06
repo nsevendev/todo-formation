@@ -5,7 +5,7 @@ tmp_dir = "tmp/air"
 cmd = "go build -o ./tmp/air/main ./cmd/main.go"
 bin = "tmp/air/main"
 include_ext = ["go"]
-exclude_dir = ["tmp", "bin", "doc", "migration"]
+exclude_dir = ["tmp", "doc"]
 watch_dir = "."
 
 [log]
