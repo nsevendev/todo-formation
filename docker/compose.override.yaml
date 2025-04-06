@@ -1,0 +1,11 @@
+services:
+  todof-go:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-nseven"
+      - "traefik.http.routers.todof-go.rule=${HOST_TRAEFIK}"
+      - "traefik.http.routers.todof-go.entrypoints=websecure"
+      - "traefik.http.routers.todof-go.tls=true"
+      - "traefik.http.routers.todof-go.tls.certresolver=default"
+      - "traefik.http.services.todof-go.loadbalancer.server.port=${PORT}"
+      - "traefik.http.services.todof-go.loadbalancer.server.scheme=http"

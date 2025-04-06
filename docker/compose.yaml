@@ -1,0 +1,21 @@
+services:
+  todof-go:
+    build:
+      target: dev
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ${NSC_NAME_CONTAINER_APP}
+    image: ${NSC_NAME_CONTAINER_APP}:latest
+    volumes:
+      - ../:/app
+    env_file:
+      - ../.env
+    networks:
+      - traefik-nseven
+      - todof
+
+networks:
+  traefik-nseven:
+    external: true
+  todof:
+    driver: bridge
