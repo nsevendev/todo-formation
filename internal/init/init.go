@@ -1,8 +1,9 @@
 package init
 
 import (
-	"todof/logger"
 	"todof/migration"
+	"todof/mod/logger"
+	"todof/mod/migratormongodb"
 )
 
 func init() {
@@ -11,10 +12,10 @@ func init() {
 	defer logger.Close()
 	ConnexionDatabase()
 
-	migrator := migration.NewMigrator(Db)
+	migrator := migratormongodb.New(Db)
 	migrator.Add(migration.CreateUsersCollection)
-
-	if err := migrator.ApplyMigrations(); err != nil {
+	// ajouter d'autres migrations ici ...
+	if err := migrator.Apply(); err != nil {
 		logger.Fatalf("Erreur lors de l'application des migrations : %v", err)
 	}
 }

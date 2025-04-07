@@ -4,13 +4,16 @@ import (
 	"os"
 	"strings"
 	_ "todof/internal/init"
-	"todof/logger"
+	"todof/mod/logger"
+	"todof/mod/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	s := gin.Default()
+
+	s.Use(middleware.RouteNotfound())
 
 	run(s)
 }

@@ -2,13 +2,14 @@ package migration
 
 import (
 	"context"
+	"todof/mod/migratormongodb"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var CreateUsersCollection = Migration{
+var CreateUsersCollection = migratormongodb.Migration{
 	Name: "20250406203522_create_doc_user",
 	Up: func(db *mongo.Database) error {
 		ctx := context.Background()

@@ -1,10 +1,10 @@
-package migration
+package migratormongodb
 
 import (
 	"context"
 	"fmt"
 	"time"
-	"todof/logger"
+	"todof/mod/logger"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,7 +20,7 @@ type Migrator struct {
 	migrations []Migration
 }
 
-func NewMigrator(db *mongo.Database) *Migrator {
+func New(db *mongo.Database) *Migrator {
 	return &Migrator{
 		db:         db,
 		migrations: []Migration{},
@@ -31,7 +31,7 @@ func (m *Migrator) Add(migration Migration) {
 	m.migrations = append(m.migrations, migration)
 }
 
-func (m *Migrator) ApplyMigrations() error {
+func (m *Migrator) Apply() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -46,7 +46,7 @@ func (m *Migrator) ApplyMigrations() error {
 	for cursor.Next(ctx) {
 		var result bson.M
 		if err := cursor.Decode(&result); err == nil {
-			logger.Infof("Ajout de la migration déjà appliquée: %s", result["name"].(string))
+			logger.Infof("Migration : %s déja executé", result["name"].(string))
 			applied[result["name"].(string)] = true
 		}
 	}
@@ -71,7 +71,7 @@ func (m *Migrator) ApplyMigrations() error {
 			logger.Errorf("impossible d'enregistrer la migration %s : %v", migration.Name, err)
 			return fmt.Errorf("impossible d'enregistrer la migration %s : %w", migration.Name, err)
 		}
-		logger.Infof("Migration appliquée: %s", migration.Name)
+		logger.Successf("Migration appliquée: %s", migration.Name)
 	}
 
 	return nil
