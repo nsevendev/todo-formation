@@ -14,6 +14,8 @@ func init() {
 
 	migrator := migratormongodb.New(Db)
 	migrator.Add(migration.CreateUsersCollection)
+	migrator.Add(migration.UpdateSchemaUserCOllection)
+	migrator.Add(migration.CreateTasksCollection)
 	// ajouter d'autres migrations ici ...
 	if err := migrator.Apply(); err != nil {
 		logger.Fatalf("Erreur lors de l'application des migrations : %v", err)
