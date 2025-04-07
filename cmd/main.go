@@ -18,6 +18,7 @@ func main() {
 	run(s)
 }
 
+// run and log the server
 func run(s *gin.Engine) {
 	port := os.Getenv("PORT")
 	hostTraefik := extractStringInBacktick(os.Getenv("HOST_TRAEFIK"))

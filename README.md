@@ -8,7 +8,7 @@
 - cli `ns` pour la gestion des containers
 - `traefik nseven` qui tourne 
 
-## Installation
+## Installation/Demarrage des containers dev
 
 - copier coller `.env.dist` en `.env`, renseigner les variables d'environnement
 - lancer la commande `ns c dev`à l'aide du CLI `ns` l'application est démarrée
@@ -23,3 +23,5 @@ ou tous autre commande docker
 
 - avec le CLI `ns` vous pouvez executer des commandes specifique au projet  
 pour afficher cette liste tapez `ns c list`
+
+## Installation/Demarrage des containers prod
