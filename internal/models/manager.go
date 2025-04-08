@@ -5,7 +5,7 @@ import (
 )
 
 type Manager struct {
-	TaskModel TaskInterface
+	TaskModel TaskModelInterface
 }
 
 func NewManager(ctx context.Context) *Manager {

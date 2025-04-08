@@ -27,25 +27,25 @@ type taskModel struct {
 	col *mongo.Collection
 }
 
-type TaskInterface interface {
-	CreateTask(task *Task, IDUser primitive.ObjectID) error
-	GetTaskByID(IDTask primitive.ObjectID) (*Task, error)
-	GetTasksByUser(IDUser primitive.ObjectID) ([]Task, error)
-	UpdateTaskLabel(IDTask primitive.ObjectID, IDUser primitive.ObjectID, newLabel string) error
-	UpdateTaskDone(IDTask primitive.ObjectID, IDUser primitive.ObjectID, done bool) error
-	DeleteTaskByID(IDTask primitive.ObjectID, IDUser primitive.ObjectID) error
-	DeleteAllTasksForUser(IDUser primitive.ObjectID) error
-	DeleteAllTasks() error
+type TaskModelInterface interface {
+	Create(task *Task, IDUser primitive.ObjectID) error
+	GetOneByID(IDTask primitive.ObjectID) (*Task, error)
+	GetAllByUser(IDUser primitive.ObjectID) ([]Task, error)
+	UpdateLabel(IDTask primitive.ObjectID, IDUser primitive.ObjectID, newLabel string) error
+	UpdateDone(IDTask primitive.ObjectID, IDUser primitive.ObjectID, done bool) error
+	DeleteOneByID(IDTask primitive.ObjectID, IDUser primitive.ObjectID) error
+	DeleteAllForUser(IDUser primitive.ObjectID) error
+	DeleteAll() error
 }
 
-func NewTaskModel(ctx context.Context) *taskModel {
+func NewTaskModel(ctx context.Context) TaskModelInterface {
 	return &taskModel{
 		ctx: ctx,
 		col: initializer.Db.Collection("tasks"),
 	}
 }
 
-func (t *taskModel) CreateTask(task *Task, IDUser primitive.ObjectID) error {
+func (t *taskModel) Create(task *Task, IDUser primitive.ObjectID) error {
 	now := mongodate.Now()
 	task.ID = primitive.NewObjectID()
 	task.IDUser = IDUser
@@ -60,7 +60,7 @@ func (t *taskModel) CreateTask(task *Task, IDUser primitive.ObjectID) error {
 	return nil
 }
 
-func (t *taskModel) GetTaskByID(IDTask primitive.ObjectID) (*Task, error) {
+func (t *taskModel) GetOneByID(IDTask primitive.ObjectID) (*Task, error) {
 	var task Task
 	if err := t.col.FindOne(t.ctx, bson.M{"_id": IDTask}).Decode(&task); err == mongo.ErrNoDocuments {
 		logger.Errorf("impossible de trouver la tâche _id: %s, id_user: %v", IDTask.Hex(), task.IDUser.Hex())
@@ -69,7 +69,7 @@ func (t *taskModel) GetTaskByID(IDTask primitive.ObjectID) (*Task, error) {
 	return &task, nil
 }
 
-func (t *taskModel) GetTasksByUser(IDUser primitive.ObjectID) ([]Task, error) {
+func (t *taskModel) GetAllByUser(IDUser primitive.ObjectID) ([]Task, error) {
 	cur, err := t.col.Find(t.ctx, bson.M{"id_user": IDUser})
 	if err != nil {
 		logger.Errorf("impossible de trouver les tâches de l'utilisateur id_user: %v", IDUser.Hex())
@@ -89,7 +89,7 @@ func (t *taskModel) GetTasksByUser(IDUser primitive.ObjectID) ([]Task, error) {
 	return tasks, nil
 }
 
-func (t *taskModel) UpdateTaskLabel(IDTask primitive.ObjectID, IDUser primitive.ObjectID, newLabel string) error {
+func (t *taskModel) UpdateLabel(IDTask primitive.ObjectID, IDUser primitive.ObjectID, newLabel string) error {
 	res, err := t.col.UpdateOne(t.ctx,
 		bson.M{"_id": IDTask, "id_user": IDUser},
 		bson.M{
@@ -109,7 +109,7 @@ func (t *taskModel) UpdateTaskLabel(IDTask primitive.ObjectID, IDUser primitive.
 	return err
 }
 
-func (t *taskModel) UpdateTaskDone(IDTask primitive.ObjectID, IDUser primitive.ObjectID, done bool) error {
+func (t *taskModel) UpdateDone(IDTask primitive.ObjectID, IDUser primitive.ObjectID, done bool) error {
 	res, err := t.col.UpdateOne(t.ctx,
 		bson.M{"_id": IDTask, "id_user": IDUser},
 		bson.M{
@@ -129,7 +129,7 @@ func (t *taskModel) UpdateTaskDone(IDTask primitive.ObjectID, IDUser primitive.O
 	return nil
 }
 
-func (t *taskModel) DeleteTaskByID(IDTask primitive.ObjectID, IDUser primitive.ObjectID) error {
+func (t *taskModel) DeleteOneByID(IDTask primitive.ObjectID, IDUser primitive.ObjectID) error {
 	_, err := t.col.DeleteOne(t.ctx, bson.M{"_id": IDTask, "id_user": IDUser})
 	if err != nil {
 		logger.Errorf("impossible de supprimer la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
@@ -138,7 +138,7 @@ func (t *taskModel) DeleteTaskByID(IDTask primitive.ObjectID, IDUser primitive.O
 	return nil
 }
 
-func (t *taskModel) DeleteAllTasksForUser(IDUser primitive.ObjectID) error {
+func (t *taskModel) DeleteAllForUser(IDUser primitive.ObjectID) error {
 	_, err := t.col.DeleteMany(t.ctx, bson.M{"id_user": IDUser})
 	if err != nil {
 		logger.Errorf("impossible de supprimer les tâches id_user: %s", IDUser.Hex())
@@ -147,7 +147,7 @@ func (t *taskModel) DeleteAllTasksForUser(IDUser primitive.ObjectID) error {
 	return nil
 }
 
-func (t *taskModel) DeleteAllTasks() error {
+func (t *taskModel) DeleteAll() error {
 	_, err := t.col.DeleteMany(t.ctx, bson.M{})
 	if err != nil {
 		logger.Errorf("impossible de supprimer toutes les tâches")
