@@ -8,6 +8,15 @@ commands:
   devb:
     description: Start the development environment with build
     command: docker compose --env-file .env -f docker/compose.yaml -f docker/compose.override.yaml up -d --build
-  devnod:
-    description: Start the development environment no detach mode
+  devbnod:
+    description: Start the development environment no detach mode and build
     command: docker compose --env-file .env -f docker/compose.yaml -f docker/compose.override.yaml up --build
+  ddev:
+    description: Stop the development containerps
+    command: docker compose --env-file .env -f docker/compose.yaml -f docker/compose.override.yaml down
+  tidy:
+    description: Run go mod tidy pour nettoyer les dépendances
+    command: docker exec -i *NSC_NAME_CONTAINER_APP* go mod tidy
+  addget:
+    description: Add get pour ajouter une dépendance
+    command: docker exec -i *NSC_NAME_CONTAINER_APP* go get {{nameDep}}
