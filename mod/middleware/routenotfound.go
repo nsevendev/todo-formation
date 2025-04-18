@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"net/http"
-	"todof/mod/apiresponse"
-	"todof/mod/logger"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nsevenpack/ginresponse"
+	"github.com/nsevenpack/logger/v2/logger"
 )
 
 func RouteNotfound() gin.HandlerFunc {
@@ -13,10 +13,8 @@ func RouteNotfound() gin.HandlerFunc {
 		c.Next()
 
 		if c.Writer.Status() == http.StatusNotFound && c.Request.Method != "OPTIONS" {
-			logger.Warnf("Route inconnue : %s %s", c.Request.Method, c.Request.URL.Path)
-
-			apiresponse.Error(c, http.StatusNotFound, "La route demandée n'existe pas.", "Not Found")
-
+			logger.Wf("Route inconnue : %s %s", c.Request.Method, c.Request.URL.Path)
+			ginresponse.NotFound(c, "La route demandée n'existe pas.", nil)
 			c.Abort()
 		}
 	}

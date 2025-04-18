@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
-	"todof/mod/logger"
 
+	"github.com/nsevenpack/logger/v2/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -38,7 +38,7 @@ func (m *Migrator) Apply() error {
 	applied := make(map[string]bool)
 	cursor, err := m.db.Collection("migrations").Find(ctx, bson.M{})
 	if err != nil {
-		logger.Errorf("impossible de lire la collection des migrations : %v", err)
+		logger.Ef("impossible de lire la collection des migrations : %v", err)
 		return fmt.Errorf("impossible de lire la collection des migrations : %w", err)
 	}
 	defer cursor.Close(ctx)
@@ -46,20 +46,20 @@ func (m *Migrator) Apply() error {
 	for cursor.Next(ctx) {
 		var result bson.M
 		if err := cursor.Decode(&result); err == nil {
-			logger.Infof("Migration : %s déja executé", result["name"].(string))
+			logger.If("Migration : %s déja executé", result["name"].(string))
 			applied[result["name"].(string)] = true
 		}
 	}
 
 	for _, migration := range m.migrations {
 		if applied[migration.Name] {
-			logger.Infof("Migration déjà appliquée: %s", migration.Name)
+			logger.If("Migration déjà appliquée: %s", migration.Name)
 			continue
 		}
 
 		fmt.Println("📦 Migration:", migration.Name)
 		if err := migration.Up(m.db); err != nil {
-			logger.Errorf("échec de la migration %s : %v", migration.Name, err)
+			logger.Ef("échec de la migration %s : %v", migration.Name, err)
 			return fmt.Errorf("échec de la migration %s : %w", migration.Name, err)
 		}
 
@@ -68,10 +68,10 @@ func (m *Migrator) Apply() error {
 			"createdAt": time.Now(),
 		})
 		if err != nil {
-			logger.Errorf("impossible d'enregistrer la migration %s : %v", migration.Name, err)
+			logger.Ef("impossible d'enregistrer la migration %s : %v", migration.Name, err)
 			return fmt.Errorf("impossible d'enregistrer la migration %s : %w", migration.Name, err)
 		}
-		logger.Successf("Migration appliquée: %s", migration.Name)
+		logger.Sf("Migration appliquée: %s", migration.Name)
 	}
 
 	return nil

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	initializer "todof/internal/init"
-	"todof/mod/logger"
 	"todof/mod/mongotool/mongodate"
 
+	"github.com/nsevenpack/logger/v2/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -54,7 +54,7 @@ func (t *taskModel) Create(task *Task, IDUser primitive.ObjectID) error {
 
 	_, err := t.col.InsertOne(t.ctx, task)
 	if err != nil {
-		logger.Errorf("impossible de créer la tâche _id: %s, id_user: %v", task.ID.Hex(), IDUser.Hex())
+		logger.Ef("impossible de créer la tâche _id: %s, id_user: %v", task.ID.Hex(), IDUser.Hex())
 		return errors.New("impossible de créer la tâche")
 	}
 	return nil
@@ -63,7 +63,7 @@ func (t *taskModel) Create(task *Task, IDUser primitive.ObjectID) error {
 func (t *taskModel) GetOneByID(IDTask primitive.ObjectID) (*Task, error) {
 	var task Task
 	if err := t.col.FindOne(t.ctx, bson.M{"_id": IDTask}).Decode(&task); err == mongo.ErrNoDocuments {
-		logger.Errorf("impossible de trouver la tâche _id: %s, id_user: %v", IDTask.Hex(), task.IDUser.Hex())
+		logger.Ef("impossible de trouver la tâche _id: %s, id_user: %v", IDTask.Hex(), task.IDUser.Hex())
 		return nil, errors.New("impossible de recuperer la tâche")
 	}
 	return &task, nil
@@ -72,7 +72,7 @@ func (t *taskModel) GetOneByID(IDTask primitive.ObjectID) (*Task, error) {
 func (t *taskModel) GetAllByUser(IDUser primitive.ObjectID) ([]Task, error) {
 	cur, err := t.col.Find(t.ctx, bson.M{"id_user": IDUser})
 	if err != nil {
-		logger.Errorf("impossible de trouver les tâches de l'utilisateur id_user: %v", IDUser.Hex())
+		logger.Ef("impossible de trouver les tâches de l'utilisateur id_user: %v", IDUser.Hex())
 		return nil, err
 	}
 	defer cur.Close(t.ctx)
@@ -81,7 +81,7 @@ func (t *taskModel) GetAllByUser(IDUser primitive.ObjectID) ([]Task, error) {
 	for cur.Next(t.ctx) {
 		var task Task
 		if err := cur.Decode(&task); err != nil {
-			logger.Errorf("impossible de décoder la tâche id_user: %v", IDUser.Hex())
+			logger.Ef("impossible de décoder la tâche id_user: %v", IDUser.Hex())
 			return nil, err
 		}
 		tasks = append(tasks, task)
@@ -103,7 +103,7 @@ func (t *taskModel) UpdateLabel(IDTask primitive.ObjectID, IDUser primitive.Obje
 		return err
 	}
 	if res.MatchedCount == 0 {
-		logger.Errorf("impossible de modifier la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
+		logger.Ef("impossible de modifier la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
 		return errors.New("imposible de modifier la tâche")
 	}
 	return err
@@ -123,7 +123,7 @@ func (t *taskModel) UpdateDone(IDTask primitive.ObjectID, IDUser primitive.Objec
 		return err
 	}
 	if res.MatchedCount == 0 {
-		logger.Errorf("impossible de modifier la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
+		logger.Ef("impossible de modifier la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
 		return errors.New("imposible de modifier la tâche")
 	}
 	return nil
@@ -132,7 +132,7 @@ func (t *taskModel) UpdateDone(IDTask primitive.ObjectID, IDUser primitive.Objec
 func (t *taskModel) DeleteOneByID(IDTask primitive.ObjectID, IDUser primitive.ObjectID) error {
 	_, err := t.col.DeleteOne(t.ctx, bson.M{"_id": IDTask, "id_user": IDUser})
 	if err != nil {
-		logger.Errorf("impossible de supprimer la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
+		logger.Ef("impossible de supprimer la tâche _id: %s, id_user: %v", IDTask.Hex(), IDUser.Hex())
 		return errors.New("impossible de supprimer la tâche")
 	}
 	return nil
@@ -141,7 +141,7 @@ func (t *taskModel) DeleteOneByID(IDTask primitive.ObjectID, IDUser primitive.Ob
 func (t *taskModel) DeleteAllForUser(IDUser primitive.ObjectID) error {
 	_, err := t.col.DeleteMany(t.ctx, bson.M{"id_user": IDUser})
 	if err != nil {
-		logger.Errorf("impossible de supprimer les tâches id_user: %s", IDUser.Hex())
+		logger.Ef("impossible de supprimer les tâches id_user: %s", IDUser.Hex())
 		return errors.New("impossible de supprimer les tâches")
 	}
 	return nil
@@ -150,7 +150,7 @@ func (t *taskModel) DeleteAllForUser(IDUser primitive.ObjectID) error {
 func (t *taskModel) DeleteAll() error {
 	_, err := t.col.DeleteMany(t.ctx, bson.M{})
 	if err != nil {
-		logger.Errorf("impossible de supprimer toutes les tâches")
+		logger.Ef("impossible de supprimer toutes les tâches")
 		return errors.New("impossible de supprimer toutes les tâches")
 	}
 	return err

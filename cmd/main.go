@@ -4,14 +4,15 @@ import (
 	"os"
 	"strings"
 	_ "todof/internal/init"
-	"todof/mod/logger"
 	"todof/mod/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nsevenpack/logger/v2/logger"
 )
 
 func main() {
 	s := gin.Default()
+	defer logger.Close()
 
 	s.Use(middleware.RouteNotfound())
 
@@ -24,12 +25,12 @@ func run(s *gin.Engine) {
 	hostTraefik := extractStringInBacktick(os.Getenv("HOST_TRAEFIK"))
 	host := "0.0.0.0"
 
-	logger.Success("Server is running on in container docker : " + host + ":" + port)
-	logger.Successf("Server is running on navigator on : https://%v", hostTraefik)
+	logger.S("Server is running on in container docker : " + host + ":" + port)
+	logger.Sf("Server is running on navigator on : https://%v", hostTraefik)
 
-	logger.Info("Démarrage du serveur ...")		
+	logger.I("Démarrage du serveur ...")		
 	if err := s.Run(host + ":" + port);err != nil {
-		logger.Fatalf("Erreur lors du démarrage du serveur : %v", err)
+		logger.Ff("Erreur lors du démarrage du serveur : %v", err)
 	}
 }
 

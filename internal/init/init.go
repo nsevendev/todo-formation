@@ -2,15 +2,17 @@ package init
 
 import (
 	"todof/migration"
-	"todof/mod/logger"
 	"todof/mod/migratormongodb"
+
+	"github.com/nsevenpack/ginresponse"
+	"github.com/nsevenpack/logger/v2/logger"
 )
 
 func init() {
 	initEnv()
 	logger.Init()
-	defer logger.Close()
 	ConnexionDatabase()
+	ginresponse.SetFormatter(&ginresponse.JsonFormatter{})
 
 	migrator := migratormongodb.New(Db)
 	migrator.Add(migration.CreateUsersCollection)
@@ -18,6 +20,6 @@ func init() {
 	migrator.Add(migration.CreateTasksCollection)
 	// ajouter d'autres migrations ici ...
 	if err := migrator.Apply(); err != nil {
-		logger.Fatalf("Erreur lors de l'application des migrations : %v", err)
+		logger.Ff("Erreur lors de l'application des migrations : %v", err)
 	}
 }
