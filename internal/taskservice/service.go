@@ -1,6 +1,7 @@
-package task
+package taskservice
 
 import (
+	"context"
 	"todof/internal/models"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,7 +12,8 @@ type taskService struct {
 }
 
 type TaskServiceInterface interface {
-	Create(label string, IDUser primitive.ObjectID) (*models.Task, error)
+	Create(ctx context.Context, label string, IDUser primitive.ObjectID) (*models.Task, error)
+	GetOneById(ctx context.Context, id string) (*models.Task, error)
 }
 
 func NewTaskService(modelManager *models.ManagerModel) TaskServiceInterface {

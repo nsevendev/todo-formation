@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"strings"
+	"todof/app/router"
 	_ "todof/internal/init"
-	"todof/mod/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/logger/v2/logger"
@@ -14,7 +14,7 @@ func main() {
 	s := gin.Default()
 	defer logger.Close()
 
-	s.Use(middleware.RouteNotfound())
+	router.Router(s)
 
 	run(s)
 }

@@ -1,15 +1,11 @@
 package models
 
-import (
-	"context"
-)
-
 type ManagerModel struct {
 	TaskModel TaskModelInterface
 }
 
-func NewManager(ctx context.Context) *ManagerModel {
-	taskModel := NewTaskModel(ctx)
+func NewManager() *ManagerModel {
+	taskModel := newTaskModel()
 
 	return &ManagerModel{
 		TaskModel: taskModel,
