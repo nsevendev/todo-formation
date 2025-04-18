@@ -4,14 +4,14 @@ import (
 	"context"
 )
 
-type Manager struct {
+type ManagerModel struct {
 	TaskModel TaskModelInterface
 }
 
-func NewManager(ctx context.Context) *Manager {
+func NewManager(ctx context.Context) *ManagerModel {
 	taskModel := NewTaskModel(ctx)
 
-	return &Manager{
+	return &ManagerModel{
 		TaskModel: taskModel,
 	}
 }

@@ -14,7 +14,7 @@ type TaskServiceInterface interface {
 	Create(task *models.Task, IDUser primitive.ObjectID) error
 }
 
-func NewTaskService(modelManager *models.Manager) TaskServiceInterface {
+func NewTaskService(modelManager *models.ManagerModel) TaskServiceInterface {
 	taskModel := modelManager.TaskModel
 
 	return &taskService{taskModel}
