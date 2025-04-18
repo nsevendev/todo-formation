@@ -46,11 +46,9 @@ func NewTaskModel(ctx context.Context) TaskModelInterface {
 }
 
 func (t *taskModel) Create(task *Task, IDUser primitive.ObjectID) error {
-	now := mongodate.Now()
 	task.ID = primitive.NewObjectID()
-	task.IDUser = IDUser
-	task.CreatedAt = now
-	task.UpdatedAt = now
+	task.CreatedAt = mongodate.Now()
+	task.UpdatedAt = mongodate.Now()
 
 	_, err := t.col.InsertOne(t.ctx, task)
 	if err != nil {

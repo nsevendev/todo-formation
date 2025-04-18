@@ -11,7 +11,7 @@ type taskService struct {
 }
 
 type TaskServiceInterface interface {
-	Create(task *models.Task, IDUser primitive.ObjectID) error
+	Create(label string, IDUser primitive.ObjectID) (*models.Task, error)
 }
 
 func NewTaskService(modelManager *models.ManagerModel) TaskServiceInterface {
