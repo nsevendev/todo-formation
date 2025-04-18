@@ -15,8 +15,8 @@ type TaskServiceInterface interface {
 }
 
 func NewTaskService(modelManager *models.ManagerModel) TaskServiceInterface {
-	taskModel := modelManager.TaskModel
-
-	return &taskService{taskModel}
+	return &taskService{
+		taskModel: modelManager.TaskModel,
+	}
 }
 
