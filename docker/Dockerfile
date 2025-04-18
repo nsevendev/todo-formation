@@ -1,4 +1,5 @@
 FROM golang:1.24-alpine3.21 AS base
+RUN apk add --no-cache git
 RUN go install github.com/air-verse/air@latest
 RUN mkdir -p /app/tmp/air
 WORKDIR /app
