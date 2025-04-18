@@ -15,8 +15,15 @@ func main() {
 	defer logger.Close()
 
 	router.Router(s)
+	logRoutes(s)
 
 	run(s)
+}
+
+func logRoutes(s *gin.Engine) {
+	for _, route := range s.Routes() {
+		logger.If("%-6s -> %s\n", route.Method, route.Path)
+	}
 }
 
 // run and log the server
