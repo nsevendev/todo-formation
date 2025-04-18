@@ -34,7 +34,7 @@ type TaskModelInterface interface {
 	UpdateLabel(IDTask primitive.ObjectID, IDUser primitive.ObjectID, newLabel string) error
 	UpdateDone(IDTask primitive.ObjectID, IDUser primitive.ObjectID, done bool) error
 	DeleteOneByID(IDTask primitive.ObjectID, IDUser primitive.ObjectID) error
-	DeleteAllForUser(IDUser primitive.ObjectID) error
+	DeleteAllByUser(IDUser primitive.ObjectID) error
 	DeleteAll() error
 }
 
@@ -138,7 +138,7 @@ func (t *taskModel) DeleteOneByID(IDTask primitive.ObjectID, IDUser primitive.Ob
 	return nil
 }
 
-func (t *taskModel) DeleteAllForUser(IDUser primitive.ObjectID) error {
+func (t *taskModel) DeleteAllByUser(IDUser primitive.ObjectID) error {
 	_, err := t.col.DeleteMany(t.ctx, bson.M{"id_user": IDUser})
 	if err != nil {
 		logger.Ef("impossible de supprimer les tâches id_user: %s", IDUser.Hex())
