@@ -1,21 +1,22 @@
 package taskcontroller
 
 import (
-	"todof/internal/taskservice"
+	"todof/internal/task"
 
 	"github.com/gin-gonic/gin"
 )
 
 type taskController struct {
-	taskService taskservice.TaskServiceInterface
+	taskService task.TaskServiceInterface
 }
 
 type TaskControllerInterface interface {
-	GetOneById(c *gin.Context)
+	Create(c *gin.Context)
+	GetAllByUser(c *gin.Context)
 }
 
-func NewTaskController(taskService taskservice.TaskServiceInterface) TaskControllerInterface {
+func NewTaskController(taskService task.TaskServiceInterface) TaskControllerInterface {
 	return &taskController{
-		taskService: taskService,
+		taskService,
 	}
 }

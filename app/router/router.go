@@ -1,9 +1,13 @@
 package router
 
 import (
+	"os"
 	"todof/app/controller/taskcontroller"
-	"todof/internal/models"
-	"todof/internal/taskservice"
+	"todof/app/controller/usercontroller"
+	"todof/internal/auth"
+	"todof/internal/task"
+
+	initializer "todof/internal/init"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/ginresponse"
@@ -11,17 +15,26 @@ import (
 )
 
 func Router(r *gin.Engine) {
-	modelManager := models.NewManager()
+	userRepo := auth.NewUserRepo(initializer.Db)
+	userService := auth.NewUserService(userRepo, os.Getenv("JWT_SECRET"))
+	authMiddle := auth.NewAuthMiddleware(userService)
+	userController := usercontroller.NewUserController(userService)
 
-	taskService := taskservice.NewTaskService(modelManager)
-	
+	taskRepo := task.NewTaskRepo(initializer.Db)
+	taskService := task.NewTaskService(taskRepo)
 	taskController := taskcontroller.NewTaskController(taskService)
 
 	v1 := r.Group("api/v1")
 
-	// task
 	v1Task := v1.Group("/task")
-	v1Task.GET("/:id", taskController.GetOneById)
+	v1Task.Use(authMiddle.RequireAuth())
+	v1Task.POST("/", taskController.Create)
+	v1Task.GET("/", taskController.GetAllByUser)
+
+	v1User := v1.Group("/user")
+	v1User.POST("/register", userController.Create)
+	v1User.POST("/login", userController.Login)
+	v1User.GET("/profil", authMiddle.RequireAuth(), userController.GetProfilCurrentUser)
 
 	r.NoRoute(func(ctx *gin.Context) {
 		logger.Wf("Route inconnue : %s %s", ctx.Request.Method, ctx.Request.URL.Path)
