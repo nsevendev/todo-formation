@@ -1,0 +1,113 @@
+package auth
+
+import (
+	"context"
+	"errors"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+type userService struct {
+	userRepo userRepoInterface
+	jwtKey   []byte
+}
+
+type UserServiceInterface interface {
+	Register(ctx context.Context, userCreateDto UserCreateDto) (*User, error)
+	Login(ctx context.Context, userLoginDto UserLoginDto) (string, error)
+	ValidateToken(tokenString string) (*tokenClaims, error)
+	GetProfilCurrentUser(ctx context.Context, id primitive.ObjectID) (*User, error)
+}
+
+func NewUserService(userRepo userRepoInterface, jwtKey string) UserServiceInterface {
+	return &userService{
+		userRepo: userRepo,
+		jwtKey:   []byte(jwtKey),
+	}
+}
+
+func (s *userService) Register(ctx context.Context, userCreateDto UserCreateDto) (*User, error) {
+    roleDefault := "user"
+
+    user := &User{
+        Email:    userCreateDto.Email,
+        Password: userCreateDto.Password,
+        Username: userCreateDto.Username,
+        Role:     userCreateDto.Role,
+    }
+
+    if user.Role == "" {
+        user.Role = roleDefault
+    }
+
+    if err := s.userRepo.Create(ctx, user); err != nil {
+        return nil, err
+    }
+
+    return user, nil
+}
+
+func (s *userService) Login(ctx context.Context, userLoginDto UserLoginDto) (string, error) {
+    user, err := s.userRepo.FindByEmail(ctx, userLoginDto.Email)
+    if err != nil {
+        return "", err
+    }
+    if user == nil {
+        return "", errors.New("identifiants invalides")
+    }
+
+    if !user.CheckPassword(userLoginDto.Password) {
+        return "", errors.New("identifiants invalides")
+    }
+
+    token, err := s.generateToken(user)
+    if err != nil {
+        return "", err
+    }
+
+    return token, nil
+}
+
+func (s *userService) generateToken(user *User) (string, error) {
+    expirationTime := time.Now().Add(24 * time.Hour) // change here for time expiration
+    claims := &tokenClaims{
+        IdUser: user.ID.Hex(),
+        Email:  user.Email,
+        Role:   user.Role,
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expirationTime),
+            IssuedAt:  jwt.NewNumericDate(time.Now()),
+        },
+    }
+
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    
+    tokenString, err := token.SignedString(s.jwtKey)
+    if err != nil {
+        return "", err
+    }
+
+    return tokenString, nil
+}
+
+func (s *userService) ValidateToken(tokenString string) (*tokenClaims, error) {
+    token, err := jwt.ParseWithClaims(tokenString, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+        return s.jwtKey, nil
+    })
+    
+    if err != nil {
+        return nil, err
+    }
+    
+    if claims, ok := token.Claims.(*tokenClaims); ok && token.Valid {
+        return claims, nil
+    }
+    
+    return nil, errors.New("le token est invalide")
+}
+
+func (s *userService) GetProfilCurrentUser(ctx context.Context, id primitive.ObjectID) (*User, error) {
+    return s.userRepo.FindByID(ctx, id)
+}
