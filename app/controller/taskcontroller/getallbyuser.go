@@ -23,7 +23,5 @@ func (t *taskController) GetAllByUser(c *gin.Context) {
 		return
 	}
 
-	logger.If("Tâches récupérées avec succès pour l'utilisateur : %v", tasks)
-
 	ginresponse.Success(c, "Tâches récupérées avec succès", tasks)
 }
