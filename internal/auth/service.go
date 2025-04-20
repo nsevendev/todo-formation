@@ -5,7 +5,9 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/nsevenpack/logger/v2/logger"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,6 +21,7 @@ type UserServiceInterface interface {
 	Login(ctx context.Context, userLoginDto UserLoginDto) (string, error)
 	ValidateToken(tokenString string) (*tokenClaims, error)
 	GetProfilCurrentUser(ctx context.Context, id primitive.ObjectID) (*User, error)
+    GetIdUserInContext(ctx *gin.Context) (primitive.ObjectID, error)
 }
 
 func NewUserService(userRepo userRepoInterface, jwtKey string) UserServiceInterface {
@@ -110,4 +113,13 @@ func (s *userService) ValidateToken(tokenString string) (*tokenClaims, error) {
 
 func (s *userService) GetProfilCurrentUser(ctx context.Context, id primitive.ObjectID) (*User, error) {
     return s.userRepo.FindByID(ctx, id)
+}
+
+func (s *userService) GetIdUserInContext(ctx *gin.Context) (primitive.ObjectID, error) {
+    idUser, exists := ctx.Get("id_user")
+	if !exists {
+		logger.Ef("Erreur d'authentification : ID utilisateur non trouvé dans le contexte")
+        return primitive.NilObjectID, errors.New("Erreur d'authentification")
+	}
+    return idUser.(primitive.ObjectID), nil
 }

@@ -15,7 +15,6 @@ func (t *taskController) GetAllByUser(c *gin.Context) {
 		return
 	}
 
-	
 	tasks, err := t.taskService.GetAllByUser(c, idUser.(primitive.ObjectID))
 	if err != nil {
 		logger.Ef("Erreur lors de la récupération des tâches : %v", err)

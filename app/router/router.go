@@ -22,7 +22,7 @@ func Router(r *gin.Engine) {
 
 	taskRepo := task.NewTaskRepo(initializer.Db)
 	taskService := task.NewTaskService(taskRepo)
-	taskController := taskcontroller.NewTaskController(taskService)
+	taskController := taskcontroller.NewTaskController(taskService, userService)
 
 	v1 := r.Group("api/v1")
 
@@ -30,6 +30,8 @@ func Router(r *gin.Engine) {
 	v1Task.Use(authMiddle.RequireAuth())
 	v1Task.POST("/", taskController.Create)
 	v1Task.GET("/", taskController.GetAllByUser)
+	v1Task.DELETE("/:id/user", taskController.DeleteOneByUser)
+	v1Task.POST("/:id/user", taskController.DeleteOneByUser)
 
 	v1User := v1.Group("/user")
 	v1User.POST("/register", userController.Create)

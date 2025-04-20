@@ -17,6 +17,7 @@ type taskRepo struct {
 type taskRepoInterface interface {
 	Create(ctx context.Context, task *Task) error
 	GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error)
+	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 }
 
 func NewTaskRepo(db *mongo.Database) taskRepoInterface {
@@ -52,4 +53,23 @@ func (t *taskRepo) GetAllByUser(ctx context.Context, idUser primitive.ObjectID) 
 	}
 
 	return tasks, nil
+}
+
+func (t *taskRepo) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
+	filter := bson.M{"_id": idTask, "id_user": idUser}
+	
+	result, err := t.collection.DeleteOne(ctx, filter)
+	if err != nil {
+		logger.Ef("impossible de supprimer la tâche _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+		return errors.New("impossible de supprimer la tâche")
+	}
+	
+	if result.DeletedCount == 0 {
+		logger.Ef("aucune tâche supprimée _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+		return errors.New("aucune tâche supprimée")
+	}
+
+	logger.Sf("tâche supprimée _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+	
+	return nil
 }

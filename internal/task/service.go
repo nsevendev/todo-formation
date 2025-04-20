@@ -13,6 +13,7 @@ type taskService struct {
 type TaskServiceInterface interface {
 	Create(ctx context.Context, taskCreateDto TaskCreateDto, IdUser primitive.ObjectID) (*Task, error)
 	GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error)
+	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 }
 
 func NewTaskService(taskRepo taskRepoInterface) TaskServiceInterface {
@@ -41,6 +42,18 @@ func (t *taskService) GetAllByUser(ctx context.Context, idUser primitive.ObjectI
 		return nil, err
 	}
 
+	if tasks == nil {
+		return []Task{}, nil
+	}
+
 	return tasks, nil
+}
+
+func (t *taskService) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
+	if err := t.taskRepo.DeleteOneByUser(ctx, idUser, idTask); err != nil {
+		return err
+	}
+
+	return nil
 }
 
