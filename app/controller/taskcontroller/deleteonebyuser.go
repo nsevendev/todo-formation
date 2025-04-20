@@ -16,12 +16,7 @@ func (t *taskController) DeleteOneByUser(c *gin.Context) {
         return
     }
 
-	idUser, err := t.userService.GetIdUserInContext(c)
-	if err != nil {
-		logger.Ef("Erreur lors de la récupération de l'ID utilisateur : %s", err.Error())
-		ginresponse.Unauthorized(c, "Erreur d'authentification", "Vous n'avez pas les droits pour effectuer cette action")
-		return
-	}
+	idUser := t.userService.GetIdUserInContext(c)
 	
 	if err := t.taskService.DeleteOneByUser(c, idUser, taskId); err != nil {
 		logger.Ef("Erreur lors de la suppression de la tâche : %s", err.Error())

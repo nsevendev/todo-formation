@@ -16,6 +16,7 @@ type TaskControllerInterface interface {
 	Create(c *gin.Context)
 	GetAllByUser(c *gin.Context)
 	DeleteOneByUser(c *gin.Context)
+	DeleteManyByUser(c *gin.Context)
 }
 
 func NewTaskController(taskService task.TaskServiceInterface, userService auth.UserServiceInterface) TaskControllerInterface {
