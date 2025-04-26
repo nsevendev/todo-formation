@@ -11,7 +11,7 @@ import (
 )
 
 func (t *taskController) UpdateOneLabelPropertyByUser(c *gin.Context) {
-	var taskUpdateDto task.TaskUpdateDto
+	var taskUpdateDto task.TaskUpdateLabelDto
 	if err := c.ShouldBindJSON(&taskUpdateDto); err != nil {
 		logger.Ef("Erreur de validation : %s", err.Error())
 		ginresponse.BadRequest(c, "Erreur de validation", ginresponse.ErrorModel{
@@ -26,7 +26,7 @@ func (t *taskController) UpdateOneLabelPropertyByUser(c *gin.Context) {
 	taskId, err := primitive.ObjectIDFromHex(id)
     if err != nil {
 		logger.Ef("impossible de modifier la tâche : %s", err.Error())
-        ginresponse.BadRequest(c, "Id de la tâche invalide", err.Error())
+        ginresponse.BadRequest(c, "impossible de modifier la tâche", err.Error())
         return
     }
 

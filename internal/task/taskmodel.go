@@ -20,7 +20,7 @@ type TaskCreateDto struct {
 	Label string `json:"label" validate:"required"`
 }
 
-type TaskUpdateDto struct {
+type TaskUpdateLabelDto struct {
 	Label string `json:"label" validate:"required"`
 }
 

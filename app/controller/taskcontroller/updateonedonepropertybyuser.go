@@ -12,7 +12,7 @@ func (t *taskController) UpdateOneDonePropertyByUser(c *gin.Context) {
 	taskId, err := primitive.ObjectIDFromHex(id)
     if err != nil {
 		logger.Ef("impossible de modifier la tâche : %s", err.Error())
-        ginresponse.BadRequest(c, "Id de la tâche invalide", err.Error())
+        ginresponse.BadRequest(c, "impossible de modifier la tâche", err.Error())
         return
     }
 
