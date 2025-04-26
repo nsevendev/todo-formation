@@ -19,6 +19,7 @@ type taskRepoInterface interface {
 	GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error)
 	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 	DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error
+	UpdateDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 }
 
 func NewTaskRepo(db *mongo.Database) taskRepoInterface {
@@ -73,6 +74,45 @@ func (t *taskRepo) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectI
 	logger.Sf("tâche supprimée _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
 	
 	return nil
+}
+
+func (t *taskRepo) UpdateDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
+	filter := bson.M{"_id": idTask, "id_user": idUser}
+	
+	// je vais récupérer la tache à modifier en bdd
+	var task Task
+    err := t.collection.FindOne(ctx, filter).Decode(&task)
+
+	// retourne une erreur si probleme à la récupération de la tache
+    if err != nil {
+        logger.Ef("impossible de trouver la tâche _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+        return errors.New("aucune tâche trouvée")
+    }
+
+	// je prépare la data de l'update
+	update := bson.M{
+        "$set": bson.M{
+            "done": !task.Done,
+        },
+    }
+
+	// je fait l'update
+	result, err := t.collection.UpdateOne(ctx, filter, update)
+	// retorune une erreur si probleme lors de la mise a jour en bdd
+    if err != nil {
+        logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+        return errors.New("impossible de mettre à jour la tâche")
+    }
+
+	// retourne une erreur si matched cound (nombre d'élément modifié) est a 0
+    if result.MatchedCount == 0 {
+        logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+        return errors.New("aucune tâche mise à jour")
+    }
+
+    logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+
+    return nil
 }
 
 func (t *taskRepo) DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error {
