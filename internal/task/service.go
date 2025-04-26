@@ -51,16 +51,24 @@ func (t *taskService) GetAllByUser(ctx context.Context, idUser primitive.ObjectI
 	return tasks, nil
 }
 
-func (t *taskService) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
-	if err := t.taskRepo.DeleteOneByUser(ctx, idUser, idTask); err != nil {
+func (t *taskService) UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
+	if err := t.taskRepo.UpdateOneDonePropertyByUser(ctx, idUser, idTask); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (t *taskService) UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
-	if err := t.taskRepo.UpdateOneDonePropertyByUser(ctx, idUser, idTask); err != nil {
+func (t *taskService) UpdateOneLabelPropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID, taskUpdateDto TaskCreateDto) error {
+	if err := t.taskRepo.UpdateOneLabelPropertyByUser(ctx, idUser, idTask, taskUpdateDto.Label); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *taskService) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
+	if err := t.taskRepo.DeleteOneByUser(ctx, idUser, idTask); err != nil {
 		return err
 	}
 
