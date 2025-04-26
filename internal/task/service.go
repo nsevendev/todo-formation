@@ -14,6 +14,7 @@ type TaskServiceInterface interface {
 	Create(ctx context.Context, taskCreateDto TaskCreateDto, IdUser primitive.ObjectID) (*Task, error)
 	GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error)
 	UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
+	UpdateOneLabelPropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID, taskUpdateDto TaskUpdateDto) error
 	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 	DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error
 }
@@ -59,7 +60,7 @@ func (t *taskService) UpdateOneDonePropertyByUser(ctx context.Context, idUser pr
 	return nil
 }
 
-func (t *taskService) UpdateOneLabelPropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID, taskUpdateDto TaskCreateDto) error {
+func (t *taskService) UpdateOneLabelPropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID, taskUpdateDto TaskUpdateDto) error {
 	if err := t.taskRepo.UpdateOneLabelPropertyByUser(ctx, idUser, idTask, taskUpdateDto.Label); err != nil {
 		return err
 	}
