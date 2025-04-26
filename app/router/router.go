@@ -31,6 +31,7 @@ func Router(r *gin.Engine) {
 	v1Task.POST("/", taskController.Create)
 	v1Task.GET("/", taskController.GetAllByUser)
 	v1Task.PUT("/:id/done/user", taskController.UpdateOneDonePropertyByUser)
+	v1Task.PUT("/:id/user", taskController.UpdateOneLabelPropertyByUser)
 	v1Task.DELETE("/:id/user", taskController.DeleteOneByUser)
 	v1Task.POST("/:id/user", taskController.DeleteOneByUser)
 	v1Task.POST("/delete/user", taskController.DeleteManyByUser)
