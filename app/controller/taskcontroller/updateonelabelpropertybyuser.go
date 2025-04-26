@@ -32,7 +32,7 @@ func (t *taskController) UpdateOneLabelPropertyByUser(c *gin.Context) {
 
 	idUser := t.userService.GetIdUserInContext(c)
 	
-	if err := t.taskService.UpdateOneDonePropertyByUser(c, idUser, taskId); err != nil {
+	if err := t.taskService.UpdateOneLabelPropertyByUser(c, idUser, taskId, taskUpdateDto); err != nil {
 		logger.Ef("Erreur lors de la mise à jour de la tâche : %s", err.Error())
 		ginresponse.InternalServerError(c, "Erreur lors de la mise à jour de la tâche", err.Error())
 		return
