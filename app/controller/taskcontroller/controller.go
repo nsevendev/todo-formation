@@ -15,6 +15,7 @@ type taskController struct {
 type TaskControllerInterface interface {
 	Create(c *gin.Context)
 	GetAllByUser(c *gin.Context)
+	UpdateOneDonePropertyByUser(c *gin.Context)
 	DeleteOneByUser(c *gin.Context)
 	DeleteManyByUser(c *gin.Context)
 }

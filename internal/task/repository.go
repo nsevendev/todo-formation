@@ -17,6 +17,7 @@ type taskRepo struct {
 type taskRepoInterface interface {
 	Create(ctx context.Context, task *Task) error
 	GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error)
+	UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 	DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error
 }
@@ -54,6 +55,38 @@ func (t *taskRepo) GetAllByUser(ctx context.Context, idUser primitive.ObjectID) 
 	}
 
 	return tasks, nil
+}
+
+func (t *taskRepo) UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
+	filter := bson.M{"_id": idTask, "id_user": idUser}
+	
+	var task Task
+
+    if err := t.collection.FindOne(ctx, filter).Decode(&task); err != nil {
+        logger.Ef("impossible de trouver la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
+        return errors.New("aucune tâche trouvée")
+    }
+
+	update := bson.M{
+        "$set": bson.M{
+            "done": !task.Done,
+        },
+    }
+
+	result, err := t.collection.UpdateOne(ctx, filter, update)
+    if err != nil {
+        logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
+        return errors.New("impossible de mettre à jour la tâche")
+    }
+
+    if result.MatchedCount == 0 {
+        logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+        return errors.New("aucune tâche mise à jour")
+    }
+
+    logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+
+    return nil
 }
 
 func (t *taskRepo) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
