@@ -20,6 +20,10 @@ type TaskCreateDto struct {
 	Label string `json:"label" validate:"required"`
 }
 
+type TaskUpdateDto struct {
+	Label string `json:"label" validate:"required"`
+}
+
 type TaskDeleteManyDto struct {
 	Ids []string `json:"ids" validate:"required"`
 }
