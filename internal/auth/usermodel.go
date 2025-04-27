@@ -25,6 +25,10 @@ type UserCreateDto struct {
 	Role     string `json:"role" binding:"omitempty"`
 }
 
+type UserDeleteDto struct {
+	Ids []primitive.ObjectID `json:"ids" binding:"required"`
+}
+
 type UserLoginDto struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
