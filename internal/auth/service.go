@@ -24,6 +24,7 @@ type UserServiceInterface interface {
 	GetProfilCurrentUser(ctx context.Context, id primitive.ObjectID) (*User, error)
     GetIdUserInContext(ctx *gin.Context) primitive.ObjectID
     DeleteOneByUser(ctx context.Context, id primitive.ObjectID) error
+    DeleteByAdmin(ctx context.Context, ids []primitive.ObjectID) (int, error)
 }
 
 func NewUserService(userRepo userRepoInterface, jwtKey string) UserServiceInterface {
@@ -134,4 +135,17 @@ func (s *userService) DeleteOneByUser(ctx context.Context, id primitive.ObjectID
     }
 
     return nil
+}
+
+func (s *userService) DeleteByAdmin(ctx context.Context, ids []primitive.ObjectID) (int, error) {
+    deletedCount := 0
+
+    for _, id := range ids {
+        if err := s.userRepo.Delete(ctx, id); err != nil {
+            continue
+        }
+        deletedCount++
+    }
+
+    return deletedCount, nil
 }
