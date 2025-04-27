@@ -6,7 +6,7 @@ import (
 	"github.com/nsevenpack/logger/v2/logger"
 )
 
-func (u *userController) DeleteUser(c *gin.Context) {
+func (u *userController) DeleteOneByUser(c *gin.Context) {
 	idUser := u.userService.GetIdUserInContext(c)
 
 	if err := u.userService.DeleteOneByUser(c, idUser); err != nil {
