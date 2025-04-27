@@ -23,6 +23,7 @@ type UserServiceInterface interface {
 	ValidateToken(tokenString string) (*tokenClaims, error)
 	GetProfilCurrentUser(ctx context.Context, id primitive.ObjectID) (*User, error)
     GetIdUserInContext(ctx *gin.Context) primitive.ObjectID
+    DeleteOneByUser(ctx context.Context, id primitive.ObjectID) error
 }
 
 func NewUserService(userRepo userRepoInterface, jwtKey string) UserServiceInterface {
@@ -125,4 +126,12 @@ func (s *userService) GetIdUserInContext(ctx *gin.Context) primitive.ObjectID {
 	}
 
     return idUser.(primitive.ObjectID)
+}
+
+func (s *userService) DeleteOneByUser(ctx context.Context, id primitive.ObjectID) error {
+    if err := s.userRepo.Delete(ctx, id); err != nil {
+        return err
+    }
+
+    return nil
 }
