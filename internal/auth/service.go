@@ -130,7 +130,7 @@ func (s *userService) GetIdUserInContext(ctx *gin.Context) primitive.ObjectID {
 }
 
 func (s *userService) DeleteOneByUser(ctx context.Context, id primitive.ObjectID) error {
-    if err := s.userRepo.Delete(ctx, id); err != nil {
+    if _, err := s.userRepo.Delete(ctx, id); err != nil {
         return err
     }
 
@@ -141,10 +141,14 @@ func (s *userService) DeleteByAdmin(ctx context.Context, ids []primitive.ObjectI
     deletedCount := 0
 
     for _, id := range ids {
-        if err := s.userRepo.Delete(ctx, id); err != nil {
+        d, err := s.userRepo.Delete(ctx, id)
+        if err != nil {
             continue
         }
-        deletedCount++
+
+        if d == 1 {
+            deletedCount++
+        }
     }
 
     return deletedCount, nil

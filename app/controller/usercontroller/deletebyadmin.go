@@ -1,6 +1,7 @@
 package usercontroller
 
 import (
+	"fmt"
 	"todof/internal/auth"
 
 	"github.com/gin-gonic/gin"
@@ -23,5 +24,6 @@ func (u *userController) DeleteByAdmin(c *gin.Context) {
 		return
 	}
 
-	ginresponse.Success(c, "Utilisateurs supprimées avec succès", deletedCount)
+	succesMessage := fmt.Sprintf("%v utilisateurs supprimés", deletedCount)
+	ginresponse.Success(c, succesMessage, deletedCount)
 }

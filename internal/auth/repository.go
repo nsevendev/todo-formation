@@ -18,7 +18,7 @@ type userRepoInterface interface {
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	FindByID(ctx context.Context, id primitive.ObjectID) (*User, error)
 	Create(ctx context.Context, user *User) error
-	Delete(ctx context.Context, id primitive.ObjectID) error
+	Delete(ctx context.Context, id primitive.ObjectID) (int64, error)
 }
 
 func NewUserRepo(db *mongo.Database) userRepoInterface {
@@ -81,12 +81,12 @@ func (r *userRepo) Create(ctx context.Context, user *User) error {
 	return nil
 }
 
-func (r *userRepo) Delete(ctx context.Context, id primitive.ObjectID) error {
-	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
+func (r *userRepo) Delete(ctx context.Context, id primitive.ObjectID) (int64, error) {
+	result, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
 		logger.Ef("Une erreur est survenue lors de la suppression de l'utilisateur : %v", err)
-		return err
+		return 0, err
 	}
 
-	return nil
+	return result.DeletedCount, nil
 }
