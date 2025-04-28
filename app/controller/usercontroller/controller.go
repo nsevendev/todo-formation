@@ -16,6 +16,7 @@ type UserControllerInterface interface {
 	GetProfilCurrentUser(c *gin.Context)
 	DeleteOneByUser(ctx *gin.Context)
 	DeleteByAdmin(ctx *gin.Context)
+	DeleteAllByAdmin(ctx *gin.Context)
 }
 
 func NewUserController(userService auth.UserServiceInterface) UserControllerInterface {
