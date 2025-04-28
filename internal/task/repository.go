@@ -22,6 +22,7 @@ type taskRepoInterface interface {
 	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 	DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error
 	DeleteById(ctx context.Context, ids []primitive.ObjectID) error
+	DeleteAllTasks(ctx context.Context, userIDs []primitive.ObjectID) error
 }
 
 func NewTaskRepo(db *mongo.Database) taskRepoInterface {
