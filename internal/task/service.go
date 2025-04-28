@@ -83,3 +83,11 @@ func (t *taskService) DeleteManyByUser(ctx context.Context, idUser primitive.Obj
 
 	return nil
 }
+
+func (t *taskService) DeleteById(ctx context.Context, ids []primitive.ObjectID) error {
+	if err := t.taskRepo.DeleteById(ctx, ids); err != nil {
+		return err
+	}
+
+	return nil
+}
