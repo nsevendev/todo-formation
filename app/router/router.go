@@ -40,6 +40,7 @@ func Router(r *gin.Engine) {
 	v1User.POST("/login", userController.Login)
 	v1User.GET("/profil", authMiddle.RequireAuth(), userController.GetProfilCurrentUser)
 	v1User.DELETE("/profil", authMiddle.RequireAuth(), userController.DeleteOneByUser)
+	v1User.DELETE("/profil/admin", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteByAdmin)
 
 	r.NoRoute(func(ctx *gin.Context) {
 		logger.Wf("Route inconnue : %s %s", ctx.Request.Method, ctx.Request.URL.Path)

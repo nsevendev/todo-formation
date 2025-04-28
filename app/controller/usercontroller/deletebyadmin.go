@@ -8,7 +8,7 @@ import (
 	"github.com/nsevenpack/logger/v2/logger"
 )
 
-func (u *userController) DeleteManyByAdmin(c *gin.Context) {
+func (u *userController) DeleteByAdmin(c *gin.Context) {
 	var idsDto auth.UserDeleteDto
 	if err := c.ShouldBindJSON(&idsDto); err != nil {
 		logger.Ef("Erreur lors de la récupération des IDs des utilisateurs : %v", err)
