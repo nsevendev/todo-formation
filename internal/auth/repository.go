@@ -14,18 +14,37 @@ type userRepo struct {
 	collection *mongo.Collection
 }
 
-type userRepoInterface interface {
+type UserRepoInterface interface {
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	FindByID(ctx context.Context, id primitive.ObjectID) (*User, error)
 	Create(ctx context.Context, user *User) error
 	Delete(ctx context.Context, id primitive.ObjectID) (int64, error)
 	DeleteMany(ctx context.Context, filter interface{}) (int64, error)
+	FindNonAdmin(ctx context.Context) ([]User, error)
 }
 
-func NewUserRepo(db *mongo.Database) userRepoInterface {
+func NewUserRepo(db *mongo.Database) UserRepoInterface {
 	return &userRepo{
 		collection: db.Collection("users"),
 	}
+}
+
+func (r *userRepo) FindNonAdmin(ctx context.Context) ([]User, error) {
+	filter := bson.M{"role": bson.M{"$ne": "admin"}}
+	cursor, err := r.collection.Find(ctx, filter)
+	if err != nil {
+		logger.Ef("impossible de récupérer les users non-admin : %v", err)
+		return nil, errors.New("impossible de récupérer les users")
+	}
+	defer cursor.Close(ctx)
+
+	var users []User
+	if err := cursor.All(ctx, &users); err != nil {
+		logger.Ef("impossible de récupérer les users non-admin : %v", err)
+		return nil, errors.New("impossible de décoder les users")
+	}
+
+	return users, nil
 }
 
 func (r *userRepo) FindByEmail(ctx context.Context, email string) (*User, error) {

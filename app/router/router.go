@@ -21,7 +21,7 @@ func Router(r *gin.Engine) {
 	userController := usercontroller.NewUserController(userService)
 
 	taskRepo := task.NewTaskRepo(initializer.Db)
-	taskService := task.NewTaskService(taskRepo)
+	taskService := task.NewTaskService(taskRepo, userRepo)
 	taskController := taskcontroller.NewTaskController(taskService, userService)
 
 	v1 := r.Group("api/v1")

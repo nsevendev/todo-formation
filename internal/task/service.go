@@ -3,14 +3,14 @@ package task
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson"
+	"todof/internal/auth"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type taskService struct {
 	taskRepo taskRepoInterface
-	db *mongo.Database
+	userRepo auth.UserRepoInterface
 }
 
 type TaskServiceInterface interface {
@@ -24,10 +24,10 @@ type TaskServiceInterface interface {
 	DeleteAllTasks(ctx context.Context) error
 }
 
-func NewTaskService(taskRepo taskRepoInterface, db *mongo.Database) TaskServiceInterface {
+func NewTaskService(taskRepo taskRepoInterface, userRepo auth.UserRepoInterface) TaskServiceInterface {
 	return &taskService{
 		taskRepo: taskRepo,
-		db: db,
+		userRepo: userRepo,
 	}
 }
 
@@ -99,21 +99,14 @@ func (t *taskService) DeleteById(ctx context.Context, ids []primitive.ObjectID) 
 }
 
 func (t *taskService) DeleteAllTasks(ctx context.Context) error {
-	userCollection := t.db.Collection("users")
-	filter := bson.M{"role": bson.M{"$ne": "admin"}}
-	cursor, err := userCollection.Find(ctx, filter)
+	users, err := t.userRepo.FindNonAdmin(ctx)
 	if err != nil {
 		return err
 	}
-	defer cursor.Close(ctx)
-	
-	var userIDs []primitive.ObjectID
-	if err := cursor.All(ctx, &userIDs); err != nil {
-		return err
-	}
 
-	if cursor.Err() != nil {
-		return cursor.Err()
+	var userIDs []primitive.ObjectID
+	for _, user := range users {
+		userIDs = append(userIDs, user.ID)
 	}
 
 	if err := t.taskRepo.DeleteAllTasks(ctx, userIDs); err != nil {
