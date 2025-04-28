@@ -36,6 +36,7 @@ func Router(r *gin.Engine) {
 	v1Task.POST("/:id/user", taskController.DeleteOneByUser)
 	v1Task.POST("/delete/user", taskController.DeleteManyByUser)
 	v1Task.POST("/delete/tasks", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), taskController.DeleteById)
+	v1Task.DELETE("/delete/all", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), taskController.DeleteAllTasks)
 
 	v1User := v1.Group("/user")
 	v1User.POST("/register", userController.Create)

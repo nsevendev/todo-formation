@@ -14,7 +14,7 @@ import (
 )
 
 type userService struct {
-	userRepo userRepoInterface
+	userRepo UserRepoInterface
 	jwtKey   []byte
 }
 
@@ -29,7 +29,7 @@ type UserServiceInterface interface {
     DeleteAllByAdmin(ctx context.Context) (int64, error)
 }
 
-func NewUserService(userRepo userRepoInterface, jwtKey string) UserServiceInterface {
+func NewUserService(userRepo UserRepoInterface, jwtKey string) UserServiceInterface {
 	return &userService{
 		userRepo: userRepo,
 		jwtKey:   []byte(jwtKey),
