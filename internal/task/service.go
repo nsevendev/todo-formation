@@ -17,6 +17,7 @@ type TaskServiceInterface interface {
 	UpdateOneLabelPropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID, taskUpdateDto TaskUpdateLabelDto) error
 	DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
 	DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error
+	DeleteById(ctx context.Context, ids []primitive.ObjectID) error
 }
 
 func NewTaskService(taskRepo taskRepoInterface) TaskServiceInterface {
