@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nsevenpack/ginresponse"
 	"github.com/nsevenpack/logger/v2/logger"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -25,6 +26,7 @@ type UserServiceInterface interface {
     GetIdUserInContext(ctx *gin.Context) primitive.ObjectID
     DeleteOneByUser(ctx context.Context, id primitive.ObjectID) error
     DeleteByAdmin(ctx context.Context, ids []primitive.ObjectID) (int, error)
+    DeleteAllByAdmin(ctx context.Context) (int64, error)
 }
 
 func NewUserService(userRepo userRepoInterface, jwtKey string) UserServiceInterface {
@@ -151,5 +153,19 @@ func (s *userService) DeleteByAdmin(ctx context.Context, ids []primitive.ObjectI
         }
     }
 
+    return deletedCount, nil
+}
+
+func (s *userService) DeleteAllByAdmin(ctx context.Context) (int64, error) {
+    filter := bson.M{
+        "role": bson.M{
+            "$ne": "admin",
+        },
+    }
+
+    deletedCount, err := s.userRepo.DeleteMany(ctx, filter)
+    if err != nil {
+        return deletedCount, err
+    }
     return deletedCount, nil
 }
