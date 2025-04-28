@@ -39,9 +39,9 @@ func Router(r *gin.Engine) {
 	v1User.POST("/register", userController.Create)
 	v1User.POST("/login", userController.Login)
 	v1User.GET("/profil", authMiddle.RequireAuth(), userController.GetProfilCurrentUser)
-	v1User.DELETE("/profil", authMiddle.RequireAuth(), userController.DeleteOneByUser)
-	v1User.DELETE("/profil/admin", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteByAdmin)
-	v1User.DELETE("/profil/admin/all", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteAllByAdmin)
+	v1User.DELETE("/", authMiddle.RequireAuth(), userController.DeleteOneByUser)
+	v1User.DELETE("/users", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteByAdmin)
+	v1User.DELETE("/users/all", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteAllByAdmin)
 
 	r.NoRoute(func(ctx *gin.Context) {
 		logger.Wf("Route inconnue : %s %s", ctx.Request.Method, ctx.Request.URL.Path)
