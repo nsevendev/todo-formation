@@ -178,3 +178,14 @@ func (t *taskRepo) DeleteById(ctx context.Context, ids []primitive.ObjectID) err
 	logger.Sf("tâches supprimées _id: %v", ids)
 	return nil
 }
+
+func (t *taskRepo) DeleteAllTasks(ctx context.Context, userIDs []primitive.ObjectID) error {
+	_, err := t.collection.DeleteMany(ctx, bson.M{"id_user": bson.M{"$in": userIDs}})
+	if err != nil {
+		logger.Ef("impossible de supprimer les tâches pour les users: %v", userIDs)
+		return errors.New("impossible de supprimer les tâches")
+	}
+
+	return nil
+}
+
