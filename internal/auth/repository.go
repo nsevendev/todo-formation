@@ -18,6 +18,8 @@ type userRepoInterface interface {
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	FindByID(ctx context.Context, id primitive.ObjectID) (*User, error)
 	Create(ctx context.Context, user *User) error
+	Delete(ctx context.Context, id primitive.ObjectID) (int64, error)
+	DeleteMany(ctx context.Context, filter interface{}) (int64, error)
 }
 
 func NewUserRepo(db *mongo.Database) userRepoInterface {
@@ -78,4 +80,24 @@ func (r *userRepo) Create(ctx context.Context, user *User) error {
 
 	user.ID = result.InsertedID.(primitive.ObjectID)
 	return nil
+}
+
+func (r *userRepo) Delete(ctx context.Context, id primitive.ObjectID) (int64, error) {
+	result, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		logger.Ef("Une erreur est survenue lors de la suppression de l'utilisateur : %v", err)
+		return 0, err
+	}
+
+	return result.DeletedCount, nil
+}
+
+func (r *userRepo) DeleteMany(ctx context.Context, filter interface{}) (int64, error) {
+    result, err := r.collection.DeleteMany(ctx, filter)
+    if err != nil {
+		logger.Ef("Une erreur est survenue lors de la suppression des utilisateurs : %v", err)
+        return 0, err
+    }
+
+    return result.DeletedCount, nil
 }
