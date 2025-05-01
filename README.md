@@ -1,27 +1,21 @@
 # Todo Formation  
 
-- petit api de gestion de todo
+- petit api de gestion de tâches
 
 ## Prérequis
 
-- docker, docker compose
-- cli `ns` pour la gestion des containers
-- `traefik nseven` qui tourne 
+- `docker`, `docker compose`  
+- `make`  
+- `traefik nseven` qui tourne  
+- copier coller `.env.dist` en `.env`, renseigner les variables d'environnement  
+- définissez la variable `APP_ENV` avec `dev` ou `prod` en fonction de l'environnement souhaité  
+  (par defaut `dev`)
 
-## Installation/Demarrage des containers dev
+## Demarrage/Arrêt des containers
 
-- copier coller `.env.dist` en `.env`, renseigner les variables d'environnement
-- lancer la commande `ns c dev`à l'aide du CLI `ns` l'application est démarrée
-ou utiliser les commandes docker traditionnelles (mais n'oubliez pas de specifier le env file)
+- Lancer la commande `make up` pour demarrer les containers
+- Arrêter les containers avec `make down`
 
-## Arreter les containers
+## Voir toutes les commandes disponibles  
 
-- utiliser le CLI `ns` pour arreter les containers, commande `ns d <namecontainer>...`  
-ou tous autre commande docker
-
-## Commande disponible  
-
-- avec le CLI `ns` vous pouvez executer des commandes specifique au projet  
-pour afficher cette liste tapez `ns c list`
-
-## Installation/Demarrage des containers prod
+- voir les commandes disponible taper `make` dans le terminal

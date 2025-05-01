@@ -1,11 +1,11 @@
 services:
-  todof-go:
+  todof-go-prod:
     build:
-      target: dev
+      target: prod
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: todof-go
-    image: todof-go:dev
+    container_name: todof-go-prod
+    image: todof-go:prod
     volumes:
       - ../:/app
     env_file:
@@ -14,14 +14,14 @@ services:
       - traefik-nseven
       - todof
     depends_on:
-      - todof-db
+      - todof-db-prod
 
-  todof-db:
+  todof-db-prod:
     image: mongo:7
-    container_name: todof-db
+    container_name: todof-db-prod
     restart: unless-stopped
     volumes:
-      - todof-db-data:/data/db
+      - todof-db-prod-data:/data/db
       - ../docker/mongo-init:/docker-entrypoint-initdb.d
     networks:
       - traefik-nseven
@@ -34,4 +34,4 @@ networks:
     driver: bridge
 
 volumes:
-  todof-db-data:
+  todof-db-prod-data:
