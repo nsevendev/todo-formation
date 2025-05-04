@@ -7,6 +7,10 @@ ifeq ($(APP_ENV),dev)
   CONTAINER_NAME := todof-go
   CONTAINER_NAME_DB := todof-db
   COMPOSE_FILES := -f docker/compose.yaml -f docker/compose.override.yaml
+else ifeq ($(APP_ENV),preprod)
+  CONTAINER_NAME := todof-go-preprod
+  CONTAINER_NAME_DB := todof-db-preprod
+  COMPOSE_FILES := -f docker/compose.preprod.yaml
 else ifeq ($(APP_ENV),prod)
   CONTAINER_NAME := todof-go-prod
   CONTAINER_NAME_DB := todof-db-prod

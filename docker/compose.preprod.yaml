@@ -1,0 +1,46 @@
+name: todof-preprod
+services:
+  todof-go-preprod:
+    build:
+      target: prod
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: todof-go-preprod
+    image: todof:preprod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-nseven"
+      - "traefik.http.routers.todof-go-preprod.rule=${HOST_TRAEFIK}"
+      - "traefik.http.routers.todof-go-preprod.entrypoints=websecure"
+      - "traefik.http.routers.todof-go-preprod.tls=true"
+      - "traefik.http.routers.todof-go-preprod.tls.certresolver=le"
+      - "traefik.http.services.todof-go-preprod.loadbalancer.server.port=${PORT}"
+    volumes:
+      - ../:/app
+    env_file:
+      - ../.env
+    networks:
+      - traefik-nseven
+      - todof
+    depends_on:
+      - todof-db-preprod
+
+  todof-db-preprod:
+    image: mongo:7
+    container_name: todof-db-preprod
+    restart: unless-stopped
+    volumes:
+      - todof-db-preprod-data:/data/db
+      - ../docker/mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - traefik-nseven
+      - todof
+
+networks:
+  traefik-nseven:
+    external: true
+  todof:
+    driver: bridge
+
+volumes:
+  todof-db-preprod-data:
