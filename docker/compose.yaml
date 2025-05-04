@@ -1,3 +1,4 @@
+name: todof
 services:
   todof-go:
     build:
