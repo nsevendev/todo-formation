@@ -1,21 +1,8 @@
 # Todo Formation  
 
-- petit api de gestion de tâches
+- api simple de gestion de tâches
 
-## Prérequis
+## Commandes  
 
-- `docker`, `docker compose`  
-- `make`  
-- `traefik nseven` qui tourne  
-- copier coller `.env.dist` en `.env`, renseigner les variables d'environnement  
-- définissez la variable `APP_ENV` avec `dev` ou `prod` en fonction de l'environnement souhaité  
-  (par defaut `dev`)
-
-## Demarrage/Arrêt des containers
-
-- Lancer la commande `make up` pour demarrer les containers
-- Arrêter les containers avec `make down`
-
-## Voir toutes les commandes disponibles  
-
-- voir les commandes disponible taper `make` dans le terminal
+- instruction d'installation taper `make install`
+- voir les commandes disponible taper `make`
