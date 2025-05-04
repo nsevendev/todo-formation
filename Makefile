@@ -14,7 +14,7 @@ else ifeq ($(APP_ENV),prod)
 endif
 
 # Variables
-GO_CONTAINER := docker exec -i $(CONTAINER_NAME) go
+GO_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) go
 BASH_CONTAINER := docker exec -it $(CONTAINER_NAME) sh
 BASH_CONTAINER_DB := docker exec -it $(CONTAINER_NAME_DB) sh
 
@@ -30,28 +30,31 @@ install: ## Instruction pour installer le projet
 
 ## —— 🐳 CONTAINER 🐳 ——————————————————————————————————
 
-up: ## Démarre l'environnement de développement
+## Attention définisser l'environement avec APP_ENV=dev ou APP_ENV=prod
+## dans le .env
+
+up: ## Démarre l'environnement
 	docker compose --env-file .env $(COMPOSE_FILES) up -d
 
-upb: ## Démarre l'environnement de développement avec build
+upb: ## Démarre l'environnement avec build
 	docker compose --env-file .env $(COMPOSE_FILES) up -d --build
 
-upbnod: ## Démarre l'environnement de développement sans mode détaché et avec build
+upbnod: ## Démarre l'environnement sans mode détaché et avec build
 	docker compose --env-file .env $(COMPOSE_FILES) up --build
 
-down: ## Arrête les conteneurs de développement
+down: ## Arrête les conteneurs
 	docker compose --env-file .env $(COMPOSE_FILES) down
 
 ## —— 🐳 TOOl 🐳 ——————————————————————————————————
 
 cm: ## Crée un fichier pour la migration - usage: make cm file=nom_du_fichier
-	$(GO_CONTAINER) run mod/migratormongodb/bin/createfilemigration.go $(file)
+	$(GO_COMMAND_CONTAINER) run mod/migratormongodb/bin/createfilemigration.go $(file)
 
 tidy: ## Exécute go mod tidy pour nettoyer les dépendances
-	$(GO_CONTAINER) mod tidy
+	$(GO_COMMAND_CONTAINER) mod tidy
 
 gg: ## Ajoute une dépendance - usage: make gg dep=path_de_la_dependance
-	$(GO_CONTAINER) get $(dep)
+	$(GO_COMMAND_CONTAINER) get $(dep)
 
 s: ## Ouvre un shell dans le conteneur app
 	$(BASH_CONTAINER)
