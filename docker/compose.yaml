@@ -6,7 +6,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: todof-go
-    image: todof-go:dev
+    image: todof:dev
     volumes:
       - ../:/app
     env_file:

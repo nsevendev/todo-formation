@@ -1,4 +1,4 @@
-# Install
+# Lancement de l'environnement
 
 ## Prérequis
 
@@ -6,7 +6,7 @@
 - `make`
 - `traefik nseven` qui tourne
 - copier coller `.env.dist` en `.env`, renseigner les variables d'environnement
-- définissez la variable `APP_ENV` avec `dev` ou `prod` en fonction de l'environnement souhaité  
+- définissez la variable `APP_ENV` avec `dev`, `prod`, `preprod` en fonction de l'environnement souhaité  
   (par defaut `dev`)
 
 ## Demarrage/Arrêt des containers

@@ -4,5 +4,5 @@
 
 ## Commandes  
 
-- instruction d'installation taper `make install`
+- instruction d'installation taper `make starter`
 - voir les commandes disponible taper `make`

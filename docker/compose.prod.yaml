@@ -1,3 +1,4 @@
+name: todof-prod
 services:
   todof-go-prod:
     build:
@@ -5,7 +6,15 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: todof-go-prod
-    image: todof-go:prod
+    image: todof:prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-nseven"
+      - "traefik.http.routers.todof-go-prod.rule=${HOST_TRAEFIK}"
+      - "traefik.http.routers.todof-go-prod.entrypoints=websecure"
+      - "traefik.http.routers.todof-go-prod.tls=true"
+      - "traefik.http.routers.todof-go-prod.tls.certresolver=le"
+      - "traefik.http.services.todof-go-prod.loadbalancer.server.port=${PORT}"
     volumes:
       - ../:/app
     env_file:
