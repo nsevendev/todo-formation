@@ -24,6 +24,8 @@ func Router(r *gin.Engine) {
 	taskService := task.NewTaskService(taskRepo, userRepo)
 	taskController := taskcontroller.NewTaskController(taskService, userService)
 
+	// terms
+
 	v1 := r.Group("api/v1")
 
 	v1Task := v1.Group("/task")
@@ -45,6 +47,9 @@ func Router(r *gin.Engine) {
 	v1User.DELETE("/", authMiddle.RequireAuth(), userController.DeleteOneByUser)
 	v1User.DELETE("/users", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteByAdmin)
 	v1User.DELETE("/users/all", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteAllByAdmin)
+
+	v1Terms := v1.Group("/terms")
+	v1Terms.GET("/", termsController.GetAll)
 
 	r.NoRoute(func(ctx *gin.Context) {
 		logger.Wf("Route inconnue : %s %s", ctx.Request.Method, ctx.Request.URL.Path)
