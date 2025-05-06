@@ -15,6 +15,57 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/task": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Création d’une nouvelle task pour l'utilisateur connecté",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Créer une task",
+                "parameters": [
+                    {
+                        "description": "DTO de création de la task",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Tâche créée avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalide token",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "delete": {
                 "security": [
@@ -226,6 +277,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "task.TaskCreateDto": {
+            "type": "object",
+            "required": [
+                "label"
+            ],
+            "properties": {
+                "label": {
                     "type": "string"
                 }
             }

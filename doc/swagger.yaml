@@ -36,6 +36,13 @@ definitions:
       message:
         type: string
     type: object
+  task.TaskCreateDto:
+    properties:
+      label:
+        type: string
+    required:
+    - label
+    type: object
 host: todof.local
 info:
   contact: {}
@@ -45,6 +52,38 @@ info:
   title: API todo-formation
   version: "1.0"
 paths:
+  /task:
+    post:
+      consumes:
+      - application/json
+      description: Création d’une nouvelle task pour l'utilisateur connecté
+      parameters:
+      - description: DTO de création de la task
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/task.TaskCreateDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Tâche créée avec succès
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Invalide token
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Créer une task
+      tags:
+      - task
   /user:
     delete:
       description: Supprime l'utilisateur connecté via le token utilisé dans le header
