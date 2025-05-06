@@ -71,3 +71,6 @@ l: ## Affiche les logs du conteneur app
 
 ldb: ## Affiche les logs du conteneur database
 	docker logs -f $(CONTAINER_NAME_DB)
+
+swagger: ## Génère la doc swagger
+	$(GO_COMMAND_CONTAINER) run swag init cmd/main.go doc
