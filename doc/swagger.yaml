@@ -1,9 +1,63 @@
 basePath: /api/v1
+definitions:
+  auth.UserCreateDto:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  doc.ErrorModel:
+    properties:
+      data:
+        type: string
+      error:
+        type: string
+      message:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: Une API pour créer des todo avec utilisateurs
   title: API todo-formation
   version: "1.0"
-paths: {}
+paths:
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Création d’un nouvel utilisateur
+      parameters:
+      - description: DTO d'inscription utilisateur
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.UserCreateDto'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: "1"
+        "400":
+          description: Erreur de validation
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+      summary: Créer un utilisateur
+      tags:
+      - user
 swagger: "2.0"
