@@ -36,7 +36,7 @@ definitions:
       message:
         type: string
     type: object
-host: localhost:8080
+host: todof.local
 info:
   contact: {}
   description: Une API pour créer des todo avec utilisateurs

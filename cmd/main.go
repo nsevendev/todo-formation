@@ -14,7 +14,7 @@ import (
 // @title API todo-formation
 // @version 1.0
 // @description Une API pour créer des todo avec utilisateurs
-// @host localhost:8080
+// @host todof.local
 // @BasePath /api/v1
 func main() {
 	s := gin.Default()
