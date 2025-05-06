@@ -1,0 +1,9 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact: {}
+  description: Une API pour créer des todo avec utilisateurs
+  title: API todo-formation
+  version: "1.0"
+paths: {}
+swagger: "2.0"

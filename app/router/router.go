@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/ginresponse"
 	"github.com/nsevenpack/logger/v2/logger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Router(r *gin.Engine) {
@@ -23,6 +25,8 @@ func Router(r *gin.Engine) {
 	taskRepo := task.NewTaskRepo(initializer.Db)
 	taskService := task.NewTaskService(taskRepo, userRepo)
 	taskController := taskcontroller.NewTaskController(taskService, userService)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	v1 := r.Group("api/v1")
 

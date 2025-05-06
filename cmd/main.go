@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 	"todof/app/router"
-	_ "todof/doc/docs"
+	_ "todof/doc"
 	_ "todof/internal/init"
 
 	"github.com/gin-gonic/gin"
