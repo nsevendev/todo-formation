@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/user": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime l'utilisateur connecté via le token utilisé dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Supprime l'utilisateur connecté",
+                "responses": {
+                    "204": {
+                        "description": "1"
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/user/login": {
             "post": {
                 "description": "Authentification d’un utilisateur",
@@ -43,19 +77,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Connexion réussie",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     },
                     "400": {
                         "description": "Erreur de validation",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     },
                     "500": {
                         "description": "Erreur d'authentification",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     }
                 }
@@ -68,10 +102,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Récupére le profil de l'utilisateur connecté via le token utilisé dans le header (pour try out : clique sur le cadenas, puis tape Bearer \"ton token\")",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Récupére le profil de l'utilisateur connecté via le token utilisé dans le header",
                 "produces": [
                     "application/json"
                 ],
@@ -83,19 +114,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Profil utilisateur récupéré avec succès",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     },
                     "401": {
                         "description": "Invalide token",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     },
                     "500": {
                         "description": "Erreur interne",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     }
                 }
@@ -132,13 +163,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Erreur de validation",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     },
                     "500": {
                         "description": "Erreur interne",
                         "schema": {
-                            "$ref": "#/definitions/doc.ErrorModel"
+                            "$ref": "#/definitions/doc.ResponseModel"
                         }
                     }
                 }
@@ -185,7 +216,7 @@ const docTemplate = `{
                 }
             }
         },
-        "doc.ErrorModel": {
+        "doc.ResponseModel": {
             "type": "object",
             "properties": {
                 "data": {
@@ -216,7 +247,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "API todo-formation",
-	Description:      "Une API pour créer des todo avec utilisateurs",
+	Description:      "Une API pour créer des todo avec utilisateurs. Pour tester les routes protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token} (remplacez {votre token} par un token valide obtenu via la route /user/login).",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

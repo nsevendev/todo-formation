@@ -17,8 +17,8 @@ import (
 // @Produce json
 // @Param user body auth.UserCreateDto true "DTO d'inscription utilisateur"
 // @Success 204 "1"
-// @Failure 400 {object} doc.ErrorModel "Erreur de validation"
-// @Failure 500 {object} doc.ErrorModel "Erreur interne"
+// @Failure 400 {object} doc.ResponseModel "Erreur de validation"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
 // @Router /user/register [post]
 func (u *userController) Create(c *gin.Context) {
 	var userCreateDto auth.UserCreateDto

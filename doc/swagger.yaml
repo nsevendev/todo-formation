@@ -27,7 +27,7 @@ definitions:
     - email
     - password
     type: object
-  doc.ErrorModel:
+  doc.ResponseModel:
     properties:
       data:
         type: string
@@ -39,10 +39,33 @@ definitions:
 host: todof.local
 info:
   contact: {}
-  description: Une API pour créer des todo avec utilisateurs
+  description: 'Une API pour créer des todo avec utilisateurs. Pour tester les routes
+    protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token}
+    (remplacez {votre token} par un token valide obtenu via la route /user/login).'
   title: API todo-formation
   version: "1.0"
 paths:
+  /user:
+    delete:
+      description: Supprime l'utilisateur connecté via le token utilisé dans le header
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: "1"
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime l'utilisateur connecté
+      tags:
+      - user
   /user/login:
     post:
       consumes:
@@ -61,40 +84,37 @@ paths:
         "200":
           description: Connexion réussie
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
         "400":
           description: Erreur de validation
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
         "500":
           description: Erreur d'authentification
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
       summary: Authentifier un utilisateur
       tags:
       - user
   /user/profil:
     get:
-      consumes:
-      - application/json
-      description: 'Récupére le profil de l''utilisateur connecté via le token utilisé
-        dans le header (pour try out : clique sur le cadenas, puis tape Bearer "ton
-        token")'
+      description: Récupére le profil de l'utilisateur connecté via le token utilisé
+        dans le header
       produces:
       - application/json
       responses:
         "200":
           description: Profil utilisateur récupéré avec succès
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
         "401":
           description: Invalide token
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
       security:
       - BearerAuth: []
       summary: Récupérer le profil de l'utilisateur connecté
@@ -120,11 +140,11 @@ paths:
         "400":
           description: Erreur de validation
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ErrorModel'
+            $ref: '#/definitions/doc.ResponseModel'
       summary: Créer un utilisateur
       tags:
       - user

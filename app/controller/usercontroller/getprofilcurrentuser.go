@@ -7,16 +7,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// GetProfil godoc
+// GetProfilCurrentUser godoc
 // @Summary Récupérer le profil de l'utilisateur connecté
-// @Description Récupére le profil de l'utilisateur connecté via le token utilisé dans le header (pour try out : clique sur le cadenas, puis tape Bearer "ton token")
+// @Description Récupére le profil de l'utilisateur connecté via le token utilisé dans le header
 // @Tags user
-// @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} doc.ErrorModel "Profil utilisateur récupéré avec succès"
-// @Failure 401 {object} doc.ErrorModel "Invalide token"
-// @Failure 500 {object} doc.ErrorModel "Erreur interne"
+// @Success 200 {object} doc.ResponseModel "Profil utilisateur récupéré avec succès"
+// @Failure 401 {object} doc.ResponseModel "Invalide token"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
 // @Router /user/profil [get]
 func (u *userController) GetProfilCurrentUser(c *gin.Context) {
 	idUser, exists := c.Get("id_user")

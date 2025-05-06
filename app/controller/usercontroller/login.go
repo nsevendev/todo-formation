@@ -16,9 +16,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param user body auth.UserLoginDto true "DTO d'authentification utilisateur"
-// @Success 200 {object} doc.ErrorModel "Connexion réussie"
-// @Failure 400 {object} doc.ErrorModel "Erreur de validation"
-// @Failure 500 {object} doc.ErrorModel "Erreur d'authentification"
+// @Success 200 {object} doc.ResponseModel "Connexion réussie"
+// @Failure 400 {object} doc.ResponseModel "Erreur de validation"
+// @Failure 500 {object} doc.ResponseModel "Erreur d'authentification"
 // @Router /user/login [post]
 func (u *userController) Login(c *gin.Context) {
 	var userLoginDto auth.UserLoginDto
