@@ -16,6 +16,9 @@ import (
 // @description Une API pour créer des todo avec utilisateurs
 // @host todof.local
 // @BasePath /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	s := gin.Default()
 	defer logger.Close()

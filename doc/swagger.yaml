@@ -73,6 +73,33 @@ paths:
       summary: Authentifier un utilisateur
       tags:
       - user
+  /user/profil:
+    get:
+      consumes:
+      - application/json
+      description: 'Récupére le profil de l''utilisateur connecté via le token utilisé
+        dans le header (pour try out : clique sur le cadenas, puis tape Bearer "ton
+        token")'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profil utilisateur récupéré avec succès
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+        "401":
+          description: Invalide token
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+      security:
+      - BearerAuth: []
+      summary: Récupérer le profil de l'utilisateur connecté
+      tags:
+      - user
   /user/register:
     post:
       consumes:
@@ -101,4 +128,9 @@ paths:
       summary: Créer un utilisateur
       tags:
       - user
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -55,6 +55,46 @@
                 }
             }
         },
+        "/user/profil": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Récupére le profil de l'utilisateur connecté via le token utilisé dans le header (pour try out : clique sur le cadenas, puis tape Bearer \"ton token\")",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Récupérer le profil de l'utilisateur connecté",
+                "responses": {
+                    "200": {
+                        "description": "Profil utilisateur récupéré avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ErrorModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalide token",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ErrorModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ErrorModel"
+                        }
+                    }
+                }
+            }
+        },
         "/user/register": {
             "post": {
                 "description": "Création d’un nouvel utilisateur",
@@ -152,6 +192,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
