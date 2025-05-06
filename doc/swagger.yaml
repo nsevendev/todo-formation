@@ -16,6 +16,17 @@ definitions:
     - password
     - username
     type: object
+  auth.UserLoginDto:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
   doc.ErrorModel:
     properties:
       data:
@@ -32,6 +43,36 @@ info:
   title: API todo-formation
   version: "1.0"
 paths:
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Authentification d’un utilisateur
+      parameters:
+      - description: DTO d'authentification utilisateur
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.UserLoginDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Connexion réussie
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+        "400":
+          description: Erreur de validation
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+        "500":
+          description: Erreur d'authentification
+          schema:
+            $ref: '#/definitions/doc.ErrorModel'
+      summary: Authentifier un utilisateur
+      tags:
+      - user
   /user/register:
     post:
       consumes:

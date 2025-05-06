@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/user/login": {
+            "post": {
+                "description": "Authentification d’un utilisateur",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Authentifier un utilisateur",
+                "parameters": [
+                    {
+                        "description": "DTO d'authentification utilisateur",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserLoginDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Connexion réussie",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ErrorModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur de validation",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ErrorModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur d'authentification",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ErrorModel"
+                        }
+                    }
+                }
+            }
+        },
         "/user/register": {
             "post": {
                 "description": "Création d’un nouvel utilisateur",
@@ -80,6 +126,22 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "auth.UserLoginDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
                 }
             }
         },
