@@ -109,6 +109,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/task/delete/tasks": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime la ou les tâche(s) indiqué par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime une ou plusieurs tâche(s) spécifique par un admin",
+                "parameters": [
+                    {
+                        "description": "Ids des tâches à supprimer",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskDeleteManyDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "X tâches supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/task/delete/user": {
             "post": {
                 "security": [

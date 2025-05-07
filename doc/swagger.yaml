@@ -235,6 +235,41 @@ paths:
       summary: Supprime les tâches par un admin
       tags:
       - admin
+  /task/delete/tasks:
+    post:
+      description: Supprime la ou les tâche(s) indiqué par un utilisateur avec role
+        = admin
+      parameters:
+      - description: Ids des tâches à supprimer
+        in: body
+        name: ids
+        required: true
+        schema:
+          $ref: '#/definitions/task.TaskDeleteManyDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: X tâches supprimés
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime une ou plusieurs tâche(s) spécifique par un admin
+      tags:
+      - admin
   /task/delete/user:
     post:
       description: Supprime la ou les task(s) indiqué de l'utilisateur authentifié
