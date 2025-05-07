@@ -84,6 +84,36 @@ paths:
       summary: Créer une task
       tags:
       - task
+  /task/{id}/user:
+    delete:
+      description: Supprime la task indiqué de l'utilisateur authentifié via le token
+        dans le header
+      parameters:
+      - description: ID de la task à supprimer
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tâche supprimée avec succès
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime supprime une task spécifique de l'utilisateur connecté
+      tags:
+      - task
   /user:
     delete:
       description: Supprime l'utilisateur connecté via le token utilisé dans le header

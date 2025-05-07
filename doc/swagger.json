@@ -60,6 +60,52 @@
                 }
             }
         },
+        "/task/{id}/user": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime la task indiqué de l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Supprime supprime une task spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la task à supprimer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tâche supprimée avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "get": {
                 "security": [
