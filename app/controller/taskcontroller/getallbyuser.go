@@ -7,6 +7,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// GetAllByUser godoc
+// @Summary Récupérer toutes les tasks de l'utilisateur connecté
+// @Description Récupére les tasks crée par l'utilisateur authentifié via le token dans le header
+// @Tags task
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} doc.ResponseModel "Tâches récupérées avec succès"
+// @Failure 401 {object} doc.ResponseModel "Invalide token"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /user [get]
 func (t *taskController) GetAllByUser(c *gin.Context) {
 	idUser, exists := c.Get("id_user")
 	if !exists {
