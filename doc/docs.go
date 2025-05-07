@@ -73,40 +73,34 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Supprime le ou les user(s) indiqué par un utilisateur avec role = admin",
+                "description": "Supprime la ou les task(s) indiqué de l'utilisateur authentifié via le token dans le header",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "admin"
+                    "task"
                 ],
-                "summary": "Supprime un ou plusieurs user(s) spécifique par un admin",
+                "summary": "Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté",
                 "parameters": [
                     {
-                        "description": "Ids des users à supprimer",
+                        "description": "Ids des tasks à supprimer",
                         "name": "ids",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.UserDeleteDto"
+                            "$ref": "#/definitions/task.TaskDeleteManyDto"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "X utilisateurs supprimés",
+                        "description": "Les tâches ont été supprimées avec succès",
                         "schema": {
                             "$ref": "#/definitions/doc.ResponseModel"
                         }
                     },
                     "401": {
                         "description": "Token invalide",
-                        "schema": {
-                            "$ref": "#/definitions/doc.ResponseModel"
-                        }
-                    },
-                    "403": {
-                        "description": "Insufficient permissions",
                         "schema": {
                             "$ref": "#/definitions/doc.ResponseModel"
                         }
@@ -452,6 +446,103 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Erreur de validation",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/users": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime le ou les utilisateur(s) indiqué par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime un ou plusieurs utilisateur(s) spécifique par un admin",
+                "parameters": [
+                    {
+                        "description": "Ids des utilisateurs à supprimer",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserDeleteDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "X utilisateurs supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/users/all": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime les utilisateurs par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime les utilisateurs par un admin",
+                "responses": {
+                    "200": {
+                        "description": "X utilisateurs supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
                         "schema": {
                             "$ref": "#/definitions/doc.ResponseModel"
                         }

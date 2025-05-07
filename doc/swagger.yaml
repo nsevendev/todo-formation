@@ -210,28 +210,24 @@ paths:
       - task
   /task/delete/user:
     post:
-      description: Supprime le ou les user(s) indiqué par un utilisateur avec role
-        = admin
+      description: Supprime la ou les task(s) indiqué de l'utilisateur authentifié
+        via le token dans le header
       parameters:
-      - description: Ids des users à supprimer
+      - description: Ids des tasks à supprimer
         in: body
         name: ids
         required: true
         schema:
-          $ref: '#/definitions/auth.UserDeleteDto'
+          $ref: '#/definitions/task.TaskDeleteManyDto'
       produces:
       - application/json
       responses:
         "200":
-          description: X utilisateurs supprimés
+          description: Les tâches ont été supprimées avec succès
           schema:
             $ref: '#/definitions/doc.ResponseModel'
         "401":
           description: Token invalide
-          schema:
-            $ref: '#/definitions/doc.ResponseModel'
-        "403":
-          description: Insufficient permissions
           schema:
             $ref: '#/definitions/doc.ResponseModel'
         "500":
@@ -240,9 +236,9 @@ paths:
             $ref: '#/definitions/doc.ResponseModel'
       security:
       - BearerAuth: []
-      summary: Supprime un ou plusieurs user(s) spécifique par un admin
+      summary: Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté
       tags:
-      - admin
+      - task
   /user:
     delete:
       description: Supprime l'utilisateur connecté via le token utilisé dans le header
@@ -369,6 +365,68 @@ paths:
       summary: Créer un utilisateur
       tags:
       - user
+  /user/users:
+    post:
+      description: Supprime le ou les utilisateur(s) indiqué par un utilisateur avec
+        role = admin
+      parameters:
+      - description: Ids des utilisateurs à supprimer
+        in: body
+        name: ids
+        required: true
+        schema:
+          $ref: '#/definitions/auth.UserDeleteDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: X utilisateurs supprimés
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime un ou plusieurs utilisateur(s) spécifique par un admin
+      tags:
+      - admin
+  /user/users/all:
+    delete:
+      description: Supprime les utilisateurs par un utilisateur avec role = admin
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: X utilisateurs supprimés
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime les utilisateurs par un admin
+      tags:
+      - admin
 securityDefinitions:
   BearerAuth:
     in: headers

@@ -10,17 +10,17 @@ import (
 )
 
 // DeleteByAdmin godoc
-// @Summary Supprime un ou plusieurs user(s) spécifique par un admin
-// @Description Supprime le ou les user(s) indiqué par un utilisateur avec role = admin
+// @Summary Supprime un ou plusieurs utilisateur(s) spécifique par un admin
+// @Description Supprime le ou les utilisateur(s) indiqué par un utilisateur avec role = admin
 // @Tags admin
 // @Security BearerAuth
 // @Produce json
-// @Param ids body auth.UserDeleteDto true "Ids des users à supprimer"
+// @Param ids body auth.UserDeleteDto true "Ids des utilisateurs à supprimer"
 // @Success 200 {object} doc.ResponseModel "X utilisateurs supprimés"
 // @Failure 401 {object} doc.ResponseModel "Token invalide"
 // @Failure 403 {object} doc.ResponseModel "Insufficient permissions"
 // @Failure 500 {object} doc.ResponseModel "Erreur interne"
-// @Router /task/delete/user [post]
+// @Router /user/users [post]
 func (u *userController) DeleteByAdmin(c *gin.Context) {
 	var idsDto auth.UserDeleteDto
 	if err := c.ShouldBindJSON(&idsDto); err != nil {
