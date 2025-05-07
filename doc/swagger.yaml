@@ -16,6 +16,15 @@ definitions:
     - password
     - username
     type: object
+  auth.UserDeleteDto:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    required:
+    - ids
+    type: object
   auth.UserLoginDto:
     properties:
       email:
@@ -201,24 +210,28 @@ paths:
       - task
   /task/delete/user:
     post:
-      description: Supprime la ou les task(s) indiqué de l'utilisateur authentifié
-        via le token dans le header
+      description: Supprime le ou les user(s) indiqué par un utilisateur avec role
+        = admin
       parameters:
-      - description: Ids des tasks à supprimer
+      - description: Ids des users à supprimer
         in: body
         name: ids
         required: true
         schema:
-          $ref: '#/definitions/task.TaskDeleteManyDto'
+          $ref: '#/definitions/auth.UserDeleteDto'
       produces:
       - application/json
       responses:
         "200":
-          description: Les tâches ont été supprimées avec succès
+          description: X utilisateurs supprimés
           schema:
             $ref: '#/definitions/doc.ResponseModel'
         "401":
           description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "403":
+          description: Insufficient permissions
           schema:
             $ref: '#/definitions/doc.ResponseModel'
         "500":
@@ -227,9 +240,9 @@ paths:
             $ref: '#/definitions/doc.ResponseModel'
       security:
       - BearerAuth: []
-      summary: Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté
+      summary: Supprime un ou plusieurs user(s) spécifique par un admin
       tags:
-      - task
+      - admin
   /user:
     delete:
       description: Supprime l'utilisateur connecté via le token utilisé dans le header
