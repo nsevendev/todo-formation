@@ -8,7 +8,7 @@ import (
 )
 
 // DeleteOneByUser godoc
-// @Summary Supprime supprime une task spécifique de l'utilisateur connecté
+// @Summary Supprime une task spécifique de l'utilisateur connecté
 // @Description Supprime la task indiqué de l'utilisateur authentifié via le token dans le header
 // @Tags task
 // @Security BearerAuth

@@ -66,6 +66,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/task/{id}/done/user": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Met à jour la propriété ` + "`" + `done` + "`" + ` de la task indiquée appartenant à l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Met à jour la propriété done d'une task spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la task à modifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tâche mise à jour avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/task/{id}/label/user": {
             "put": {
                 "security": [
@@ -83,7 +129,7 @@ const docTemplate = `{
                 "tags": [
                     "task"
                 ],
-                "summary": "Met à jour uniquement le label d'une task spécifique de l'utilisateur connecté",
+                "summary": "Met à jour le label d'une task spécifique de l'utilisateur connecté",
                 "parameters": [
                     {
                         "type": "string",
@@ -138,7 +184,7 @@ const docTemplate = `{
                 "tags": [
                     "task"
                 ],
-                "summary": "Supprime supprime une task spécifique de l'utilisateur connecté",
+                "summary": "Supprime une task spécifique de l'utilisateur connecté",
                 "parameters": [
                     {
                         "type": "string",

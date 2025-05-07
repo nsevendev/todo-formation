@@ -11,7 +11,7 @@ import (
 )
 
 // UpdateOneLabelPropertyByUser godoc
-// @Summary Met à jour uniquement le label d'une task spécifique de l'utilisateur connecté
+// @Summary Met à jour le label d'une task spécifique de l'utilisateur connecté
 // @Description Met à jour la propriété `label` de la task indiquée appartenant à l'utilisateur authentifié via le token dans le header
 // @Tags task
 // @Security BearerAuth

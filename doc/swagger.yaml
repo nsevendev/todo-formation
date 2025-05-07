@@ -91,6 +91,37 @@ paths:
       summary: Créer une task
       tags:
       - task
+  /task/{id}/done/user:
+    put:
+      description: Met à jour la propriété `done` de la task indiquée appartenant
+        à l'utilisateur authentifié via le token dans le header
+      parameters:
+      - description: ID de la task à modifier
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tâche mise à jour avec succès
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Met à jour la propriété done d'une task spécifique de l'utilisateur
+        connecté
+      tags:
+      - task
   /task/{id}/label/user:
     put:
       consumes:
@@ -126,8 +157,7 @@ paths:
             $ref: '#/definitions/doc.ResponseModel'
       security:
       - BearerAuth: []
-      summary: Met à jour uniquement le label d'une task spécifique de l'utilisateur
-        connecté
+      summary: Met à jour le label d'une task spécifique de l'utilisateur connecté
       tags:
       - task
   /task/{id}/user:
@@ -157,7 +187,7 @@ paths:
             $ref: '#/definitions/doc.ResponseModel'
       security:
       - BearerAuth: []
-      summary: Supprime supprime une task spécifique de l'utilisateur connecté
+      summary: Supprime une task spécifique de l'utilisateur connecté
       tags:
       - task
   /user:
