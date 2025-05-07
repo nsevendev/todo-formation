@@ -208,6 +208,33 @@ paths:
       summary: Supprime une task spécifique de l'utilisateur connecté
       tags:
       - task
+  /task/delete/all:
+    delete:
+      description: Supprime les tâches par un utilisateur avec role = admin
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: X tâches supprimés
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime les tâches par un admin
+      tags:
+      - admin
   /task/delete/user:
     post:
       description: Supprime la ou les task(s) indiqué de l'utilisateur authentifié
