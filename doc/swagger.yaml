@@ -46,7 +46,7 @@ definitions:
 host: todof.local
 info:
   contact: {}
-  description: 'Une API pour créer des todo avec utilisateurs. Pour tester les routes
+  description: 'API pour créer des todo avec utilisateurs. Pour tester les routes
     protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token}
     (remplacez {votre token} par un token valide obtenu via la route /user/login).'
   title: API todo-formation
@@ -189,7 +189,7 @@ paths:
       - user
 securityDefinitions:
   BearerAuth:
-    in: header
+    in: headers
     name: Authorization
     type: apiKey
 swagger: "2.0"
