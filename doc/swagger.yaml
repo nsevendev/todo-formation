@@ -43,6 +43,13 @@ definitions:
     required:
     - label
     type: object
+  task.TaskUpdateLabelDto:
+    properties:
+      label:
+        type: string
+    required:
+    - label
+    type: object
 host: todof.local
 info:
   contact: {}
@@ -82,6 +89,45 @@ paths:
       security:
       - BearerAuth: []
       summary: Créer une task
+      tags:
+      - task
+  /task/{id}/label/user:
+    put:
+      consumes:
+      - application/json
+      description: Met à jour la propriété `label` de la task indiquée appartenant
+        à l'utilisateur authentifié via le token dans le header
+      parameters:
+      - description: ID de la task à modifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Label de mise à jour
+        in: body
+        name: label
+        required: true
+        schema:
+          $ref: '#/definitions/task.TaskUpdateLabelDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tâche mise à jour avec succès
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Met à jour uniquement le label d'une task spécifique de l'utilisateur
+        connecté
       tags:
       - task
   /task/{id}/user:

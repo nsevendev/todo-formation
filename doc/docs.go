@@ -66,6 +66,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/task/{id}/label/user": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Met à jour la propriété ` + "`" + `label` + "`" + ` de la task indiquée appartenant à l'utilisateur authentifié via le token dans le header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Met à jour uniquement le label d'une task spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la task à modifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label de mise à jour",
+                        "name": "label",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskUpdateLabelDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tâche mise à jour avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/task/{id}/user": {
             "delete": {
                 "security": [
@@ -363,6 +421,17 @@ const docTemplate = `{
             }
         },
         "task.TaskCreateDto": {
+            "type": "object",
+            "required": [
+                "label"
+            ],
+            "properties": {
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "task.TaskUpdateLabelDto": {
             "type": "object",
             "required": [
                 "label"
