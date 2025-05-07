@@ -14,7 +14,7 @@ import (
 // @Produce json
 // @Success 200 {object} doc.ResponseModel "X tâches supprimés"
 // @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 403 {object} doc.ResponseModel "Insufficient permissions"
+// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
 // @Failure 500 {object} doc.ResponseModel "Erreur interne"
 // @Router /task/delete/all [delete]
 func (t *taskController) DeleteAllTasks(c *gin.Context) {

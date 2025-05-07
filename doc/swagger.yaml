@@ -36,14 +36,30 @@ definitions:
     - email
     - password
     type: object
-  doc.ResponseModel:
+  doc.InsufficientPermissionsResponseModel:
     properties:
-      data:
-        type: string
       error:
         type: string
+    type: object
+  doc.Meta:
+    properties:
+      method:
+        type: string
+      path:
+        type: string
+      status:
+        type: integer
+      timestamp:
+        type: string
+    type: object
+  doc.ResponseModel:
+    properties:
+      data: {}
+      error: {}
       message:
         type: string
+      meta:
+        $ref: '#/definitions/doc.Meta'
     type: object
   task.TaskCreateDto:
     properties:
@@ -225,7 +241,7 @@ paths:
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
         "500":
           description: Erreur interne
           schema:
@@ -260,7 +276,7 @@ paths:
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
         "500":
           description: Erreur interne
           schema:
@@ -452,7 +468,7 @@ paths:
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
         "500":
           description: Erreur interne
           schema:
@@ -479,7 +495,7 @@ paths:
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
         "500":
           description: Erreur interne
           schema:

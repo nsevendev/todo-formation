@@ -18,7 +18,7 @@ import (
 // @Param ids body task.TaskDeleteManyDto true "Ids des tâches à supprimer"
 // @Success 200 {object} doc.ResponseModel "X tâches supprimés"
 // @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 403 {object} doc.ResponseModel "Insufficient permissions"
+// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
 // @Failure 500 {object} doc.ResponseModel "Erreur interne"
 // @Router /task/delete/tasks [post]
 func (t *taskController) DeleteById(c *gin.Context) {

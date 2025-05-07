@@ -16,7 +16,7 @@ import (
 // @Produce json
 // @Success 200 {object} doc.ResponseModel "X utilisateurs supprimés"
 // @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 403 {object} doc.ResponseModel "Insufficient permissions"
+// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
 // @Failure 500 {object} doc.ResponseModel "Erreur interne"
 // @Router /user/users/all [delete]
 func (u *userController) DeleteAllByAdmin(c *gin.Context) {

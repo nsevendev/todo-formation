@@ -97,7 +97,7 @@ const docTemplate = `{
                     "403": {
                         "description": "Insufficient permissions",
                         "schema": {
-                            "$ref": "#/definitions/doc.ResponseModel"
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
                         }
                     },
                     "500": {
@@ -151,7 +151,7 @@ const docTemplate = `{
                     "403": {
                         "description": "Insufficient permissions",
                         "schema": {
-                            "$ref": "#/definitions/doc.ResponseModel"
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
                         }
                     },
                     "500": {
@@ -598,7 +598,7 @@ const docTemplate = `{
                     "403": {
                         "description": "Insufficient permissions",
                         "schema": {
-                            "$ref": "#/definitions/doc.ResponseModel"
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
                         }
                     },
                     "500": {
@@ -641,7 +641,7 @@ const docTemplate = `{
                     "403": {
                         "description": "Insufficient permissions",
                         "schema": {
-                            "$ref": "#/definitions/doc.ResponseModel"
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
                         }
                     },
                     "500": {
@@ -708,17 +708,41 @@ const docTemplate = `{
                 }
             }
         },
+        "doc.InsufficientPermissionsResponseModel": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "doc.Meta": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
         "doc.ResponseModel": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "error": {
-                    "type": "string"
-                },
+                "data": {},
+                "error": {},
                 "message": {
                     "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/doc.Meta"
                 }
             }
         },
