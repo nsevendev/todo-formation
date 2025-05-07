@@ -73,6 +73,8 @@ l: ## Affiche les logs du conteneur app
 ldb: ## Affiche les logs du conteneur database
 	docker logs -f $(CONTAINER_NAME_DB)
 
-swagger: ## Génère la doc swagger
+swaq: ## Génère la doc swagger
 	$(SWAG_COMMAND_CONTAINER) init -o doc -g cmd/main.go app/controller internal doc
-	$(GO_COMMAND_CONTAINER) mod tidy
+
+swagw: ## Génère la doc swagger et surveille les fichiers
+	$(SWAG_COMMAND_CONTAINER) init --watch -o doc -g cmd/main.go app/controller internal doc
