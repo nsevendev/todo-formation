@@ -43,6 +43,15 @@ definitions:
     required:
     - label
     type: object
+  task.TaskDeleteManyDto:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    required:
+    - ids
+    type: object
   task.TaskUpdateLabelDto:
     properties:
       label:
@@ -188,6 +197,37 @@ paths:
       security:
       - BearerAuth: []
       summary: Supprime une task spécifique de l'utilisateur connecté
+      tags:
+      - task
+  /task/delete/user:
+    post:
+      description: Supprime la ou les task(s) indiqué de l'utilisateur authentifié
+        via le token dans le header
+      parameters:
+      - description: Ids des tasks à supprimer
+        in: body
+        name: ids
+        required: true
+        schema:
+          $ref: '#/definitions/task.TaskDeleteManyDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Les tâches ont été supprimées avec succès
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "401":
+          description: Token invalide
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/doc.ResponseModel'
+      security:
+      - BearerAuth: []
+      summary: Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté
       tags:
       - task
   /user:

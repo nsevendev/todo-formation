@@ -66,6 +66,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/task/delete/user": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime la ou les task(s) indiqué de l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "description": "Ids des tasks à supprimer",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskDeleteManyDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Les tâches ont été supprimées avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
         "/task/{id}/done/user": {
             "put": {
                 "security": [
@@ -474,6 +522,20 @@ const docTemplate = `{
             "properties": {
                 "label": {
                     "type": "string"
+                }
+            }
+        },
+        "task.TaskDeleteManyDto": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
