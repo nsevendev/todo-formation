@@ -9,6 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// DeleteManyByUser godoc
+// @Summary Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté
+// @Description Supprime la ou les task(s) indiqué de l'utilisateur authentifié via le token dans le header
+// @Tags task
+// @Security BearerAuth
+// @Produce json
+// @Param ids body task.TaskDeleteManyDto true "Ids des tasks à supprimer"
+// @Success 200 {object} doc.ResponseModel "Les tâches ont été supprimées avec succès"
+// @Failure 401 {object} doc.ResponseModel "Token invalide"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /task/delete/user [post]
 func (t *taskController) DeleteManyByUser(c *gin.Context) {
 	var idsDto task.TaskDeleteManyDto
 	if err := c.ShouldBindJSON(&idsDto); err != nil {

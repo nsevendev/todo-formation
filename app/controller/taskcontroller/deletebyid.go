@@ -9,6 +9,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// DeleteById godoc
+// @Summary Supprime une ou plusieurs tâche(s) spécifique par un admin
+// @Description Supprime la ou les tâche(s) indiqué par un utilisateur avec role = admin
+// @Tags admin
+// @Security BearerAuth
+// @Produce json
+// @Param ids body task.TaskDeleteManyDto true "Ids des tâches à supprimer"
+// @Success 200 {object} doc.ResponseModel "X tâches supprimés"
+// @Failure 401 {object} doc.ResponseModel "Token invalide"
+// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /task/delete/tasks [post]
 func (t *taskController) DeleteById(c *gin.Context) {
 	var idsDto task.TaskDeleteManyDto
 	if err := c.ShouldBindJSON(&idsDto); err != nil {

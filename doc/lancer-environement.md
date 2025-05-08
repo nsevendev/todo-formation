@@ -12,4 +12,9 @@
 ## Demarrage/Arrêt des containers
 
 - Lancer la commande `make up` pour demarrer les containers
-- Arrêter les containers avec `make down`  
+- Arrêter les containers avec `make down`
+
+## Acceder au swagger
+
+- Lancer les container
+- Aller sur https://todof.local/swagger/index.html

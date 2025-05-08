@@ -9,6 +9,18 @@ import (
 	"github.com/nsevenpack/logger/v2/logger"
 )
 
+// DeleteByAdmin godoc
+// @Summary Supprime un ou plusieurs utilisateur(s) spécifique par un admin
+// @Description Supprime le ou les utilisateur(s) indiqué par un utilisateur avec role = admin
+// @Tags admin
+// @Security BearerAuth
+// @Produce json
+// @Param ids body auth.UserDeleteDto true "Ids des utilisateurs à supprimer"
+// @Success 200 {object} doc.ResponseModel "X utilisateurs supprimés"
+// @Failure 401 {object} doc.ResponseModel "Token invalide"
+// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /user/users [post]
 func (u *userController) DeleteByAdmin(c *gin.Context) {
 	var idsDto auth.UserDeleteDto
 	if err := c.ShouldBindJSON(&idsDto); err != nil {

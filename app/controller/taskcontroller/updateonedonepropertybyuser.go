@@ -7,6 +7,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// UpdateOneDonePropertyByUser godoc
+// @Summary Met à jour la propriété done d'une task spécifique de l'utilisateur connecté
+// @Description Met à jour la propriété `done` de la task indiquée appartenant à l'utilisateur authentifié via le token dans le header
+// @Tags task
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "ID de la task à modifier"
+// @Success 200 {object} doc.ResponseModel "Tâche mise à jour avec succès"
+// @Failure 401 {object} doc.ResponseModel "Token invalide"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /task/{id}/done/user [put]
 func (t *taskController) UpdateOneDonePropertyByUser(c *gin.Context) {
 	id := c.Param("id")
 	taskId, err := primitive.ObjectIDFromHex(id)

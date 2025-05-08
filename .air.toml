@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp/air"
 
 [build]
-cmd = "go build -o ./tmp/air/main ./cmd/main.go"
+cmd = "swag init -o doc -g cmd/main.go app/controller internal doc && go build -o ./tmp/air/main ./cmd/main.go"
 bin = "tmp/air/main"
 include_ext = ["go"]
 exclude_dir = ["tmp", "doc"]

@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/ginresponse"
 	"github.com/nsevenpack/logger/v2/logger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Router(r *gin.Engine) {
@@ -24,6 +26,8 @@ func Router(r *gin.Engine) {
 	taskService := task.NewTaskService(taskRepo, userRepo)
 	taskController := taskcontroller.NewTaskController(taskService, userService)
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	v1 := r.Group("api/v1")
 
 	v1Task := v1.Group("/task")
@@ -33,7 +37,6 @@ func Router(r *gin.Engine) {
 	v1Task.PUT("/:id/done/user", taskController.UpdateOneDonePropertyByUser)
 	v1Task.PUT("/:id/label/user", taskController.UpdateOneLabelPropertyByUser)
 	v1Task.DELETE("/:id/user", taskController.DeleteOneByUser)
-	v1Task.POST("/:id/user", taskController.DeleteOneByUser)
 	v1Task.POST("/delete/user", taskController.DeleteManyByUser)
 	v1Task.POST("/delete/tasks", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), taskController.DeleteById)
 	v1Task.DELETE("/delete/all", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), taskController.DeleteAllTasks)
