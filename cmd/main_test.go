@@ -1,8 +1,6 @@
 package main
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestExtractStringInBacktick(t *testing.T) {
 	tests := []struct {

@@ -2,6 +2,7 @@ package init
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -16,8 +17,13 @@ var CDb *mongo.Client
 func ConnexionDatabase() {
 	logger.I("Connexion à la base de données ...")
 
-	uri := os.Getenv("DB_URI")
 	dbName := os.Getenv("DB_NAME")
+	if os.Getenv("APP_ENV") == "test" {
+		dbName = os.Getenv("DB_NAME")+"_test"
+		fmt.Printf("LAAAAAAAAAAAAAAA : %v", dbName)
+	}
+	fmt.Printf("ICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII: %v", os.Getenv("APP_ENV"))
+	uri := os.Getenv("DB_URI")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()

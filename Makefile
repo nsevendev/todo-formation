@@ -1,6 +1,6 @@
 -include .env
 
-# Redéfinir MAKEFILE_LIST pour qu'il ne contienne que le Makefile
+# Redefinir MAKEFILE_LIST pour qu'il ne contienne que le Makefile
 MAKEFILE_LIST := Makefile
 
 ifeq ($(APP_ENV),dev)
@@ -18,6 +18,7 @@ else ifeq ($(APP_ENV),prod)
 endif
 
 # Variables
+GO_COMMAND_CONTAINER_TEST := docker exec -i -e APP_ENV=test $(CONTAINER_NAME) go
 GO_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) go
 SWAG_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) swag
 BASH_CONTAINER := docker exec -it $(CONTAINER_NAME) sh
@@ -38,13 +39,13 @@ starter: ## Instruction pour installer le projet
 ## Attention définisser l'environement avec APP_ENV=dev, APP_ENV=prod, APP_ENV=preprod
 ## dans le .env
 
-up: ## Démarre l'environnement
+up: ## Demarre l'environnement
 	docker compose --env-file .env $(COMPOSE_FILES) up -d
 
-upb: ## Démarre l'environnement avec build
+upb: ## Demarre l'environnement avec build
 	docker compose --env-file .env $(COMPOSE_FILES) up -d --build
 
-upbnod: ## Démarre l'environnement sans mode détaché et avec build
+upbnod: ## Demarre l'environnement sans mode detache et avec build
 	docker compose --env-file .env $(COMPOSE_FILES) up --build
 
 down: ## Arrête les conteneurs
@@ -55,10 +56,10 @@ down: ## Arrête les conteneurs
 cm: ## Crée un fichier pour la migration - usage: make cm file=nom_du_fichier
 	$(GO_COMMAND_CONTAINER) run mod/migratormongodb/bin/createfilemigration.go $(file)
 
-tidy: ## Exécute go mod tidy pour nettoyer les dépendances
+tidy: ## Execute go mod tidy pour nettoyer les dependances
 	$(GO_COMMAND_CONTAINER) mod tidy
 
-gg: ## Ajoute une dépendance - usage: make gg dep=path_de_la_dependance
+gg: ## Ajoute une dependance - usage: make gg dep=path_de_la_dependance
 	$(GO_COMMAND_CONTAINER) get $(dep)
 
 s: ## Ouvre un shell dans le conteneur app
@@ -73,5 +74,8 @@ l: ## Affiche les logs du conteneur app
 ldb: ## Affiche les logs du conteneur database
 	docker logs -f $(CONTAINER_NAME_DB)
 
-swag: ## Génère la doc swagger
+swag: ## Genere la doc swagger
 	$(SWAG_COMMAND_CONTAINER) init -o doc -g cmd/main.go app/controller internal doc
+
+test: ## Execute les tests
+	$(GO_COMMAND_CONTAINER_TEST) test -cover ./...
