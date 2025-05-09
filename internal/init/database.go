@@ -2,7 +2,6 @@ package init
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -17,12 +16,12 @@ var CDb *mongo.Client
 func ConnexionDatabase() {
 	logger.I("Connexion à la base de données ...")
 
+	appEnv := os.Getenv("APP_ENV")
 	dbName := os.Getenv("DB_NAME")
-	if os.Getenv("APP_ENV") == "test" {
-		dbName = os.Getenv("DB_NAME")+"_test"
-		fmt.Printf("LAAAAAAAAAAAAAAA : %v", dbName)
+	if appEnv == "test" {
+		dbName = dbName + "_" + appEnv
 	}
-	fmt.Printf("ICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII: %v", os.Getenv("APP_ENV"))
+
 	uri := os.Getenv("DB_URI")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
@@ -38,12 +37,12 @@ func ConnexionDatabase() {
 
 	Db = client.Database(dbName)
 	CDb = client.Database(dbName).Client()
-	
+
 	res := CDb.Ping(ctx, nil)
 	if res != nil {
 		logger.Ff("Ping échoué sur la base '%s': %v", dbName, res.Error())
 	}
 
 	logger.If("URI de la base de données: %v", uri)
-	logger.S("Connexion à la base de données réussie")
+	logger.Sf("Connexion à la base de données %v réussie", dbName)
 }
