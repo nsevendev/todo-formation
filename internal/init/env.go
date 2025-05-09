@@ -2,12 +2,18 @@ package init
 
 import (
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 )
 
 func initEnv() {
-	err := godotenv.Load("../.env")
+	env := "./.env"
+	if os.Getenv("APP_ENV") == "test" {
+		env = "../.env"
+	}
+
+	err := godotenv.Load(env)
 	if err != nil {
 		log.Fatalf("❌ [ERROR] Erreur de chargement du fichier .env : %v", err)
 	}
