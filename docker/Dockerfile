@@ -6,6 +6,7 @@ RUN mkdir -p /app/tmp/air
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
+RUN go mod tidy
 
 FROM base AS dev
 WORKDIR /app
