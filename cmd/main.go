@@ -1,10 +1,10 @@
 package main
 
 import (
-	"os"
 	"strings"
 	"todof/app/router"
 	_ "todof/doc"
+	"todof/internal/config"
 	_ "todof/internal/init"
 
 	"github.com/gin-gonic/gin"
@@ -37,8 +37,8 @@ func logRoutes(s *gin.Engine) {
 
 // run and log the server
 func run(s *gin.Engine) {
-	port := os.Getenv("PORT")
-	hostTraefik := extractStringInBacktick(os.Getenv("HOST_TRAEFIK"))
+	port := config.Get("PORT")
+	hostTraefik := extractStringInBacktick(config.Get("HOST_TRAEFIK"))
 	host := "0.0.0.0"
 
 	logger.S("Server is running on in container docker : " + host + ":" + port)

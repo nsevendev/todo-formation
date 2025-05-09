@@ -2,8 +2,8 @@ package init
 
 import (
 	"context"
-	"os"
 	"time"
+	"todof/internal/config"
 
 	"github.com/nsevenpack/logger/v2/logger"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,16 +13,16 @@ import (
 var Db *mongo.Database
 var CDb *mongo.Client
 
-func ConnexionDatabase() {
+func ConnexionDatabase(env string) {
 	logger.I("Connexion à la base de données ...")
+	logger.If("Environement : %v", env)
 
-	appEnv := os.Getenv("APP_ENV")
-	dbName := os.Getenv("DB_NAME")
-	if appEnv == "test" {
-		dbName = dbName + "_" + appEnv
+	dbName := config.Get("DB_NAME")
+	if env == "test" {
+		dbName = dbName + "_" + env
 	}
 
-	uri := os.Getenv("DB_URI")
+	uri := config.Get("DB_URI")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()

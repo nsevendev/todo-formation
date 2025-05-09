@@ -1,10 +1,10 @@
 package router
 
 import (
-	"os"
 	"todof/app/controller/taskcontroller"
 	"todof/app/controller/usercontroller"
 	"todof/internal/auth"
+	"todof/internal/config"
 	"todof/internal/task"
 
 	initializer "todof/internal/init"
@@ -18,7 +18,7 @@ import (
 
 func Router(r *gin.Engine) {
 	userRepo := auth.NewUserRepo(initializer.Db)
-	userService := auth.NewUserService(userRepo, os.Getenv("JWT_SECRET"))
+	userService := auth.NewUserService(userRepo, config.Get("JWT_SECRET"))
 	authMiddle := auth.NewAuthMiddleware(userService)
 	userController := usercontroller.NewUserController(userService)
 
