@@ -142,3 +142,27 @@ func TestFindNonAdmin(t *testing.T){
 		}
 	}
 }
+
+
+func TestDelete(t *testing.T){
+	tests := []struct {
+		name string
+		id primitive.ObjectID
+		deletedCount int64
+		isErr bool
+	}{
+		{"test succes du delete", ids[0], 1, false},
+	}
+
+	for _, tt := range tests {
+		deletedCount, err := r.Delete(ctx, tt.id)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if tt.deletedCount != deletedCount {
+			t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+		}
+	}
+}
