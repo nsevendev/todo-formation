@@ -8,12 +8,14 @@ import (
 	initializer "todof/internal/init"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var r UserRepoInterface
 var c *mongo.Collection
 var ctx context.Context
+var ids []primitive.ObjectID
 
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
@@ -82,6 +84,34 @@ func TestFindByEmail(t *testing.T){
 
 		if user != nil && user.Email != tt.email{
 			t.Errorf("%s: got email %v, expect email %v", tt.name, user.Email, tt.email)
+		}
+
+		if user != nil {
+			ids = append(ids, user.ID)
+		}
+	}
+}
+
+func TestFindByID(t *testing.T){
+	tests := []struct {
+		name string
+		id primitive.ObjectID
+		isUser bool
+		isErr bool
+	}{
+		{"test avec l'id d'un utilisateur existant", ids[0], true, false},
+		{"test avec un id inexistant", primitive.NewObjectID(), false, false},
+	}
+
+	for _, tt := range tests {
+		user, err := r.FindByID(ctx, tt.id)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (user == nil) == tt.isUser {
+			t.Errorf("%s: aucun utilisateur trouvé avec l'id : %v", tt.name, tt.id)
 		}
 	}
 }
