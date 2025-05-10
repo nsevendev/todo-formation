@@ -20,10 +20,10 @@ var ids []primitive.ObjectID
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
+	ctx := context.Background()
 
 	code := m.Run()
 
-	ctx := context.Background()
 	if _, err := c.DeleteMany(ctx, bson.M{}); err != nil {
 		log.Fatalf("Erreur lors du nettoyage de la collection users : %v", err)
 	}
@@ -40,7 +40,8 @@ func TestCreate(t *testing.T){
         role     string
 		isErr    bool
 	}{
-		{"test avec user valid", "test@gmail.com", "password", "test", "user", false},
+		{"test avec user admin valid", "admin@gmail.com", "password", "admin", "admin", false},
+		{"test avec user avec propriété role vide", "test@gmail.com", "password", "test", "", false},
 		{"test avec user email existant", "test@gmail.com", "password", "test2", "user", true},
 	}
 
@@ -112,6 +113,32 @@ func TestFindByID(t *testing.T){
 
 		if (user == nil) == tt.isUser {
 			t.Errorf("%s: aucun utilisateur trouvé avec l'id : %v", tt.name, tt.id)
+		}
+	}
+}
+
+func TestFindNonAdmin(t *testing.T){
+	tests := []struct {
+		name string
+		isUsers bool
+		isErr bool
+	}{
+		{"test avec un utilisateur non admin trouvé", true, false},
+	}
+
+	for _, tt := range tests {
+		users, err := r.FindNonAdmin(ctx)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (users == nil) == tt.isUsers{
+			t.Errorf("%s: aucun utilisateurs trouvé", tt.name)
+		}
+
+		if tt.isUsers && users != nil && len(users) != 1 {
+			t.Errorf("%s: got users length : %d, expect users length : 1", tt.name, len(users))
 		}
 	}
 }
