@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"todof/internal/config"
 	initializer "todof/internal/init"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +14,7 @@ import (
 )
 
 var r UserRepoInterface
+var s UserServiceInterface
 var c *mongo.Collection
 var ctx context.Context
 var ids []primitive.ObjectID
@@ -20,6 +22,7 @@ var ids []primitive.ObjectID
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
+	s = NewUserService(r, config.Get("JWT_SECRET"))
 	ctx := context.Background()
 
 	code := m.Run()
