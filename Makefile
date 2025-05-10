@@ -19,6 +19,7 @@ endif
 
 # Variables
 GO_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) go
+SWAG_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) swag
 BASH_CONTAINER := docker exec -it $(CONTAINER_NAME) sh
 BASH_CONTAINER_DB := docker exec -it $(CONTAINER_NAME_DB) sh
 
@@ -71,3 +72,6 @@ l: ## Affiche les logs du conteneur app
 
 ldb: ## Affiche les logs du conteneur database
 	docker logs -f $(CONTAINER_NAME_DB)
+
+swag: ## Génère la doc swagger
+	$(SWAG_COMMAND_CONTAINER) init -o doc -g cmd/main.go app/controller internal doc

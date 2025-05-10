@@ -6,6 +6,16 @@ import (
 	"github.com/nsevenpack/logger/v2/logger"
 )
 
+// DeleteOneByUser godoc
+// @Summary Supprime l'utilisateur connecté
+// @Description Supprime l'utilisateur connecté via le token utilisé dans le header
+// @Tags user
+// @Security BearerAuth
+// @Produce json
+// @Success 204 "1"
+// @Failure 401 {object} doc.ResponseModel "Token invalide"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /user [delete]
 func (u *userController) DeleteOneByUser(c *gin.Context) {
 	idUser := u.userService.GetIdUserInContext(c)
 

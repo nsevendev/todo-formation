@@ -7,6 +7,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// DeleteOneByUser godoc
+// @Summary Supprime une task spécifique de l'utilisateur connecté
+// @Description Supprime la task indiqué de l'utilisateur authentifié via le token dans le header
+// @Tags task
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "ID de la task à supprimer"
+// @Success 200 {object} doc.ResponseModel "Tâche supprimée avec succès"
+// @Failure 401 {object} doc.ResponseModel "Token invalide"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /task/{id}/user [delete]
 func (t *taskController) DeleteOneByUser(c *gin.Context) {
 	id := c.Param("id")
 	taskId, err := primitive.ObjectIDFromHex(id)

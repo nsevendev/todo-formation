@@ -9,6 +9,17 @@ import (
 	"github.com/nsevenpack/logger/v2/logger"
 )
 
+// Login godoc
+// @Summary Authentifier un utilisateur
+// @Description Authentification d’un utilisateur
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param user body auth.UserLoginDto true "DTO d'authentification utilisateur"
+// @Success 200 {object} doc.ResponseModel "Connexion réussie"
+// @Failure 400 {object} doc.ResponseModel "Erreur de validation"
+// @Failure 500 {object} doc.ResponseModel "Erreur d'authentification"
+// @Router /user/login [post]
 func (u *userController) Login(c *gin.Context) {
 	var userLoginDto auth.UserLoginDto
 	if err := c.ShouldBindJSON(&userLoginDto); err != nil {

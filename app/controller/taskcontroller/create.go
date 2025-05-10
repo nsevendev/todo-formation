@@ -10,6 +10,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// Create godoc
+// @Summary Créer une task
+// @Description Création d’une nouvelle task pour l'utilisateur connecté
+// @Tags task
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param task body task.TaskCreateDto true "DTO de création de la task"
+// @Success 201 {object} doc.ResponseModel "Tâche créée avec succès"
+// @Failure 401 {object} doc.ResponseModel "Invalide token"
+// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Router /task [post]
 func (t *taskController) Create(c *gin.Context) {
 	var taskCreateDto task.TaskCreateDto
 	if err := c.ShouldBindJSON(&taskCreateDto); err != nil {

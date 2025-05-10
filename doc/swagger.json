@@ -1,0 +1,787 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API pour créer des todo avec utilisateurs. Pour tester les routes protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token} (remplacez {votre token} par un token valide obtenu via la route /user/login).",
+        "title": "API todo-formation",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "todof.local",
+    "basePath": "/api/v1",
+    "paths": {
+        "/task": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Création d’une nouvelle task pour l'utilisateur connecté",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Créer une task",
+                "parameters": [
+                    {
+                        "description": "DTO de création de la task",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Tâche créée avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalide token",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/delete/all": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime les tâches par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime les tâches par un admin",
+                "responses": {
+                    "200": {
+                        "description": "X tâches supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/delete/tasks": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime la ou les tâche(s) indiqué par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime une ou plusieurs tâche(s) spécifique par un admin",
+                "parameters": [
+                    {
+                        "description": "Ids des tâches à supprimer",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskDeleteManyDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "X tâches supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/delete/user": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime la ou les task(s) indiqué de l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "description": "Ids des tasks à supprimer",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskDeleteManyDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Les tâches ont été supprimées avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/{id}/done/user": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Met à jour la propriété `done` de la task indiquée appartenant à l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Met à jour la propriété done d'une task spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la task à modifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tâche mise à jour avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/{id}/label/user": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Met à jour la propriété `label` de la task indiquée appartenant à l'utilisateur authentifié via le token dans le header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Met à jour le label d'une task spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la task à modifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label de mise à jour",
+                        "name": "label",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.TaskUpdateLabelDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tâche mise à jour avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/{id}/user": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime la task indiqué de l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Supprime une task spécifique de l'utilisateur connecté",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la task à supprimer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tâche supprimée avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Récupére les tasks crée par l'utilisateur authentifié via le token dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "Récupérer toutes les tasks de l'utilisateur connecté",
+                "responses": {
+                    "200": {
+                        "description": "Tâches récupérées avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalide token",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime l'utilisateur connecté via le token utilisé dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Supprime l'utilisateur connecté",
+                "responses": {
+                    "204": {
+                        "description": "1"
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "description": "Authentification d’un utilisateur",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Authentifier un utilisateur",
+                "parameters": [
+                    {
+                        "description": "DTO d'authentification utilisateur",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserLoginDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Connexion réussie",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur de validation",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur d'authentification",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profil": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Récupére le profil de l'utilisateur connecté via le token utilisé dans le header",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Récupérer le profil de l'utilisateur connecté",
+                "responses": {
+                    "200": {
+                        "description": "Profil utilisateur récupéré avec succès",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalide token",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "description": "Création d’un nouvel utilisateur",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Créer un utilisateur",
+                "parameters": [
+                    {
+                        "description": "DTO d'inscription utilisateur",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "1"
+                    },
+                    "400": {
+                        "description": "Erreur de validation",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/users": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime le ou les utilisateur(s) indiqué par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime un ou plusieurs utilisateur(s) spécifique par un admin",
+                "parameters": [
+                    {
+                        "description": "Ids des utilisateurs à supprimer",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserDeleteDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "X utilisateurs supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/users/all": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Supprime les utilisateurs par un utilisateur avec role = admin",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Supprime les utilisateurs par un admin",
+                "responses": {
+                    "200": {
+                        "description": "X utilisateurs supprimés",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/doc.InsufficientPermissionsResponseModel"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne",
+                        "schema": {
+                            "$ref": "#/definitions/doc.ResponseModel"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "auth.UserCreateDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.UserDeleteDto": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "auth.UserLoginDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                }
+            }
+        },
+        "doc.InsufficientPermissionsResponseModel": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "doc.Meta": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "doc.ResponseModel": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {},
+                "message": {
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/doc.Meta"
+                }
+            }
+        },
+        "task.TaskCreateDto": {
+            "type": "object",
+            "required": [
+                "label"
+            ],
+            "properties": {
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "task.TaskDeleteManyDto": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "task.TaskUpdateLabelDto": {
+            "type": "object",
+            "required": [
+                "label"
+            ],
+            "properties": {
+                "label": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "headers"
+        }
+    }
+}
