@@ -143,7 +143,6 @@ func TestFindNonAdmin(t *testing.T){
 	}
 }
 
-
 func TestDelete(t *testing.T){
 	tests := []struct {
 		name string
@@ -156,6 +155,30 @@ func TestDelete(t *testing.T){
 
 	for _, tt := range tests {
 		deletedCount, err := r.Delete(ctx, tt.id)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if tt.deletedCount != deletedCount {
+			t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+		}
+	}
+}
+
+func TestDeleteMany(t *testing.T){
+	tests := []struct {
+		name string
+		filter interface{}
+		deletedCount int64
+		isErr bool
+	}{
+		{"test avec filter valid avec aucun document correspondant", bson.M{"role": "test"}, 0, false},
+		{"test avec filter valid et 1 document correspondant", bson.M{}, 1, false},
+	}
+
+	for _, tt := range tests {
+		deletedCount, err := r.DeleteMany(ctx, tt.filter)
 
 		if (err != nil) != tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
