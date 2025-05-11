@@ -24,7 +24,7 @@ func init() {
 	ginresponse.SetFormatter(&ginresponse.JsonFormatter{})
 
 	// REDIS
-	job.Redis("REDIS_ADDR")
+	job.Redis(config.Get("REDIS_ADDR"))
 	job.StartWorker()
 
 	// MIGRATION
