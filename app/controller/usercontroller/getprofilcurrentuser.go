@@ -13,9 +13,9 @@ import (
 // @Tags user
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} doc.ResponseModel "Profil utilisateur récupéré avec succès"
-// @Failure 401 {object} doc.ResponseModel "Invalide token"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 200 {object} ginresponse.JsonFormatterSwag "Profil utilisateur récupéré avec succès"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /user/profil [get]
 func (u *userController) GetProfilCurrentUser(c *gin.Context) {
 	idUser, exists := c.Get("id_user")

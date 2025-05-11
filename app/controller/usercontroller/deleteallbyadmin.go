@@ -14,10 +14,10 @@ import (
 // @Tags admin
 // @Security BearerAuth
 // @Produce json
-// @Success 200 {object} doc.ResponseModel "X utilisateurs supprimés"
-// @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 200 {object} ginresponse.JsonFormatterSwag "X utilisateurs supprimés"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 403 {object} ginresponse.JsonFormatterSwag "Insufficient permissions"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /user/users/all [delete]
 func (u *userController) DeleteAllByAdmin(c *gin.Context) {
 
