@@ -18,6 +18,8 @@ var s UserServiceInterface
 var c *mongo.Collection
 var ctx context.Context
 var ids []primitive.ObjectID
+var users []*User
+var tokenString string
 
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
@@ -67,6 +69,7 @@ func TestRegister(t *testing.T){
 
 		if user != nil {
 			ids = append(ids, user.ID)
+			users = append(users, user)
 		}
 	}
 }
@@ -103,16 +106,47 @@ func TestLogin(t *testing.T){
 		if (token == "") == tt.isToken{
 			t.Errorf("%s: login fail with email %v and password %v", tt.name, tt.email, tt.password)
 		}
+
+		if token != ""{
+			tokenString = token
+		}
 	}
 }
 
-func TestDeleteByAdmin (t *testing.T){
+func TestValidateToken (t *testing.T){
+	tests := []struct {
+		name string
+		tokenString string
+		isTokenClaims bool
+		isErr bool
+	}{
+		{"test success", tokenString, true, false},
+	}
+
+	for _, tt := range tests {
+		token, err := s.ValidateToken(tt.tokenString)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (err == nil) == tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (token == nil) == tt.isTokenClaims {
+			t.Errorf("%s: got %v, expect token claims", tt.name, token)
+		}
+	}
+}
+
+func TestDeleteByAdmin(t *testing.T){
 	tests := []struct {
 		name string
 		deletedCount int
 		isErr bool
 	}{
-		{"test delete success", 2, false},
+		{"test delete success", 1, false},
 	}
 
 	for _, tt := range tests {
