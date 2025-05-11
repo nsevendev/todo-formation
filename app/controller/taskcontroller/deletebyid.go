@@ -16,10 +16,10 @@ import (
 // @Security BearerAuth
 // @Produce json
 // @Param ids body task.TaskDeleteManyDto true "Ids des tâches à supprimer"
-// @Success 200 {object} doc.ResponseModel "X tâches supprimés"
-// @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 200 {object} ginresponse.JsonFormatterSwag "X tâches supprimés"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 403 {object} ginresponse.JsonFormatterSwag "Insufficient permissions"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /task/delete/tasks [post]
 func (t *taskController) DeleteById(c *gin.Context) {
 	var idsDto task.TaskDeleteManyDto
@@ -39,7 +39,7 @@ func (t *taskController) DeleteById(c *gin.Context) {
 		}
 		idsObjectIds = append(idsObjectIds, objectId)
 	}
-	
+
 	if err := t.taskService.DeleteById(c, idsObjectIds); err != nil {
 		logger.Ef("Erreur lors de la suppression des tâches : %s", err.Error())
 		ginresponse.InternalServerError(c, "Impossible de supprimer les tâches", err.Error())

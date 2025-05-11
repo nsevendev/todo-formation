@@ -16,9 +16,9 @@ import (
 // @Security BearerAuth
 // @Produce json
 // @Param ids body task.TaskDeleteManyDto true "Ids des tasks à supprimer"
-// @Success 200 {object} doc.ResponseModel "Les tâches ont été supprimées avec succès"
-// @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 200 {object} ginresponse.JsonFormatterSwag "Les tâches ont été supprimées avec succès"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /task/delete/user [post]
 func (t *taskController) DeleteManyByUser(c *gin.Context) {
 	var idsDto task.TaskDeleteManyDto

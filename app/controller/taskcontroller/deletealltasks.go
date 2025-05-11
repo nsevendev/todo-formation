@@ -12,10 +12,10 @@ import (
 // @Tags admin
 // @Security BearerAuth
 // @Produce json
-// @Success 200 {object} doc.ResponseModel "X tâches supprimés"
-// @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 403 {object} doc.InsufficientPermissionsResponseModel "Insufficient permissions"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 200 {object} ginresponse.JsonFormatterSwag "X tâches supprimés"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 403 {object} ginresponse.JsonFormatterSwag "Insufficient permissions"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /task/delete/all [delete]
 func (t *taskController) DeleteAllTasks(c *gin.Context) {
 	err := t.taskService.DeleteAllTasks(c)

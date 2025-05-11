@@ -2,6 +2,7 @@ package init
 
 import (
 	"todof/internal/config"
+	"todof/internal/job"
 	"todof/migration"
 	"todof/mod/migratormongodb"
 
@@ -10,11 +11,23 @@ import (
 )
 
 func init() {
+	// START GET .ENV
 	appEnv := config.Get("APP_ENV")
+
+	// LOGGER
 	logger.Init(appEnv)
+
+	// DB
 	ConnexionDatabase(appEnv)
+
+	// GIN RESPONSE FORMAT
 	ginresponse.SetFormatter(&ginresponse.JsonFormatter{})
 
+	// REDIS
+	job.Redis("REDIS_ADDR")
+	job.StartWorker()
+
+	// MIGRATION
 	migrator := migratormongodb.New(Db)
 	migrator.Add(migration.CreateUsersCollection)
 	migrator.Add(migration.UpdateSchemaUserCOllection)

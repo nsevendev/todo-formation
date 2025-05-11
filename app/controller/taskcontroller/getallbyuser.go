@@ -13,10 +13,10 @@ import (
 // @Tags task
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} doc.ResponseModel "Tâches récupérées avec succès"
-// @Failure 401 {object} doc.ResponseModel "Invalide token"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
-// @Router /user [get]
+// @Success 200 {object} ginresponse.JsonFormatterSwag "Tâches récupérées avec succès"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Invalide token"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
+// @Router /task [get]
 func (t *taskController) GetAllByUser(c *gin.Context) {
 	idUser, exists := c.Get("id_user")
 	if !exists {

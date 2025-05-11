@@ -13,8 +13,8 @@ import (
 // @Security BearerAuth
 // @Produce json
 // @Success 204 "1"
-// @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /user [delete]
 func (u *userController) DeleteOneByUser(c *gin.Context) {
 	idUser := u.userService.GetIdUserInContext(c)
