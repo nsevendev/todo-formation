@@ -2,8 +2,8 @@ package init
 
 import (
 	"context"
-	"os"
 	"time"
+	"todof/internal/config"
 
 	"github.com/nsevenpack/logger/v2/logger"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,11 +13,16 @@ import (
 var Db *mongo.Database
 var CDb *mongo.Client
 
-func ConnexionDatabase() {
+func ConnexionDatabase(env string) {
 	logger.I("Connexion à la base de données ...")
+	logger.If("Environement : %v", env)
 
-	uri := os.Getenv("DB_URI")
-	dbName := os.Getenv("DB_NAME")
+	dbName := config.Get("DB_NAME")
+	if env == "test" {
+		dbName = dbName + "_" + env
+	}
+
+	uri := config.Get("DB_URI")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -32,12 +37,12 @@ func ConnexionDatabase() {
 
 	Db = client.Database(dbName)
 	CDb = client.Database(dbName).Client()
-	
+
 	res := CDb.Ping(ctx, nil)
 	if res != nil {
 		logger.Ff("Ping échoué sur la base '%s': %v", dbName, res.Error())
 	}
 
 	logger.If("URI de la base de données: %v", uri)
-	logger.S("Connexion à la base de données réussie")
+	logger.Sf("Connexion à la base de données %v réussie", dbName)
 }

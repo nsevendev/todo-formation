@@ -1,6 +1,7 @@
 package init
 
 import (
+	"todof/internal/config"
 	"todof/migration"
 	"todof/mod/migratormongodb"
 
@@ -9,9 +10,9 @@ import (
 )
 
 func init() {
-	initEnv()
-	logger.Init()
-	ConnexionDatabase()
+	appEnv := config.Get("APP_ENV")
+	logger.Init(appEnv)
+	ConnexionDatabase(appEnv)
 	ginresponse.SetFormatter(&ginresponse.JsonFormatter{})
 
 	migrator := migratormongodb.New(Db)

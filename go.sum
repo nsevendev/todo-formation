@@ -89,6 +89,10 @@ github.com/nsevenpack/ginresponse v1.1.1 h1:6mtmzDHhgDeJSlOLZuK/wk8cj1wrFEPvEvpd
 github.com/nsevenpack/ginresponse v1.1.1/go.mod h1:arImN0Z5Jn2Kz/hFALmBCBuW+qpqvtWTV8vpnstxCFI=
 github.com/nsevenpack/logger/v2 v2.0.1 h1:i5IBXFsT+V9FMeHyKAPdQkrZz8g/T4GgM/WLKJewVaw=
 github.com/nsevenpack/logger/v2 v2.0.1/go.mod h1:isbM59Z4VLqjmk47eaOEPFBieBEAy2f7Zl6bdofCcQ8=
+github.com/nsevenpack/logger/v2 v2.0.2 h1:UgjgXOvbVUdKPTzwYKZA8I0PQAWvsWTfdvnEQ4KJ1BA=
+github.com/nsevenpack/logger/v2 v2.0.2/go.mod h1:isbM59Z4VLqjmk47eaOEPFBieBEAy2f7Zl6bdofCcQ8=
+github.com/nsevenpack/logger/v2 v2.0.3 h1:TypN5URJGVAi9JJQem3FXnC5L83KPX1hbRfV2s8e6LE=
+github.com/nsevenpack/logger/v2 v2.0.3/go.mod h1:isbM59Z4VLqjmk47eaOEPFBieBEAy2f7Zl6bdofCcQ8=
 github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6Wq+LM=
 github.com/pelletier/go-toml/v2 v2.2.2/go.mod h1:1t835xjRzz80PqgE6HHgN2JOsmgYu/h4qDAS4n929Rs=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
