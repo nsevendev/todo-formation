@@ -51,7 +51,7 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*User, error)
 	var user User
 	err := r.collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			logger.Wf("Erreur mongo no document: %v", err)
 			return nil, nil
 		}
@@ -65,7 +65,7 @@ func (r *userRepo) FindByID(ctx context.Context, id primitive.ObjectID) (*User, 
 	var user User
 	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			logger.Wf("Erreur mongo no document: %v", err)
 			return nil, nil
 		}
@@ -77,7 +77,7 @@ func (r *userRepo) FindByID(ctx context.Context, id primitive.ObjectID) (*User, 
 
 func (r *userRepo) Create(ctx context.Context, user *User) error {
 	user.SetTimeStamps()
-	
+
 	existingUser, err := r.FindByEmail(ctx, user.Email)
 	if err != nil {
 		return err
@@ -112,11 +112,11 @@ func (r *userRepo) Delete(ctx context.Context, id primitive.ObjectID) (int64, er
 }
 
 func (r *userRepo) DeleteMany(ctx context.Context, filter interface{}) (int64, error) {
-    result, err := r.collection.DeleteMany(ctx, filter)
-    if err != nil {
+	result, err := r.collection.DeleteMany(ctx, filter)
+	if err != nil {
 		logger.Ef("Une erreur est survenue lors de la suppression des utilisateurs : %v", err)
-        return 0, err
-    }
+		return 0, err
+	}
 
-    return result.DeletedCount, nil
+	return result.DeletedCount, nil
 }
