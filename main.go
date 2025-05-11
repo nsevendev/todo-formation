@@ -1,11 +1,12 @@
 package main
 
 import (
+	_ "todof/docs"
+	_ "todof/internal/init"
+
 	"strings"
 	"todof/app/router"
-	_ "todof/doc"
 	"todof/internal/config"
-	_ "todof/internal/init"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/logger/v2/logger"
@@ -15,7 +16,7 @@ import (
 // @version 1.0
 // @description API pour créer des todo avec utilisateurs. Pour tester les routes protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token} (remplacez {votre token} par un token valide obtenu via la route /user/login).
 // @host todof.local
-// @BasePath /api/v1
+// @schemes https
 // @securityDefinitions.apikey BearerAuth
 // @in headers
 // @name Authorization
