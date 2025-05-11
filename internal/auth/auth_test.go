@@ -121,6 +121,7 @@ func TestValidateToken (t *testing.T){
 		isErr bool
 	}{
 		{"test success", tokenString, true, false},
+		{"test with invalid token", "invalidtokenstring", false, true},
 	}
 
 	for _, tt := range tests {
@@ -136,6 +137,33 @@ func TestValidateToken (t *testing.T){
 
 		if (token == nil) == tt.isTokenClaims {
 			t.Errorf("%s: got %v, expect token claims", tt.name, token)
+		}
+	}
+}
+
+func TestGetProfilCurrentUser(t *testing.T){
+	tests := []struct {
+		name string
+		id primitive.ObjectID
+		isUser bool
+		isErr bool
+	}{
+		{"test success", ids[0], true, false},
+	}
+
+	for _, tt := range tests {
+		user, err := s.GetProfilCurrentUser(ctx, tt.id)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (err == nil) == tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (user == nil) == tt.isUser {
+			t.Errorf("%s: got %v, expect user", tt.name, user)
 		}
 	}
 }
