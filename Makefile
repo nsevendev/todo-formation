@@ -75,7 +75,7 @@ ldb: ## Affiche les logs du conteneur database
 	docker logs -f $(CONTAINER_NAME_DB)
 
 swag: ## Genere la doc swagger
-	$(SWAG_COMMAND_CONTAINER) init -o doc -g cmd/main.go app/controller internal doc
+	$(SWAG_COMMAND_CONTAINER) init -o doc -g main.go app/controller internal doc
 
 t: ## Execute les tests
 	$(GO_COMMAND_CONTAINER_TEST) test -v -cover ./...
