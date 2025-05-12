@@ -171,13 +171,36 @@ func TestGetProfilCurrentUser(t *testing.T){
 	}
 }
 
+func TestDeleteOneByUser(t *testing.T){
+	tests := []struct {
+		name string
+		id primitive.ObjectID
+		isErr bool
+	}{
+		{"test success", ids[0], false},
+		{"test id valide mais inexistant", primitive.NewObjectID(), false},
+	}
+
+	for _, tt := range tests {
+		err := s.DeleteOneByUser(ctx, tt.id)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (err == nil) == tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+	}
+}
+
 func TestDeleteByAdmin(t *testing.T){
 	tests := []struct {
 		name string
 		deletedCount int
 		isErr bool
 	}{
-		{"test delete success", 2, false},
+		{"test delete success", 1, false},
 	}
 
 	for _, tt := range tests {
