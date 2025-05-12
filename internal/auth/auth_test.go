@@ -286,3 +286,49 @@ func TestRequireAuth(t *testing.T) {
 		}
 	}
 }
+
+func TestRequireRole(t *testing.T) {
+
+	router.GET("/admin", func(c *gin.Context) {
+		c.Set("role", "admin")
+		middleware.RequireRole("admin")(c)
+		if !c.IsAborted() {
+			c.JSON(http.StatusOK, gin.H{"message": "admin access granted"})
+		}
+	})
+
+	router.GET("/user", func(c *gin.Context) {
+		c.Set("role", "user")
+		middleware.RequireRole("admin")(c)
+		if !c.IsAborted() {
+			c.JSON(http.StatusOK, gin.H{"message": "access denied"})
+		}
+	})
+
+	router.GET("/invalid", func(c *gin.Context) {
+		middleware.RequireRole("admin")(c)
+		if !c.IsAborted() {
+			c.JSON(http.StatusOK, gin.H{"message": "should not happen"})
+		}
+	})
+
+	tests := []struct {
+		name           string
+		route          string
+		expectedStatus int
+	}{
+		{"test success pour admin", "/admin", http.StatusOK},
+		{"test access refuse", "/user", http.StatusForbidden},
+		{"test sans role", "/invalid", http.StatusUnauthorized},
+	}
+
+	for _, tt := range tests {
+		req, _ := http.NewRequest("GET", tt.route, nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		if w.Code != tt.expectedStatus {
+			t.Errorf("%s: got status %d, expected status %d", tt.name, w.Code, tt.expectedStatus)
+		}
+	}
+}
