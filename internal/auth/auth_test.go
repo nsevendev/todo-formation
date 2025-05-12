@@ -151,6 +151,7 @@ func TestGetProfilCurrentUser(t *testing.T){
 		isErr bool
 	}{
 		{"test success", ids[0], true, false},
+		{"test id valide mais inexistant", primitive.NewObjectID(), false, false}, // revoir la logique pour la récupération du profil d'un user introuvable
 	}
 
 	for _, tt := range tests {
