@@ -3,11 +3,14 @@ package auth
 import (
 	"context"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 	"todof/internal/config"
 	initializer "todof/internal/init"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,15 +20,21 @@ var r UserRepoInterface
 var s UserServiceInterface
 var c *mongo.Collection
 var ctx context.Context
+var router *gin.Engine
+var middleware AuthMiddlewareInterface
 var ids []primitive.ObjectID
 var users []*User
 var tokenString string
 
+//service
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
 	s = NewUserService(r, config.Get("JWT_SECRET"))
 	ctx := context.Background()
+
+	router = gin.New()
+	middleware = NewAuthMiddleware(s)
 
 	if _, err := c.DeleteMany(ctx, bson.M{}); err != nil {
 		log.Fatalf("Erreur lors du nettoyage de la collection users : %v", err)
@@ -48,7 +57,7 @@ func TestRegister(t *testing.T){
 	}{
 		{"test avec user admin valid", "admin@gmail.com", "password", "admin", "admin", true, false},
 		{"test avec email existant", "admin@gmail.com", "password", "admin2", "admin", false, true},
-		{"test avec propriete role vide", "user@gmail.com", "password", "user", "", true, false},
+		{"test avec propriete role vide", "admin2@gmail.com", "password", "admin2", "", true, false},
 	}
 
 	for _, tt := range tests {
@@ -84,7 +93,7 @@ func TestLogin(t *testing.T){
 		isToken bool
 		isErr bool
 	}{
-		{"test success", "user@gmail.com", "password", true, false},
+		{"test success", "admin@gmail.com", "password", true, false},
 		{"test success", "fail@gmail.com", "password", false, true},
 		{"test success", "admin@gmail.com", "invalid password", false, true},
 	}
@@ -242,6 +251,38 @@ func TestDeleteAllByAdmin(t *testing.T){
 
 		if deletedCount != tt.deletedCount {
 			t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+		}
+	}
+}
+
+//middleware
+func TestRequireAuth(t *testing.T) {
+
+	router.GET("/protected", middleware.RequireAuth(), func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "access granted"})
+	})
+
+	tests := []struct {
+		name           string
+		authHeader     string
+		expectedStatus int
+	}{
+		{"test success", "Bearer " + tokenString, http.StatusOK},
+		{"test sans Authorization header", "", http.StatusUnauthorized},
+		{"test avec Authorization header invalid", "Invalid", http.StatusUnauthorized},
+		{"test avec token invalid", "Bearer invalid", http.StatusUnauthorized},
+	}
+
+	for _, tt := range tests {
+		req, _ := http.NewRequest("GET", "/protected", nil)
+		if tt.authHeader != "" {
+			req.Header.Set("Authorization", tt.authHeader)
+		}
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		if w.Code != tt.expectedStatus {
+			t.Errorf("%s: got status %d, expected %d", tt.name, w.Code, tt.expectedStatus)
 		}
 	}
 }
