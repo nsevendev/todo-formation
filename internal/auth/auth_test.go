@@ -332,3 +332,35 @@ func TestRequireRole(t *testing.T) {
 		}
 	}
 }
+
+//usermodel
+func HashPassword(t *testing.T) {
+	tests := []struct {
+		name         string
+		password  string
+		isErr    bool
+	}{
+		{"test success", "password", false},
+		{"test password vide", "", true},
+	}
+
+	for _, tt := range tests {
+		user := &User{
+			Password: tt.password,
+		}
+
+		err := user.HashPassword()
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (err == nil) == tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if user.Password == tt.password {
+			t.Errorf("%s: echec du hashage du password", tt.name)
+		}
+	}
+}
