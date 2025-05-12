@@ -84,7 +84,7 @@ func TestLogin(t *testing.T){
 		isToken bool
 		isErr bool
 	}{
-		{"test success", "admin@gmail.com", "password", true, false},
+		{"test success", "user@gmail.com", "password", true, false},
 		{"test success", "fail@gmail.com", "password", false, true},
 		{"test success", "admin@gmail.com", "invalid password", false, true},
 	}
@@ -216,6 +216,32 @@ func TestDeleteByAdmin(t *testing.T){
 
 		if (tt.deletedCount != deletedCount) != tt.isErr{
 			t.Errorf("%s: got deletedCount : %v, expect deletedCount : %v", tt.name, deletedCount, tt.deletedCount)
+		}
+	}
+}
+
+func TestDeleteAllByAdmin(t *testing.T){
+	tests := []struct {
+		name string
+		deletedCount int64
+		isErr bool
+	}{
+		{"test success", 0, false},
+	}
+
+	for _, tt := range tests {
+		deletedCount, err := s.DeleteAllByAdmin(ctx)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if (err == nil) == tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+
+		if deletedCount != tt.deletedCount {
+			t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
 		}
 	}
 }
