@@ -22,7 +22,6 @@ var users []*User
 var tokenString string
 
 func TestMain(m *testing.M) {
-	log.Println("TestMain LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
 	s = NewUserService(r, config.Get("JWT_SECRET"))
@@ -47,7 +46,9 @@ func TestRegister(t *testing.T){
 		isUser	 bool
 		isErr    bool
 	}{
-		{"test avec user admin valid", "admin2@gmail.com", "password", "admin2", "admin", true, false},
+		{"test avec user admin valid", "admin@gmail.com", "password", "admin", "admin", true, false},
+		{"test avec email existant", "admin@gmail.com", "password", "admin2", "admin", false, true},
+		{"test avec propriete role vide", "user@gmail.com", "password", "user", "", true, false},
 	}
 
 	for _, tt := range tests {
@@ -83,9 +84,9 @@ func TestLogin(t *testing.T){
 		isToken bool
 		isErr bool
 	}{
-		{"test success", "admin2@gmail.com", "password", true, false},
+		{"test success", "admin@gmail.com", "password", true, false},
 		{"test success", "fail@gmail.com", "password", false, true},
-		{"test success", "admin2@gmail.com", "invalid password", false, true},
+		{"test success", "admin@gmail.com", "invalid password", false, true},
 	}
 
 	for _, tt := range tests {
@@ -114,7 +115,7 @@ func TestLogin(t *testing.T){
 	}
 }
 
-func TestValidateToken (t *testing.T){
+func TestValidateToken(t *testing.T){
 	tests := []struct {
 		name string
 		tokenString string
@@ -175,7 +176,7 @@ func TestDeleteByAdmin(t *testing.T){
 		deletedCount int
 		isErr bool
 	}{
-		{"test delete success", 1, false},
+		{"test delete success", 2, false},
 	}
 
 	for _, tt := range tests {
