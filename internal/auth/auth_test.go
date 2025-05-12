@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var r UserRepoInterface
@@ -334,14 +335,14 @@ func TestRequireRole(t *testing.T) {
 }
 
 //usermodel
-func HashPassword(t *testing.T) {
+func TestHashPassword(t *testing.T) {
 	tests := []struct {
 		name         string
 		password  string
 		isErr    bool
 	}{
 		{"test success", "password", false},
-		{"test password vide", "", true},
+		{"test avec password vide", "", false},
 	}
 
 	for _, tt := range tests {
@@ -361,6 +362,35 @@ func HashPassword(t *testing.T) {
 
 		if user.Password == tt.password {
 			t.Errorf("%s: echec du hashage du password", tt.name)
+		}
+	}
+}
+
+func TestCheckPassword(t *testing.T) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("erreur de génération du hash pour test: %v", err)
+	}
+	
+	tests := []struct {
+		name         string
+		password   string
+		isMatch  bool
+	}{
+		{"test success", "password", true},
+		{"test avec mauvais password", "incorrect", false},
+		{"test avec password vide", "", false},
+	}
+
+	for _, tt := range tests {
+		user := &User{
+			Password: string(hashed),
+		}
+
+		match := user.CheckPassword(tt.password)
+
+		if match != tt.isMatch {
+			t.Errorf("%s: got match %v, expect match %v", tt.name, match, tt.isMatch)
 		}
 	}
 }
