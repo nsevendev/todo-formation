@@ -75,7 +75,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.TaskCreateDto"
+                            "$ref": "#/definitions/todof_internal_task.TaskCreateDto"
                         }
                     }
                 ],
@@ -166,7 +166,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.TaskDeleteManyDto"
+                            "$ref": "#/definitions/todof_internal_task.TaskDeleteManyDto"
                         }
                     }
                 ],
@@ -220,7 +220,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.TaskDeleteManyDto"
+                            "$ref": "#/definitions/todof_internal_task.TaskDeleteManyDto"
                         }
                     }
                 ],
@@ -324,7 +324,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.TaskUpdateLabelDto"
+                            "$ref": "#/definitions/todof_internal_task.TaskUpdateLabelDto"
                         }
                     }
                 ],
@@ -450,7 +450,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.UserLoginDto"
+                            "$ref": "#/definitions/todof_internal_auth.UserLoginDto"
                         }
                     }
                 ],
@@ -533,7 +533,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.UserCreateDto"
+                            "$ref": "#/definitions/todof_internal_auth.UserCreateDto"
                         }
                     }
                 ],
@@ -581,7 +581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.UserDeleteDto"
+                            "$ref": "#/definitions/todof_internal_auth.UserDeleteDto"
                         }
                     }
                 ],
@@ -658,59 +658,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.UserCreateDto": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6
-                },
-                "role": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "auth.UserDeleteDto": {
-            "type": "object",
-            "required": [
-                "ids"
-            ],
-            "properties": {
-                "ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "auth.UserLoginDto": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6
-                }
-            }
-        },
         "ginresponse.JsonFormatterSwag": {
             "type": "object",
             "properties": {
@@ -745,18 +692,30 @@ const docTemplate = `{
                 }
             }
         },
-        "task.TaskCreateDto": {
+        "todof_internal_auth.UserCreateDto": {
             "type": "object",
             "required": [
-                "label"
+                "email",
+                "password",
+                "username"
             ],
             "properties": {
-                "label": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
         },
-        "task.TaskDeleteManyDto": {
+        "todof_internal_auth.UserDeleteDto": {
             "type": "object",
             "required": [
                 "ids"
@@ -770,7 +729,48 @@ const docTemplate = `{
                 }
             }
         },
-        "task.TaskUpdateLabelDto": {
+        "todof_internal_auth.UserLoginDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                }
+            }
+        },
+        "todof_internal_task.TaskCreateDto": {
+            "type": "object",
+            "required": [
+                "label"
+            ],
+            "properties": {
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "todof_internal_task.TaskDeleteManyDto": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "todof_internal_task.TaskUpdateLabelDto": {
             "type": "object",
             "required": [
                 "label"

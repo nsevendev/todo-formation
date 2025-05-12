@@ -22,16 +22,17 @@ var users []*User
 var tokenString string
 
 func TestMain(m *testing.M) {
+	log.Println("TestMain LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
 	s = NewUserService(r, config.Get("JWT_SECRET"))
 	ctx := context.Background()
 
-	code := m.Run()
-
 	if _, err := c.DeleteMany(ctx, bson.M{}); err != nil {
 		log.Fatalf("Erreur lors du nettoyage de la collection users : %v", err)
 	}
+
+	code := m.Run()
 
 	os.Exit(code)
 }

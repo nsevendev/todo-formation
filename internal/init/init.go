@@ -23,10 +23,6 @@ func init() {
 	// GIN RESPONSE FORMAT
 	ginresponse.SetFormatter(&ginresponse.JsonFormatter{})
 
-	// REDIS
-	job.Redis(config.Get("REDIS_ADDR"))
-	job.StartWorker()
-
 	// MIGRATION
 	migrator := migratormongodb.New(Db)
 	migrator.Add(migration.CreateUsersCollection)
@@ -36,4 +32,20 @@ func init() {
 	if err := migrator.Apply(); err != nil {
 		logger.Ff("Erreur lors de l'application des migrations : %v", err)
 	}
+
+	InitJobs()
+}
+
+func InitJobs() {
+    addr := config.Get("REDIS_ADDR")
+    if addr == "" {
+        logger.W("REDIS_ADDR non défini, les jobs ne seront pas démarrés")
+        return
+    }
+    if job.ClientRedis == nil {
+        logger.Ef("❌ ClientRedis n'est pas initialisé, impossible de démarrer les jobs")
+        return
+    }
+    job.Redis(config.Get("REDIS_ADDR"))
+    job.StartWorker()
 }

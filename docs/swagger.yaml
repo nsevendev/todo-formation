@@ -1,40 +1,4 @@
 definitions:
-  auth.UserCreateDto:
-    properties:
-      email:
-        type: string
-      password:
-        minLength: 6
-        type: string
-      role:
-        type: string
-      username:
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  auth.UserDeleteDto:
-    properties:
-      ids:
-        items:
-          type: string
-        type: array
-    required:
-    - ids
-    type: object
-  auth.UserLoginDto:
-    properties:
-      email:
-        type: string
-      password:
-        minLength: 6
-        type: string
-    required:
-    - email
-    - password
-    type: object
   ginresponse.JsonFormatterSwag:
     properties:
       data:
@@ -57,14 +21,23 @@ definitions:
       timestamp:
         type: string
     type: object
-  task.TaskCreateDto:
+  todof_internal_auth.UserCreateDto:
     properties:
-      label:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+      username:
         type: string
     required:
-    - label
+    - email
+    - password
+    - username
     type: object
-  task.TaskDeleteManyDto:
+  todof_internal_auth.UserDeleteDto:
     properties:
       ids:
         items:
@@ -73,7 +46,34 @@ definitions:
     required:
     - ids
     type: object
-  task.TaskUpdateLabelDto:
+  todof_internal_auth.UserLoginDto:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  todof_internal_task.TaskCreateDto:
+    properties:
+      label:
+        type: string
+    required:
+    - label
+    type: object
+  todof_internal_task.TaskDeleteManyDto:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    required:
+    - ids
+    type: object
+  todof_internal_task.TaskUpdateLabelDto:
     properties:
       label:
         type: string
@@ -123,7 +123,7 @@ paths:
         name: task
         required: true
         schema:
-          $ref: '#/definitions/task.TaskCreateDto'
+          $ref: '#/definitions/todof_internal_task.TaskCreateDto'
       produces:
       - application/json
       responses:
@@ -192,7 +192,7 @@ paths:
         name: label
         required: true
         schema:
-          $ref: '#/definitions/task.TaskUpdateLabelDto'
+          $ref: '#/definitions/todof_internal_task.TaskUpdateLabelDto'
       produces:
       - application/json
       responses:
@@ -280,7 +280,7 @@ paths:
         name: ids
         required: true
         schema:
-          $ref: '#/definitions/task.TaskDeleteManyDto'
+          $ref: '#/definitions/todof_internal_task.TaskDeleteManyDto'
       produces:
       - application/json
       responses:
@@ -315,7 +315,7 @@ paths:
         name: ids
         required: true
         schema:
-          $ref: '#/definitions/task.TaskDeleteManyDto'
+          $ref: '#/definitions/todof_internal_task.TaskDeleteManyDto'
       produces:
       - application/json
       responses:
@@ -368,7 +368,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/auth.UserLoginDto'
+          $ref: '#/definitions/todof_internal_auth.UserLoginDto'
       produces:
       - application/json
       responses:
@@ -422,7 +422,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/auth.UserCreateDto'
+          $ref: '#/definitions/todof_internal_auth.UserCreateDto'
       produces:
       - application/json
       responses:
@@ -451,7 +451,7 @@ paths:
         name: ids
         required: true
         schema:
-          $ref: '#/definitions/auth.UserDeleteDto'
+          $ref: '#/definitions/todof_internal_auth.UserDeleteDto'
       produces:
       - application/json
       responses:
