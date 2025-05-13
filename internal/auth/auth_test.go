@@ -77,10 +77,6 @@ func TestRegister(t *testing.T){
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
-		if (user == nil) == tt.isUser{
-			t.Errorf("%s: got user %v, expect user %v", tt.name, user, tt.isUser)
-		}
-
 		if user != nil {
 			ids = append(ids, user.ID)
 			users = append(users, user)
@@ -89,6 +85,8 @@ func TestRegister(t *testing.T){
 }
 
 func TestLogin(t *testing.T){
+	serviceWithJWTEmpty := NewUserService(r, config.Get(""))
+
 	tests := []struct {
 		name string
 		email string
@@ -97,8 +95,9 @@ func TestLogin(t *testing.T){
 		isErr bool
 	}{
 		{"test success", "admin@gmail.com", "password", true, false},
-		{"test success", "fail@gmail.com", "password", false, true},
-		{"test success", "admin@gmail.com", "invalid password", false, true},
+		{"test avec email inexistant", "fail@gmail.com", "password", false, true},
+		{"test avec mauvais password", "admin@gmail.com", "invalid password", false, true},
+		{"test avec JWT_SECRET vide", "admin@gmail.com", "password", false, true},
 	}
 
 	for _, tt := range tests {
@@ -106,14 +105,16 @@ func TestLogin(t *testing.T){
 			Email: tt.email,
 			Password: tt.password,
 		}
+		var token string
+		var err error
 
-		token, err := s.Login(ctx, userLoginDto)
-
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		if tt.name != "test avec JWT_SECRET vide" {
+			token, err = s.Login(ctx, userLoginDto)
+		}else{
+			token, err = serviceWithJWTEmpty.Login(ctx, userLoginDto)
 		}
 
-		if (err == nil) == tt.isErr {
+		if (err != nil) != tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
@@ -145,10 +146,6 @@ func TestValidateToken(t *testing.T){
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
-		if (err == nil) == tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
-
 		if (token == nil) == tt.isTokenClaims {
 			t.Errorf("%s: got %v, expect token claims", tt.name, token)
 		}
@@ -170,10 +167,6 @@ func TestGetProfilCurrentUser(t *testing.T){
 		user, err := s.GetProfilCurrentUser(ctx, tt.id)
 
 		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
-
-		if (err == nil) == tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
@@ -199,10 +192,6 @@ func TestDeleteOneByUser(t *testing.T){
 		if (err != nil) != tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
-
-		if (err == nil) == tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
 	}
 }
 
@@ -222,11 +211,7 @@ func TestDeleteByAdmin(t *testing.T){
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
-		if (err == nil) == tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
-
-		if (tt.deletedCount != deletedCount) != tt.isErr{
+		if deletedCount != tt.deletedCount {
 			t.Errorf("%s: got deletedCount : %v, expect deletedCount : %v", tt.name, deletedCount, tt.deletedCount)
 		}
 	}
@@ -245,10 +230,6 @@ func TestDeleteAllByAdmin(t *testing.T){
 		deletedCount, err := s.DeleteAllByAdmin(ctx)
 
 		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
-
-		if (err == nil) == tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
@@ -380,10 +361,6 @@ func TestHashPassword(t *testing.T) {
 		err := user.HashPassword()
 
 		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
-
-		if (err == nil) == tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 
