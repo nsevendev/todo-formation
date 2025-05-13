@@ -129,6 +129,22 @@ func TestLogin(t *testing.T){
 }
 
 func TestValidateToken(t *testing.T){
+	generateTokenWithInvalidIdUser:= func() string {
+		claims := &tokenClaims{
+			IdUser: "idinvalid",
+			Email:  "test@example.com",
+			Role:   "user",
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+			},
+		}
+	
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, _ := token.SignedString([]byte(config.Get("JWT_SECRET")))
+		return tokenString
+	}
+
 	tests := []struct {
 		name string
 		tokenString string
@@ -137,6 +153,7 @@ func TestValidateToken(t *testing.T){
 	}{
 		{"test success", tokenString, true, false},
 		{"test with invalid token", "invalidtokenstring", false, true},
+		{"test with missing JWT_SECRET", "Bearer " + generateTokenWithInvalidIdUser(), false, true},
 	}
 
 	for _, tt := range tests {
