@@ -7,10 +7,12 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 	"todof/internal/config"
 	initializer "todof/internal/init"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -263,6 +265,21 @@ func TestRequireAuth(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"message": "access granted"})
 	})
 
+	generateTokenWithInvalidIdUser := func() string {
+		claims := &tokenClaims{
+			IdUser: "idinvalid",
+			Email:  "test@example.com",
+			Role:   "user",
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, _ := token.SignedString([]byte(config.Get("JWT_SECRET")))
+		return tokenString
+	}
+
 	tests := []struct {
 		name           string
 		authHeader     string
@@ -272,6 +289,7 @@ func TestRequireAuth(t *testing.T) {
 		{"test sans Authorization header", "", http.StatusUnauthorized},
 		{"test avec Authorization header invalid", "Invalid", http.StatusUnauthorized},
 		{"test avec token invalid", "Bearer invalid", http.StatusUnauthorized},
+		{"test avec token avec Id invalid", "Bearer " + generateTokenWithInvalidIdUser(), http.StatusUnauthorized},
 	}
 
 	for _, tt := range tests {
