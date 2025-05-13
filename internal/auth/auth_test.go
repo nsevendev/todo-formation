@@ -331,6 +331,14 @@ func TestRequireRole(t *testing.T) {
 		}
 	})
 
+	router.GET("/invalid-type", func(c *gin.Context) {
+		c.Set("role", 123456789)
+		middleware.RequireRole("admin")(c)
+		if !c.IsAborted() {
+			c.JSON(http.StatusOK, gin.H{"message": "should not happen"})
+		}
+	})
+
 	tests := []struct {
 		name           string
 		route          string
@@ -339,6 +347,7 @@ func TestRequireRole(t *testing.T) {
 		{"test success pour admin", "/admin", http.StatusOK},
 		{"test access refuse", "/user", http.StatusForbidden},
 		{"test sans role", "/invalid", http.StatusUnauthorized},
+		{"test role mauvais type", "/invalid-type", http.StatusInternalServerError},
 	}
 
 	for _, tt := range tests {
