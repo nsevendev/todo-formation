@@ -163,8 +163,27 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 		updateDto := TaskUpdateLabelDto{
 			Label: tt.label,
 		}
-		
+
 		err := s.UpdateOneLabelPropertyByUser(ctx, tt.idUser, tt.idTask, updateDto)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+	}
+}
+
+func TestDeleteOneByUser(t *testing.T){
+	tests := []struct {
+		name string
+		idUser primitive.ObjectID
+		idTask primitive.ObjectID
+		isErr bool
+	}{
+		{"test success", usersIds[0], tasksIds[0], false},
+	}
+
+	for _, tt := range tests {
+		err := s.DeleteOneByUser(ctx, tt.idUser, tt.idTask)
 
 		if (err != nil) != tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
