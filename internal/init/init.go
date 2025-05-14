@@ -1,7 +1,6 @@
 package init
 
 import (
-	"log"
 	"todof/internal/config"
 	"todof/internal/job"
 	"todof/migration"
@@ -12,7 +11,6 @@ import (
 )
 
 func init() {
-	log.Println("init.go LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 	// START GET .ENV
 	appEnv := config.Get("APP_ENV")
 
