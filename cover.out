@@ -80,9 +80,9 @@ todof/internal/auth/service.go:127.2,127.66 1 1
 todof/internal/auth/service.go:127.66,129.3 1 1
 todof/internal/auth/service.go:131.2,131.49 1 0
 todof/internal/auth/service.go:134.103,136.2 1 1
-todof/internal/auth/service.go:138.79,140.13 2 0
-todof/internal/auth/service.go:140.13,144.3 3 0
-todof/internal/auth/service.go:146.2,146.36 1 0
+todof/internal/auth/service.go:138.79,140.13 2 1
+todof/internal/auth/service.go:140.13,144.3 3 1
+todof/internal/auth/service.go:146.2,146.36 1 1
 todof/internal/auth/service.go:149.89,150.54 1 1
 todof/internal/auth/service.go:150.54,152.3 1 0
 todof/internal/auth/service.go:154.2,154.12 1 1

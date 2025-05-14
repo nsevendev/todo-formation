@@ -193,6 +193,56 @@ func TestGetProfilCurrentUser(t *testing.T){
 	}
 }
 
+func TestGetIdUserInContext(t *testing.T) {
+    tests := []struct {
+        name      string
+        setup     func(c *gin.Context)
+        isAborted bool
+        expectID  primitive.ObjectID
+    }{
+        {
+            name: "test success",
+            setup: func(c *gin.Context) {
+                c.Set("id_user", ids[0])
+            },
+            isAborted: false,
+            expectID:  ids[0],
+        },
+        {
+            name: "test sans id_user dans le contexte",
+            setup: func(c *gin.Context) {
+            },
+            isAborted: true,
+        },
+    }
+
+    for _, tt := range tests {
+        w := httptest.NewRecorder()
+        c, _ := gin.CreateTestContext(w)
+        tt.setup(c)
+
+        func() {
+            defer func() {
+                if r := recover(); r != nil {
+                    if !tt.isAborted {
+                        t.Errorf("%s: panique inattendue : %v", tt.name, r)
+                    }
+                }
+            }()
+            
+            id := s.GetIdUserInContext(c)
+
+            if c.IsAborted() != tt.isAborted {
+                t.Errorf("%s: expected abort %v, got aborted %v", tt.name, tt.isAborted, c.IsAborted())
+            }
+
+            if !tt.isAborted && id != tt.expectID {
+                t.Errorf("%s: expected id %v, got %v", tt.name, tt.expectID, id)
+            }
+        }()
+    }
+}
+
 func TestDeleteOneByUser(t *testing.T){
 	tests := []struct {
 		name string
