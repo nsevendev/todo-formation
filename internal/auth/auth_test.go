@@ -243,14 +243,15 @@ func TestGetIdUserInContext(t *testing.T) {
     }
 }
 
-func TestDeleteOneByUser(t *testing.T){
+func TestDeleteOneByUser(t *testing.T) {
 	tests := []struct {
-		name string
-		id primitive.ObjectID
-		isErr bool
+		name    string
+		id      primitive.ObjectID
+		isErr   bool
 	}{
-		{"test success", ids[0], false},
-		{"test id valide mais inexistant", primitive.NewObjectID(), false},
+		{"test succès avec un utilisateur existant", ids[0], false},
+		{"test avec un ID valide mais inexistant dans la base", primitive.NewObjectID(), false},
+		{"test avec un ID invalide", primitive.NilObjectID, false},
 	}
 
 	for _, tt := range tests {
