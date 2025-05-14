@@ -213,6 +213,7 @@ func TestDeleteManyByUser(t *testing.T) {
 					t.Fatalf("Erreur lors de la création du user: %v", err)
 				}
 
+				usersIds = append(usersIds, user.ID)
 				userID := result.InsertedID.(primitive.ObjectID)
 
 				task := &Task{
@@ -228,6 +229,7 @@ func TestDeleteManyByUser(t *testing.T) {
 				if err != nil {
 					t.Fatalf("Erreur lors de la création de la tâche: %v", err)
 				}
+				tasksIds = append(tasksIds, task.ID)
 				taskID := res.InsertedID.(primitive.ObjectID)
 
 				return userID, taskID
@@ -240,6 +242,62 @@ func TestDeleteManyByUser(t *testing.T) {
 		userID, taskID := tt.setup()
 
 		err := s.DeleteManyByUser(ctx, userID, []primitive.ObjectID{taskID})
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("got error %v, expected error: %v", err, tt.isErr)
+		}
+	}
+}
+
+func TestDeleteById(t *testing.T){
+	tests := []struct {
+		name string
+		setup func() (userID primitive.ObjectID, taskID primitive.ObjectID)
+		isErr bool
+	}{
+		{
+			name: "test success",
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				user := &auth.User{
+					Email:    "taskTest4@gmail.com",
+					Password: "password",
+				}
+
+				result, err := userCollection.InsertOne(ctx, user)
+
+				if err != nil {
+					t.Fatalf("Erreur lors de la création du user: %v", err)
+				}
+
+				usersIds = append(usersIds, user.ID)
+				userID := result.InsertedID.(primitive.ObjectID)
+
+				task := &Task{
+					Label:    "Test task",
+					Done:   false,
+					CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+					UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
+					IdUser: userID,
+				}
+
+				res, err := taskCollection.InsertOne(ctx, task)
+
+				if err != nil {
+					t.Fatalf("Erreur lors de la création de la tâche: %v", err)
+				}
+				tasksIds = append(tasksIds, task.ID)
+				taskID := res.InsertedID.(primitive.ObjectID)
+
+				return userID, taskID
+			},
+			isErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		_, taskID := tt.setup()
+		
+		err := s.DeleteById(ctx, []primitive.ObjectID{taskID})
 
 		if (err != nil) != tt.isErr {
 			t.Errorf("got error %v, expected error: %v", err, tt.isErr)
