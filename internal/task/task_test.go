@@ -304,3 +304,20 @@ func TestDeleteById(t *testing.T){
 		}
 	}
 }
+
+func TestDeleteAllTasks(t *testing.T){
+	tests := []struct {
+		name string
+		isErr bool
+	}{
+		{"test success", false},
+	}
+
+	for _, tt := range tests {
+		err := s.DeleteAllTasks(ctx)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("got error %v, expected error: %v", err, tt.isErr)
+		}
+	}
+}
