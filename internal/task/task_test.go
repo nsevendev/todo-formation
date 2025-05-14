@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 	"todof/internal/auth"
 	initializer "todof/internal/init"
 
@@ -15,13 +16,14 @@ import (
 
 var s TaskServiceInterface
 var userCollection *mongo.Collection
+var taskCollection *mongo.Collection
 var ctx context.Context
 var usersIds []primitive.ObjectID
 var tasksIds []primitive.ObjectID
 
 //service
 func TestMain(m *testing.M) {
-	taskCollection := initializer.Db.Collection("tasks")
+	taskCollection = initializer.Db.Collection("tasks")
 	userCollection = initializer.Db.Collection("users")
 	r := NewTaskRepo(initializer.Db)
 	userRepo := auth.NewUserRepo(initializer.Db)
@@ -187,6 +189,60 @@ func TestDeleteOneByUser(t *testing.T){
 
 		if (err != nil) != tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+		}
+	}
+}
+
+func TestDeleteManyByUser(t *testing.T) {
+	tests := []struct {
+		name  string
+		setup func() (userID primitive.ObjectID, taskID primitive.ObjectID)
+		isErr bool
+	}{
+		{
+			name: "test success",
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				user := &auth.User{
+					Email:    "taskTest3@gmail.com",
+					Password: "password",
+				}
+
+				result, err := userCollection.InsertOne(ctx, user)
+
+				if err != nil {
+					t.Fatalf("Erreur lors de la création du user: %v", err)
+				}
+
+				userID := result.InsertedID.(primitive.ObjectID)
+
+				task := &Task{
+					Label:    "Test task",
+					Done:   false,
+					CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+					UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
+					IdUser: userID,
+				}
+
+				res, err := taskCollection.InsertOne(ctx, task)
+
+				if err != nil {
+					t.Fatalf("Erreur lors de la création de la tâche: %v", err)
+				}
+				taskID := res.InsertedID.(primitive.ObjectID)
+
+				return userID, taskID
+			},
+			isErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		userID, taskID := tt.setup()
+
+		err := s.DeleteManyByUser(ctx, userID, []primitive.ObjectID{taskID})
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("got error %v, expected error: %v", err, tt.isErr)
 		}
 	}
 }
