@@ -16,7 +16,8 @@ import (
 var s TaskServiceInterface
 var userCollection *mongo.Collection
 var ctx context.Context
-var ids []primitive.ObjectID
+var usersIds []primitive.ObjectID
+var tasksIds []primitive.ObjectID
 
 //service
 func TestMain(m *testing.M) {
@@ -61,7 +62,7 @@ func TestCreate(t *testing.T) {
 				if err != nil {
 					t.Fatalf("Erreur lors de la création du user: %v", err)
 				}
-				ids = append(ids, result.InsertedID.(primitive.ObjectID))
+				usersIds = append(usersIds, result.InsertedID.(primitive.ObjectID))
 				return result.InsertedID.(primitive.ObjectID)
 			},
 		},
@@ -75,6 +76,10 @@ func TestCreate(t *testing.T) {
 		}
 
 		task, err := s.Create(ctx, createDto, userId)
+
+		if task != nil {
+			tasksIds = append(tasksIds, task.ID)
+		}
 
 		if (err != nil) != tt.isErr {
 			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
@@ -97,7 +102,7 @@ func TestGetAllByUser(t *testing.T){
 		if err != nil {
 			t.Fatalf("Erreur lors de la création du user: %v", err)
 		}
-		ids = append(ids, result.InsertedID.(primitive.ObjectID))
+		usersIds = append(usersIds, result.InsertedID.(primitive.ObjectID))
 		return result.InsertedID.(primitive.ObjectID)
 	}
 
@@ -107,7 +112,7 @@ func TestGetAllByUser(t *testing.T){
 		isTask bool
 		isErr bool
 	}{
-		{"test success", ids[0], true, false},
+		{"test success", usersIds[0], true, false},
 		{"test avec user sans task", userId(), true, false},
 	}
 
@@ -120,6 +125,25 @@ func TestGetAllByUser(t *testing.T){
 
 		if (task == nil) == tt.isTask{
 			t.Errorf("%s: got task %v, expect task %v", tt.name, task, tt.isTask)
+		}
+	}
+}
+
+func TestUpdateOneDonePropertyByUser(t *testing.T){
+	tests := []struct {
+		name string
+		idUser primitive.ObjectID
+		idTask primitive.ObjectID
+		isErr bool
+	}{
+		{"test success", usersIds[0], tasksIds[0], false},
+	}
+
+	for _, tt := range tests {
+		err := s.UpdateOneDonePropertyByUser(ctx, tt.idUser, tt.idTask)
+
+		if (err != nil) != tt.isErr {
+			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 		}
 	}
 }
