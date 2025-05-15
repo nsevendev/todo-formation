@@ -191,6 +191,7 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 		isErr bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], "label updated", false},
+		{"test echec mongo", usersIds[0], tasksIds[0], "label updated", true},
 	}
 
 	for _, tt := range tests {
@@ -198,10 +199,18 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 			Label: tt.label,
 		}
 
-		err := s.UpdateOneLabelPropertyByUser(ctx, tt.idUser, tt.idTask, updateDto)
+		if tt.name == "test echec mongo" {
+			err := s.UpdateOneLabelPropertyByUser(cancelCtx, tt.idUser, tt.idTask, updateDto)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		}else{
+			err := s.UpdateOneLabelPropertyByUser(ctx, tt.idUser, tt.idTask, updateDto)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
 		}
 	}
 }
