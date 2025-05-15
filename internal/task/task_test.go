@@ -129,17 +129,26 @@ func TestGetAllByUser(t *testing.T){
 	}{
 		{"test success", usersIds[0], true, false},
 		{"test avec user sans task", userId(), true, false},
+		{"test echec mongo", usersIds[0], false, true},
 	}
 
 	for _, tt := range tests {
-		task, err := s.GetAllByUser(ctx, tt.userId)
+		if tt.name == "test echec mongo" {
+			_, err := s.GetAllByUser(cancelCtx, tt.userId)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		}else{
+			task, err := s.GetAllByUser(ctx, tt.userId)
 
-		if (task == nil) == tt.isTask{
-			t.Errorf("%s: got task %v, expect task %v", tt.name, task, tt.isTask)
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+	
+			if (task == nil) == tt.isTask{
+				t.Errorf("%s: got task %v, expect task %v", tt.name, task, tt.isTask)
+			}
 		}
 	}
 }
