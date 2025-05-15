@@ -18,17 +18,21 @@ var s TaskServiceInterface
 var userCollection *mongo.Collection
 var taskCollection *mongo.Collection
 var ctx context.Context
+var cancelCtx context.Context
+var cancelFunc context.CancelFunc
 var usersIds []primitive.ObjectID
 var tasksIds []primitive.ObjectID
 
-//service
 func TestMain(m *testing.M) {
 	taskCollection = initializer.Db.Collection("tasks")
 	userCollection = initializer.Db.Collection("users")
 	r := NewTaskRepo(initializer.Db)
 	userRepo := auth.NewUserRepo(initializer.Db)
 	s = NewTaskService(r, userRepo)
-	ctx := context.Background()
+	ctx = context.Background()
+
+	cancelCtx, cancelFunc = context.WithCancel(ctx)
+	cancelFunc()
 
 	if _, err := taskCollection.DeleteMany(ctx, bson.M{}); err != nil {
 		log.Fatalf("Erreur lors du nettoyage de la collection tasks : %v", err)
@@ -68,6 +72,7 @@ func TestCreate(t *testing.T) {
 				return result.InsertedID.(primitive.ObjectID)
 			},
 		},
+		{"test echec mongo", func() primitive.ObjectID {return primitive.NewObjectID()}, "label test", true},
 	}
 
 	for _, tt := range tests {
@@ -77,18 +82,26 @@ func TestCreate(t *testing.T) {
 			Label: tt.label,
 		}
 
-		task, err := s.Create(ctx, createDto, userId)
+		if tt.name == "test echec mongo" {
+			_, err := s.Create(cancelCtx, createDto, userId)
 
-		if task != nil {
-			tasksIds = append(tasksIds, task.ID)
-		}
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		}else{
+			task, err := s.Create(ctx, createDto, userId)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
-
-		if err == nil && task.Label != tt.label {
-			t.Errorf("%s: got label %s, expect label %s", tt.name, task.Label, tt.label)
+			if task != nil {
+				tasksIds = append(tasksIds, task.ID)
+			}
+	
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+	
+			if err == nil && task.Label != tt.label {
+				t.Errorf("%s: got label %s, expect label %s", tt.name, task.Label, tt.label)
+			}
 		}
 	}
 }
@@ -187,19 +200,17 @@ func TestDeleteOneByUser(t *testing.T){
 
 	for _, tt := range tests {
 		if tt.name == "test echec mongodb" {
-			cancelCtx, cancel := context.WithCancel(context.Background())
-			cancel() // annule immédiatement le contexte
 			err := s.DeleteOneByUser(cancelCtx, tt.idUser, tt.idTask)
 
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}
+		}else{
+			err := s.DeleteOneByUser(ctx, tt.idUser, tt.idTask)
 
-		err := s.DeleteOneByUser(ctx, tt.idUser, tt.idTask)
-
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
 		}
 	}
 }
