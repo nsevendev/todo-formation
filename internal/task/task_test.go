@@ -161,13 +161,23 @@ func TestUpdateOneDonePropertyByUser(t *testing.T){
 		isErr bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], false},
+		{"test echec avec task introuvale", usersIds[0], primitive.NewObjectID(), true},
+		{"test echec mongo", usersIds[0], tasksIds[0], true},
 	}
 
 	for _, tt := range tests {
-		err := s.UpdateOneDonePropertyByUser(ctx, tt.idUser, tt.idTask)
+		if tt.name == "test echec mongo" {
+			err := s.UpdateOneDonePropertyByUser(cancelCtx, tt.idUser, tt.idTask)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		}else{
+			err := s.UpdateOneDonePropertyByUser(ctx, tt.idUser, tt.idTask)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
 		}
 	}
 }
