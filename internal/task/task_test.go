@@ -182,9 +182,20 @@ func TestDeleteOneByUser(t *testing.T){
 		isErr bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], false},
+		{"test echec mongodb", usersIds[0], tasksIds[0], true},
 	}
 
 	for _, tt := range tests {
+		if tt.name == "test echec mongodb" {
+			cancelCtx, cancel := context.WithCancel(context.Background())
+			cancel() // annule immédiatement le contexte
+			err := s.DeleteOneByUser(cancelCtx, tt.idUser, tt.idTask)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		}
+
 		err := s.DeleteOneByUser(ctx, tt.idUser, tt.idTask)
 
 		if (err != nil) != tt.isErr {
