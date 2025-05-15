@@ -393,13 +393,23 @@ func TestDeleteAllTasks(t *testing.T){
 		isErr bool
 	}{
 		{"test success", false},
+		{"test echec mongodb", true},
 	}
 
 	for _, tt := range tests {
-		err := s.DeleteAllTasks(ctx)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("got error %v, expected error: %v", err, tt.isErr)
+		if tt.name == "test echec mongodb" {
+			err := s.DeleteAllTasks(cancelCtx)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		}else{
+			err := s.DeleteAllTasks(ctx)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("got error %v, expected error: %v", err, tt.isErr)
+			}
 		}
 	}
 }

@@ -65,7 +65,7 @@ todof/internal/task/service.go:93.87,94.56 1 1
 todof/internal/task/service.go:94.56,96.3 1 1
 todof/internal/task/service.go:98.2,98.12 1 1
 todof/internal/task/service.go:101.65,103.16 2 1
-todof/internal/task/service.go:103.16,105.3 1 0
+todof/internal/task/service.go:103.16,105.3 1 1
 todof/internal/task/service.go:107.2,108.29 2 1
 todof/internal/task/service.go:108.29,110.3 1 1
 todof/internal/task/service.go:112.2,112.64 1 1
