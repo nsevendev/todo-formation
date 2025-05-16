@@ -214,7 +214,7 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 		updateDto := TaskUpdateLabelDto{
 			Label: tt.label,
 		}
-		
+
 		switch tt.name {
 		case "test echec mongo":
 			err := s.UpdateOneLabelPropertyByUser(cancelCtx, tt.idUser, tt.idTask, updateDto)
@@ -242,6 +242,7 @@ func TestDeleteOneByUser(t *testing.T){
 	}{
 		{"test success", usersIds[0], tasksIds[0], false},
 		{"test echec mongodb", usersIds[0], tasksIds[0], true},
+		{"test aucune tâche supprimée", usersIds[0], primitive.NewObjectID(), true},
 	}
 
 	for _, tt := range tests {
