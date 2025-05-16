@@ -214,14 +214,16 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 		updateDto := TaskUpdateLabelDto{
 			Label: tt.label,
 		}
-
-		if tt.name == "test echec mongo" {
+		
+		switch tt.name {
+		case "test echec mongo":
 			err := s.UpdateOneLabelPropertyByUser(cancelCtx, tt.idUser, tt.idTask, updateDto)
 
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+
+		default:
 			err := s.UpdateOneLabelPropertyByUser(ctx, tt.idUser, tt.idTask, updateDto)
 
 			if (err != nil) != tt.isErr {
