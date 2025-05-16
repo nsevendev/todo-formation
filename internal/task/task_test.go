@@ -169,12 +169,12 @@ func TestGetAllByUser(t *testing.T){
 	}
 }
 
-func TestUpdateOneDonePropertyByUser(t *testing.T){
+func TestUpdateOneDonePropertyByUser(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		idUser primitive.ObjectID
 		idTask primitive.ObjectID
-		isErr bool
+		isErr  bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], false},
 		{"test echec avec task introuvale", usersIds[0], primitive.NewObjectID(), true},
@@ -182,15 +182,15 @@ func TestUpdateOneDonePropertyByUser(t *testing.T){
 	}
 
 	for _, tt := range tests {
-		if tt.name == "test echec mongo" {
+		switch tt.name {
+		case "test echec mongo":
 			err := s.UpdateOneDonePropertyByUser(cancelCtx, tt.idUser, tt.idTask)
-
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+		
+		default:
 			err := s.UpdateOneDonePropertyByUser(ctx, tt.idUser, tt.idTask)
-
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
@@ -402,7 +402,7 @@ func TestDeleteById(t *testing.T){
 		}
 	}
 }
-/*
+
 func TestDeleteAllTasks(t *testing.T){
 	tests := []struct {
 		name string
@@ -429,4 +429,3 @@ func TestDeleteAllTasks(t *testing.T){
 		}
 	}
 }
-*/
