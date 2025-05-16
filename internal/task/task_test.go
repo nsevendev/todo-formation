@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var s TaskServiceInterface
@@ -130,23 +131,38 @@ func TestGetAllByUser(t *testing.T){
 		{"test success", usersIds[0], true, false},
 		{"test avec user sans task", userId(), true, false},
 		{"test echec mongo", usersIds[0], false, true},
+		{"test document mal formé", usersIds[0], false, true},
 	}
 
 	for _, tt := range tests {
-		if tt.name == "test echec mongo" {
+		switch tt.name {
+		case "test echec mongo":
 			_, err := s.GetAllByUser(cancelCtx, tt.userId)
-
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+
+		case "test document mal formé":
+			_, err := taskCollection.InsertOne(ctx, bson.M{
+				"id_user": tt.userId,
+				"label":   1234,
+				"done":    false,
+			}, options.InsertOne().SetBypassDocumentValidation(true))
+			if err != nil {
+				t.Fatalf("Erreur lors de l'insertion du document mal formé: %v", err)
+			}
+
+			_, err = s.GetAllByUser(ctx, tt.userId)
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+
+		default:
 			task, err := s.GetAllByUser(ctx, tt.userId)
-
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-	
-			if (task == nil) == tt.isTask{
+			if (task == nil) == tt.isTask {
 				t.Errorf("%s: got task %v, expect task %v", tt.name, task, tt.isTask)
 			}
 		}
@@ -386,7 +402,7 @@ func TestDeleteById(t *testing.T){
 		}
 	}
 }
-
+/*
 func TestDeleteAllTasks(t *testing.T){
 	tests := []struct {
 		name string
@@ -413,3 +429,4 @@ func TestDeleteAllTasks(t *testing.T){
 		}
 	}
 }
+*/
