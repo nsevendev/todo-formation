@@ -395,8 +395,13 @@ func TestDeleteById(t *testing.T){
 			isErr: false,
 		},
 		{
-			name: "test echec mongodb",
+			name: "test echec mongo",
 			setup: setup("taskTest6@gmail.com"),
+			isErr: true,
+		},
+		{
+			name: "test aucune tâche supprimée",
+			setup: setup("fail2@gmail.com"),
 			isErr: true,
 		},
 	}
@@ -404,13 +409,23 @@ func TestDeleteById(t *testing.T){
 	for _, tt := range tests {
 		_, taskID := tt.setup()
 
-		if tt.name == "test echec mongodb" {
+		switch tt.name {
+		case "test echec mongo":
 			err := s.DeleteById(cancelCtx, []primitive.ObjectID{taskID})
 
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+		
+		case "test aucune tâche supprimée":
+			err := s.DeleteById(ctx, []primitive.ObjectID{primitive.NewObjectID()})
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+
+		
+		default:
 			err := s.DeleteById(ctx, []primitive.ObjectID{taskID})
 
 			if (err != nil) != tt.isErr {
