@@ -16,6 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -367,6 +368,51 @@ func TestDeleteAllByAdmin(t *testing.T){
 
 			if deletedCount != tt.deletedCount {
 				t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+			}
+		}
+	}
+}
+
+//repo
+func TestFindNonAdmin(t *testing.T){
+	tests := []struct {
+		name string
+		isErr bool
+	}{
+		{"test success", false},
+		{"test echec mongo", true},
+		{"test echec du cursor", true},
+	}
+
+	for _, tt := range tests {
+		switch tt.name {
+		case "test echec mongo":
+			_, err := r.FindNonAdmin(cancelCtx)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		
+		case "test echec du cursor":
+			_, err := c.InsertOne(ctx, bson.M{
+				"email": true,
+				"role": "user",
+			}, options.InsertOne().SetBypassDocumentValidation(true))
+			if err != nil {
+				t.Fatalf("Erreur lors de l'insertion du document mal formé: %v", err)
+			}
+
+			_, err = r.FindNonAdmin(ctx)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+		
+		default:
+			_, err := r.FindNonAdmin(ctx)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
 		}
 	}

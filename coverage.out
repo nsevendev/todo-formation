@@ -22,11 +22,11 @@ todof/internal/auth/middleware.go:111.3,111.18 1 1
 todof/internal/auth/middleware.go:111.18,115.4 3 1
 todof/internal/auth/middleware.go:117.3,117.11 1 1
 todof/internal/auth/repository.go:26.56,30.2 1 1
-todof/internal/auth/repository.go:32.70,35.16 3 0
-todof/internal/auth/repository.go:35.16,38.3 2 0
-todof/internal/auth/repository.go:39.2,42.48 3 0
-todof/internal/auth/repository.go:42.48,45.3 2 0
-todof/internal/auth/repository.go:47.2,47.19 1 0
+todof/internal/auth/repository.go:32.70,35.16 3 1
+todof/internal/auth/repository.go:35.16,38.3 2 1
+todof/internal/auth/repository.go:39.2,42.48 3 1
+todof/internal/auth/repository.go:42.48,45.3 2 1
+todof/internal/auth/repository.go:47.2,47.19 1 1
 todof/internal/auth/repository.go:50.82,53.16 3 1
 todof/internal/auth/repository.go:53.16,54.43 1 1
 todof/internal/auth/repository.go:54.43,57.4 2 1
