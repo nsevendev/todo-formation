@@ -47,7 +47,7 @@ todof/internal/auth/repository.go:94.2,95.16 2 1
 todof/internal/auth/repository.go:95.16,98.3 2 0
 todof/internal/auth/repository.go:100.2,101.12 2 1
 todof/internal/auth/repository.go:104.86,106.16 2 1
-todof/internal/auth/repository.go:106.16,109.3 2 0
+todof/internal/auth/repository.go:106.16,109.3 2 1
 todof/internal/auth/repository.go:111.2,111.33 1 1
 todof/internal/auth/repository.go:114.87,116.16 2 1
 todof/internal/auth/repository.go:116.16,119.3 2 0
@@ -84,7 +84,7 @@ todof/internal/auth/service.go:138.79,140.13 2 1
 todof/internal/auth/service.go:140.13,144.3 3 1
 todof/internal/auth/service.go:146.2,146.36 1 1
 todof/internal/auth/service.go:149.89,150.54 1 1
-todof/internal/auth/service.go:150.54,152.3 1 0
+todof/internal/auth/service.go:150.54,152.3 1 1
 todof/internal/auth/service.go:154.2,154.12 1 1
 todof/internal/auth/service.go:157.97,160.25 2 1
 todof/internal/auth/service.go:160.25,162.17 2 1

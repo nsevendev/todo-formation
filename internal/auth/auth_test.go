@@ -280,13 +280,24 @@ func TestDeleteOneByUser(t *testing.T) {
 		{"test succès avec un utilisateur existant", ids[0], false},
 		{"test avec un ID valide mais inexistant dans la base", primitive.NewObjectID(), false},
 		{"test avec un ID invalide", primitive.NilObjectID, false},
+		{"test echec mongo", ids[0], true},
 	}
 
 	for _, tt := range tests {
-		err := s.DeleteOneByUser(ctx, tt.id)
+		switch tt.name {
+		case "test echec mongo":
+			err := s.DeleteOneByUser(cancelCtx, tt.id)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+
+		default:
+			err := s.DeleteOneByUser(ctx, tt.id)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
 		}
 	}
 }
