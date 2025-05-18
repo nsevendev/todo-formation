@@ -346,17 +346,32 @@ func TestDeleteAllByAdmin(t *testing.T){
 		isErr bool
 	}{
 		{"test success", 0, false},
+		{"test echec mongo", 0, true},
 	}
 
 	for _, tt := range tests {
-		deletedCount, err := s.DeleteAllByAdmin(ctx)
+		switch tt.name {
+		case "test echec mongo":
+			deletedCount, err := s.DeleteAllByAdmin(cancelCtx)
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
 
-		if deletedCount != tt.deletedCount {
-			t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+			if deletedCount != tt.deletedCount {
+				t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+			}
+			
+		default:
+			deletedCount, err := s.DeleteAllByAdmin(ctx)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+
+			if deletedCount != tt.deletedCount {
+				t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
+			}
 		}
 	}
 }
