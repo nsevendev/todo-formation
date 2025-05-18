@@ -23,6 +23,8 @@ var r UserRepoInterface
 var s UserServiceInterface
 var c *mongo.Collection
 var ctx context.Context
+var cancelCtx context.Context
+var cancelFunc context.CancelFunc
 var router *gin.Engine
 var middleware AuthMiddlewareInterface
 var ids []primitive.ObjectID
@@ -35,6 +37,9 @@ func TestMain(m *testing.M) {
 	r = NewUserRepo(initializer.Db)
 	s = NewUserService(r, config.Get("JWT_SECRET"))
 	ctx := context.Background()
+
+	cancelCtx, cancelFunc = context.WithCancel(ctx)
+	cancelFunc()
 
 	router = gin.New()
 	middleware = NewAuthMiddleware(s)
@@ -84,49 +89,72 @@ func TestRegister(t *testing.T){
 	}
 }
 
-func TestLogin(t *testing.T){
+func TestLogin(t *testing.T) {
 	serviceWithJWTEmpty := NewUserService(r, config.Get(""))
 
 	tests := []struct {
-		name string
-		email string
+		name     string
+		email    string
 		password string
-		isToken bool
-		isErr bool
+		isToken  bool
+		isErr    bool
 	}{
 		{"test success", "admin@gmail.com", "password", true, false},
 		{"test avec email inexistant", "fail@gmail.com", "password", false, true},
 		{"test avec mauvais password", "admin@gmail.com", "invalid password", false, true},
 		{"test avec JWT_SECRET vide", "admin@gmail.com", "password", false, true},
+		{"test echec mongo", "admin@gmail.com", "password", false, true},
 	}
 
 	for _, tt := range tests {
 		userLoginDto := UserLoginDto{
-			Email: tt.email,
+			Email:    tt.email,
 			Password: tt.password,
 		}
 		var token string
 		var err error
 
-		if tt.name != "test avec JWT_SECRET vide" {
-			token, err = s.Login(ctx, userLoginDto)
-		}else{
+		switch tt.name {
+		case "test echec mongo":
+			token, err = s.Login(cancelCtx, userLoginDto)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+
+			if (token == "") == tt.isToken {
+				t.Errorf("%s: login fail with email %v and password %v", tt.name, tt.email, tt.password)
+			}
+
+		case "test avec JWT_SECRET vide":
 			token, err = serviceWithJWTEmpty.Login(ctx, userLoginDto)
-		}
 
-		if (err != nil) != tt.isErr {
-			t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-		}
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
 
-		if (token == "") == tt.isToken{
-			t.Errorf("%s: login fail with email %v and password %v", tt.name, tt.email, tt.password)
-		}
+			if (token == "") == tt.isToken {
+				t.Errorf("%s: login fail with email %v and password %v", tt.name, tt.email, tt.password)
+			}
 
-		if token != ""{
-			tokenString = token
+		default:
+			token, err = s.Login(ctx, userLoginDto)
+
+			if (err != nil) != tt.isErr {
+				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
+			}
+
+			if (token == "") == tt.isToken {
+				t.Errorf("%s: login fail with email %v and password %v", tt.name, tt.email, tt.password)
+			}
+
+			if token != "" {
+				tokenString = token
+			}
 		}
 	}
 }
+
 
 func TestValidateToken(t *testing.T){
 	generateTokenWithInvalidIdUser:= func() string {
