@@ -35,7 +35,7 @@ todof/internal/auth/repository.go:61.2,61.19 1 1
 todof/internal/auth/repository.go:64.88,67.16 3 1
 todof/internal/auth/repository.go:67.16,68.43 1 1
 todof/internal/auth/repository.go:68.43,71.4 2 1
-todof/internal/auth/repository.go:72.3,73.18 2 0
+todof/internal/auth/repository.go:72.3,73.18 2 1
 todof/internal/auth/repository.go:75.2,75.19 1 1
 todof/internal/auth/repository.go:78.66,82.16 3 1
 todof/internal/auth/repository.go:82.16,84.3 1 0
