@@ -48,6 +48,41 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+func setupCreateUser(t *testing.T, email string) primitive.ObjectID {
+	user := &auth.User{
+		Email:    email,
+		Password: "password",
+	}
+
+	result, err := userCollection.InsertOne(ctx, user)
+	if err != nil {
+		t.Fatalf("Erreur lors de la création de l'utilisateur : %v", err)
+	}
+
+	userID := result.InsertedID.(primitive.ObjectID)
+	usersIds = append(usersIds, userID)
+	return userID
+}
+
+func setupCreateTask(t *testing.T, userID primitive.ObjectID, label string) primitive.ObjectID {
+	task := &Task{
+		Label:     label,
+		Done:      false,
+		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+		UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
+		IdUser:    userID,
+	}
+
+	result, err := taskCollection.InsertOne(ctx, task)
+	if err != nil {
+		t.Fatalf("Erreur lors de la création de la tâche : %v", err)
+	}
+
+	taskID := result.InsertedID.(primitive.ObjectID)
+	tasksIds = append(tasksIds, taskID)
+	return taskID
+}
+
 func TestCreate(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -59,19 +94,7 @@ func TestCreate(t *testing.T) {
 			name:  "test success",
 			label: "task test",
 			isErr: false,
-			setup: func() primitive.ObjectID {
-				user := &auth.User{
-					Email: "taskTest@gmail.com",
-					Password: "password",
-				}
-
-				result, err := userCollection.InsertOne(ctx, user)
-				if err != nil {
-					t.Fatalf("Erreur lors de la création du user: %v", err)
-				}
-				usersIds = append(usersIds, result.InsertedID.(primitive.ObjectID))
-				return result.InsertedID.(primitive.ObjectID)
-			},
+			setup: func() primitive.ObjectID {return setupCreateUser(t, "taskTest@gmail.com")},
 		},
 		{"test echec mongo", func() primitive.ObjectID {return primitive.NewObjectID()}, "label test", true},
 	}
@@ -108,19 +131,6 @@ func TestCreate(t *testing.T) {
 }
 
 func TestGetAllByUser(t *testing.T){
-	userId := func() primitive.ObjectID {
-		user := &auth.User{
-			Email: "taskTest2@gmail.com",
-			Password: "password",
-		}
-
-		result, err := userCollection.InsertOne(ctx, user)
-		if err != nil {
-			t.Fatalf("Erreur lors de la création du user: %v", err)
-		}
-		usersIds = append(usersIds, result.InsertedID.(primitive.ObjectID))
-		return result.InsertedID.(primitive.ObjectID)
-	}
 
 	tests := []struct {
 		name string
@@ -129,7 +139,7 @@ func TestGetAllByUser(t *testing.T){
 		isErr bool
 	}{
 		{"test success", usersIds[0], true, false},
-		{"test avec user sans task", userId(), true, false},
+		{"test avec user sans task", setupCreateUser(t, "taskTest2@gmail.com"), true, false},
 		{"test echec mongo", usersIds[0], false, true},
 		{"test document mal formé", usersIds[0], false, true},
 	}
@@ -263,40 +273,6 @@ func TestDeleteOneByUser(t *testing.T){
 }
 
 func TestDeleteManyByUser(t *testing.T) {
-	setup := func(email string) func() (primitive.ObjectID, primitive.ObjectID) {
-		return func() (primitive.ObjectID, primitive.ObjectID) {
-			user := &auth.User{
-				Email:    email,
-				Password: "password",
-			}
-
-			result, err := userCollection.InsertOne(ctx, user)
-			if err != nil {
-				t.Fatalf("Erreur lors de la création de l'utilisateur : %v", err)
-			}
-
-			userID := result.InsertedID.(primitive.ObjectID)
-			usersIds = append(usersIds, userID)
-
-			task := &Task{
-				Label:     "Test task",
-				Done:      false,
-				CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-				UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
-				IdUser:    userID,
-			}
-
-			res, err := taskCollection.InsertOne(ctx, task)
-			if err != nil {
-				t.Fatalf("Erreur lors de la création de la tâche : %v", err)
-			}
-
-			taskID := res.InsertedID.(primitive.ObjectID)
-			tasksIds = append(tasksIds, taskID)
-
-			return userID, taskID
-		}
-	}
 
 	tests := []struct {
 		name  string
@@ -305,17 +281,29 @@ func TestDeleteManyByUser(t *testing.T) {
 	}{
 		{
 			name: "test success",
-			setup: setup("taskTest3@gmail.com"),
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				userID := setupCreateUser(t, "taskTest3@gmail.com")
+				taskID := setupCreateTask(t, userID, "test label")
+				return userID, taskID
+			},
 			isErr: false,
 		},
 		{
 			name: "test echec mongo",
-			setup: setup("taskTest4@gmail.com"),
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				userID := setupCreateUser(t, "taskTest4@gmail.com")
+				taskID := setupCreateTask(t, userID, "test label")
+				return userID, taskID
+			},
 			isErr: true,
 		},
 		{
 			name: "test aucune tâche supprimée",
-			setup: setup("fail@gmail.com"),
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				userID := setupCreateUser(t, "taskTest5@gmail.com")
+				taskID := setupCreateTask(t, userID, "test label")
+				return userID, taskID
+			},
 			isErr: true,
 		},
 	}
@@ -349,41 +337,6 @@ func TestDeleteManyByUser(t *testing.T) {
 }
 
 func TestDeleteById(t *testing.T){
-	setup := func(email string) func() (primitive.ObjectID, primitive.ObjectID) {
-		return func() (primitive.ObjectID, primitive.ObjectID) {
-			user := &auth.User{
-				Email:    email,
-				Password: "password",
-			}
-
-			result, err := userCollection.InsertOne(ctx, user)
-			if err != nil {
-				t.Fatalf("Erreur lors de la création de l'utilisateur : %v", err)
-			}
-
-			userID := result.InsertedID.(primitive.ObjectID)
-			usersIds = append(usersIds, userID)
-
-			task := &Task{
-				Label:     "Test task",
-				Done:      false,
-				CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-				UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
-				IdUser:    userID,
-			}
-
-			res, err := taskCollection.InsertOne(ctx, task)
-			if err != nil {
-				t.Fatalf("Erreur lors de la création de la tâche : %v", err)
-			}
-
-			taskID := res.InsertedID.(primitive.ObjectID)
-			tasksIds = append(tasksIds, taskID)
-
-			return userID, taskID
-		}
-	}
-
 	tests := []struct {
 		name string
 		setup func() (userID primitive.ObjectID, taskID primitive.ObjectID)
@@ -391,17 +344,29 @@ func TestDeleteById(t *testing.T){
 	}{
 		{
 			name: "test success",
-			setup: setup("taskTest5@gmail.com"),
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				userID := setupCreateUser(t, "taskTest6@gmail.com")
+				taskID := setupCreateTask(t, userID, "test label")
+				return userID, taskID
+			},
 			isErr: false,
 		},
 		{
 			name: "test echec mongo",
-			setup: setup("taskTest6@gmail.com"),
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				userID := setupCreateUser(t, "taskTest7@gmail.com")
+				taskID := setupCreateTask(t, userID, "test label")
+				return userID, taskID
+			},
 			isErr: true,
 		},
 		{
 			name: "test aucune tâche supprimée",
-			setup: setup("fail2@gmail.com"),
+			setup: func() (primitive.ObjectID, primitive.ObjectID) {
+				userID := setupCreateUser(t, "taskTest8@gmail.com")
+				taskID := setupCreateTask(t, userID, "test label")
+				return userID, taskID
+			},
 			isErr: true,
 		},
 	}
