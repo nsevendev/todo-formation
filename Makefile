@@ -18,7 +18,7 @@ else ifeq ($(APP_ENV),prod)
 endif
 
 # Variables
-GO_COMMAND_CONTAINER_TEST := docker exec -i -e APP_ENV=test $(CONTAINER_NAME) go
+GO_COMMAND_CONTAINER_TEST := docker exec -i -e APP_ENV=test $(CONTAINER_NAME) go test
 GO_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) go
 SWAG_COMMAND_CONTAINER := docker exec -i $(CONTAINER_NAME) swag
 BASH_CONTAINER := docker exec -it $(CONTAINER_NAME) sh
@@ -73,6 +73,11 @@ l: ## Affiche les logs du conteneur app
 
 ldb: ## Affiche les logs du conteneur database
 	docker logs -f $(CONTAINER_NAME_DB)
-
 t: ## Execute les tests
-	$(GO_COMMAND_CONTAINER_TEST) test -v -cover ./...
+	$(GO_COMMAND_CONTAINER_TEST) ./...
+
+tv: ## Execute les tests
+	$(GO_COMMAND_CONTAINER_TEST) -v -cover ./...
+
+tcf: ## Execute les tests cover par fichier - usage: make tcf file=path_du_fichier
+	$(GO_COMMAND_CONTAINER_TEST) -coverprofile=coverage.out ./$(file) && go tool cover -html=coverage.out

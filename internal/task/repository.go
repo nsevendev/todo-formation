@@ -14,7 +14,7 @@ type taskRepo struct {
 	collection *mongo.Collection
 }
 
-type taskRepoInterface interface {
+type TaskRepoInterface interface {
 	Create(ctx context.Context, task *Task) error
 	GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error)
 	UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error
@@ -25,7 +25,7 @@ type taskRepoInterface interface {
 	DeleteAllTasks(ctx context.Context, userIDs []primitive.ObjectID) error
 }
 
-func NewTaskRepo(db *mongo.Database) taskRepoInterface {
+func NewTaskRepo(db *mongo.Database) TaskRepoInterface {
 	return &taskRepo{
 		collection: db.Collection("tasks"),
 	}
@@ -38,7 +38,7 @@ func (t *taskRepo) Create(ctx context.Context, task *Task) error {
 	_, err := t.collection.InsertOne(ctx, task)
 	if err != nil {
 		logger.Ef("impossible de créer la tâche _id: %s, id_user: %v", task.ID.Hex(), task.IdUser.Hex())
-		return errors.New("impossible de créer la tâche")
+		return errors.New("impossible de créer la tâche : " + err.Error())
 	}
 	return nil
 }
@@ -62,103 +62,103 @@ func (t *taskRepo) GetAllByUser(ctx context.Context, idUser primitive.ObjectID) 
 
 func (t *taskRepo) UpdateOneDonePropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
 	filter := bson.M{"_id": idTask, "id_user": idUser}
-	
+
 	var task Task
 
-    if err := t.collection.FindOne(ctx, filter).Decode(&task); err != nil {
-        logger.Ef("impossible de trouver la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
-        return errors.New("aucune tâche trouvée")
-    }
+	if err := t.collection.FindOne(ctx, filter).Decode(&task); err != nil {
+		logger.Ef("impossible de trouver la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
+		return errors.New("aucune tâche trouvée")
+	}
 
 	update := bson.M{
-        "$set": bson.M{
-            "done": !task.Done,
-        },
-    }
+		"$set": bson.M{
+			"done": !task.Done,
+		},
+	}
 
 	result, err := t.collection.UpdateOne(ctx, filter, update)
-    if err != nil {
-        logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
-        return errors.New("impossible de mettre à jour la tâche")
-    }
+	if err != nil {
+		logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
+		return errors.New("impossible de mettre à jour la tâche")
+	}
 
-    if result.MatchedCount == 0 {
-        logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
-        return errors.New("aucune tâche mise à jour")
-    }
+	if result.MatchedCount == 0 {
+		logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+		return errors.New("aucune tâche mise à jour")
+	}
 
-    logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+	logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
 
-    return nil
+	return nil
 }
 
 func (t *taskRepo) UpdateOneLabelPropertyByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID, labelUpdate string) error {
 	filter := bson.M{"_id": idTask, "id_user": idUser}
-	
+
 	var task Task
 
-    if err := t.collection.FindOne(ctx, filter).Decode(&task); err != nil {
-        logger.Ef("impossible de trouver la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
-        return errors.New("aucune tâche trouvée")
-    }
+	if err := t.collection.FindOne(ctx, filter).Decode(&task); err != nil {
+		logger.Ef("impossible de trouver la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
+		return errors.New("aucune tâche trouvée")
+	}
 
 	update := bson.M{
-        "$set": bson.M{
-            "label": labelUpdate,
-        },
-    }
+		"$set": bson.M{
+			"label": labelUpdate,
+		},
+	}
 
 	result, err := t.collection.UpdateOne(ctx, filter, update)
-    if err != nil {
-        logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
-        return errors.New("impossible de mettre à jour la tâche")
-    }
+	if err != nil {
+		logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
+		return errors.New("impossible de mettre à jour la tâche")
+	}
 
-    if result.MatchedCount == 0 {
-        logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
-        return errors.New("aucune tâche mise à jour")
-    }
+	if result.MatchedCount == 0 {
+		logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+		return errors.New("aucune tâche mise à jour")
+	}
 
-    logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
+	logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
 
-    return nil
+	return nil
 }
 
 func (t *taskRepo) DeleteOneByUser(ctx context.Context, idUser primitive.ObjectID, idTask primitive.ObjectID) error {
 	filter := bson.M{"_id": idTask, "id_user": idUser}
-	
+
 	result, err := t.collection.DeleteOne(ctx, filter)
 	if err != nil {
 		logger.Ef("impossible de supprimer la tâche _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
 		return errors.New("impossible de supprimer la tâche")
 	}
-	
+
 	if result.DeletedCount == 0 {
 		logger.Ef("aucune tâche supprimée _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
 		return errors.New("aucune tâche supprimée")
 	}
 
 	logger.Sf("tâche supprimée _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
-	
+
 	return nil
 }
 
 func (t *taskRepo) DeleteManyByUser(ctx context.Context, idUser primitive.ObjectID, ids []primitive.ObjectID) error {
 	filter := bson.M{"_id": bson.M{"$in": ids}, "id_user": idUser}
-	
+
 	result, err := t.collection.DeleteMany(ctx, filter)
 	if err != nil {
 		logger.Ef("impossible de supprimer les tâches _id: %s, id_user: %s", ids, idUser.Hex())
 		return errors.New("impossible de supprimer les tâches")
 	}
-	
+
 	if result.DeletedCount == 0 {
 		logger.Ef("aucune tâche supprimée _id: %s, id_user: %s", ids, idUser.Hex())
 		return errors.New("aucune tâche supprimée")
 	}
 
 	logger.Sf("tâches supprimées _id: %s, id_user: %s", ids, idUser.Hex())
-	
+
 	return nil
 }
 

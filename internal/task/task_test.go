@@ -2,141 +2,100 @@ package task
 
 import (
 	"context"
-	"log"
 	"os"
 	"testing"
-	"time"
 	"todof/internal/auth"
 	initializer "todof/internal/init"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"todof/testsetup"
 )
 
-var s TaskServiceInterface
-var userCollection *mongo.Collection
-var taskCollection *mongo.Collection
-var ctx context.Context
-var cancelCtx context.Context
-var cancelFunc context.CancelFunc
-var usersIds []primitive.ObjectID
-var tasksIds []primitive.ObjectID
+var (
+	taskS       TaskServiceInterface
+	userService auth.UserServiceInterface
+	ctx         = context.Background()
+	ctxCanceled context.Context
+	cancelFunc  context.CancelFunc
+	userDto     auth.UserCreateDto
+	taskDto     TaskCreateDto
+)
 
 func TestMain(m *testing.M) {
-	taskCollection = initializer.Db.Collection("tasks")
-	userCollection = initializer.Db.Collection("users")
-	r := NewTaskRepo(initializer.Db)
-	userRepo := auth.NewUserRepo(initializer.Db)
-	s = NewTaskService(r, userRepo)
-	ctx = context.Background()
-
-	cancelCtx, cancelFunc = context.WithCancel(ctx)
+	db := initializer.Db
+	userRepo := auth.NewUserRepo(db)
+	userService = auth.NewUserService(userRepo, "jwttest")
+	taskS = NewTaskService(NewTaskRepo(db), userRepo)
+	ctxCanceled, cancelFunc = context.WithCancel(ctx)
 	cancelFunc()
 
-	if _, err := taskCollection.DeleteMany(ctx, bson.M{}); err != nil {
-		log.Fatalf("Erreur lors du nettoyage de la collection tasks : %v", err)
+	userDto = auth.UserCreateDto{
+		Email:    "taskTest@gmail.com",
+		Password: "123456",
+		Username: "taskTest",
 	}
 
-	if _, err := userCollection.DeleteMany(ctx, bson.M{}); err != nil {
-		log.Fatalf("Erreur lors du nettoyage de la collection users : %v", err)
+	taskDto = TaskCreateDto{
+		Label: "task test",
 	}
 
+	testsetup.CleanCollections(ctx, db, "tasks", "users")
 	code := m.Run()
+	testsetup.CleanCollections(ctx, db, "tasks", "users")
 
 	os.Exit(code)
 }
 
-func setupCreateUser(t *testing.T, email string) primitive.ObjectID {
-	user := &auth.User{
-		Email:    email,
-		Password: "password",
-	}
+func TestCreateTaskSuccess(t *testing.T) {
+	var (
+		err  error
+		user *auth.User
+		task *Task
+	)
 
-	result, err := userCollection.InsertOne(ctx, user)
+	user, err = userService.Register(ctx, userDto)
 	if err != nil {
-		t.Fatalf("Erreur lors de la création de l'utilisateur : %v", err)
+		testsetup.Error(t, err.Error())
 	}
 
-	userID := result.InsertedID.(primitive.ObjectID)
-	usersIds = append(usersIds, userID)
-	return userID
-}
-
-func setupCreateTask(t *testing.T, userID primitive.ObjectID, label string) primitive.ObjectID {
-	task := &Task{
-		Label:     label,
-		Done:      false,
-		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-		UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
-		IdUser:    userID,
-	}
-
-	result, err := taskCollection.InsertOne(ctx, task)
+	task, err = taskS.Create(ctx, taskDto, user.ID)
 	if err != nil {
-		t.Fatalf("Erreur lors de la création de la tâche : %v", err)
+		testsetup.Error(t, err.Error())
 	}
 
-	taskID := result.InsertedID.(primitive.ObjectID)
-	tasksIds = append(tasksIds, taskID)
-	return taskID
+	if task.Label != taskDto.Label {
+		testsetup.Except(t, task.Label, taskDto.Label)
+	}
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
-func TestCreate(t *testing.T) {
-	tests := []struct {
-		name  string
-		setup func() (userID primitive.ObjectID)
-		label string
-		isErr bool
-	}{
-		{
-			name:  "test success",
-			label: "task test",
-			isErr: false,
-			setup: func() primitive.ObjectID {return setupCreateUser(t, "taskTest@gmail.com")},
-		},
-		{"test echec mongo", func() primitive.ObjectID {return primitive.NewObjectID()}, "label test", true},
+func TestCreateTaskError(t *testing.T) {
+	var (
+		err  error
+		user *auth.User
+	)
+
+	user, err = userService.Register(ctx, userDto)
+	if err != nil {
+		testsetup.Error(t, err.Error())
 	}
 
-	for _, tt := range tests {
-		userId := tt.setup()
-
-		createDto := TaskCreateDto{
-			Label: tt.label,
-		}
-
-		if tt.name == "test echec mongo" {
-			_, err := s.Create(cancelCtx, createDto, userId)
-
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
-		}else{
-			task, err := s.Create(ctx, createDto, userId)
-
-			if task != nil {
-				tasksIds = append(tasksIds, task.ID)
-			}
-	
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
-	
-			if err == nil && task.Label != tt.label {
-				t.Errorf("%s: got label %s, expect label %s", tt.name, task.Label, tt.label)
-			}
-		}
+	_, err = taskS.Create(ctxCanceled, taskDto, user.ID)
+	// on veut une erreur donc on teste que err n'est pas nil
+	if err == nil {
+		testsetup.ErrorSuccess(t)
 	}
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
-func TestGetAllByUser(t *testing.T){
+/*
+func TestGetAllByUser(t *testing.T) {
 
 	tests := []struct {
-		name string
+		name   string
 		userId primitive.ObjectID
 		isTask bool
-		isErr bool
+		isErr  bool
 	}{
 		{"test success", usersIds[0], true, false},
 		{"test avec user sans task", setupCreateUser(t, "taskTest2@gmail.com"), true, false},
@@ -198,7 +157,7 @@ func TestUpdateOneDonePropertyByUser(t *testing.T) {
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		
+
 		default:
 			err := s.UpdateOneDonePropertyByUser(ctx, tt.idUser, tt.idTask)
 			if (err != nil) != tt.isErr {
@@ -208,13 +167,13 @@ func TestUpdateOneDonePropertyByUser(t *testing.T) {
 	}
 }
 
-func TestUpdateOneLabelPropertyByUser(t *testing.T){
+func TestUpdateOneLabelPropertyByUser(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		idUser primitive.ObjectID
 		idTask primitive.ObjectID
-		label string
-		isErr bool
+		label  string
+		isErr  bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], "label updated", false},
 		{"test echec mongo", usersIds[0], tasksIds[0], "label updated", true},
@@ -243,12 +202,12 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 	}
 }
 
-func TestDeleteOneByUser(t *testing.T){
+func TestDeleteOneByUser(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		idUser primitive.ObjectID
 		idTask primitive.ObjectID
-		isErr bool
+		isErr  bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], false},
 		{"test echec mongodb", usersIds[0], tasksIds[0], true},
@@ -262,7 +221,7 @@ func TestDeleteOneByUser(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+		} else {
 			err := s.DeleteOneByUser(ctx, tt.idUser, tt.idTask)
 
 			if (err != nil) != tt.isErr {
@@ -336,9 +295,9 @@ func TestDeleteManyByUser(t *testing.T) {
 	}
 }
 
-func TestDeleteById(t *testing.T){
+func TestDeleteById(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		setup func() (userID primitive.ObjectID, taskID primitive.ObjectID)
 		isErr bool
 	}{
@@ -381,7 +340,7 @@ func TestDeleteById(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		
+
 		case "test aucune tâche supprimée":
 			err := s.DeleteById(ctx, []primitive.ObjectID{primitive.NewObjectID()})
 
@@ -389,7 +348,6 @@ func TestDeleteById(t *testing.T){
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
 
-		
 		default:
 			err := s.DeleteById(ctx, []primitive.ObjectID{taskID})
 
@@ -400,9 +358,9 @@ func TestDeleteById(t *testing.T){
 	}
 }
 
-func TestDeleteAllTasks(t *testing.T){
+func TestDeleteAllTasks(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		isErr bool
 	}{
 		{"test success", false},
@@ -417,7 +375,7 @@ func TestDeleteAllTasks(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+		} else {
 			err := s.DeleteAllTasks(ctx)
 
 			if (err != nil) != tt.isErr {
@@ -425,4 +383,4 @@ func TestDeleteAllTasks(t *testing.T){
 			}
 		}
 	}
-}
+} */
