@@ -2,7 +2,10 @@ package task
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
+	"strconv"
 	"testing"
 	"todof/internal/auth"
 	initializer "todof/internal/init"
@@ -10,7 +13,7 @@ import (
 )
 
 var (
-	taskS       TaskServiceInterface
+	service     TaskServiceInterface
 	userService auth.UserServiceInterface
 	ctx         = context.Background()
 	ctxCanceled context.Context
@@ -20,10 +23,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	db := initializer.Db
-	userRepo := auth.NewUserRepo(db)
+	userRepo := auth.NewUserRepo(initializer.Db)
 	userService = auth.NewUserService(userRepo, "jwttest")
-	taskS = NewTaskService(NewTaskRepo(db), userRepo)
+	service = NewTaskService(NewTaskRepo(initializer.Db), userRepo)
 	ctxCanceled, cancelFunc = context.WithCancel(ctx)
 	cancelFunc()
 
@@ -37,14 +39,14 @@ func TestMain(m *testing.M) {
 		Label: "task test",
 	}
 
-	testsetup.CleanCollections(ctx, db, "tasks", "users")
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 	code := m.Run()
-	testsetup.CleanCollections(ctx, db, "tasks", "users")
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 
 	os.Exit(code)
 }
 
-func TestCreateTaskSuccess(t *testing.T) {
+func TestCreate_Success(t *testing.T) {
 	var (
 		err  error
 		user *auth.User
@@ -56,7 +58,7 @@ func TestCreateTaskSuccess(t *testing.T) {
 		testsetup.Error(t, err.Error())
 	}
 
-	task, err = taskS.Create(ctx, taskDto, user.ID)
+	task, err = service.Create(ctx, taskDto, user.ID)
 	if err != nil {
 		testsetup.Error(t, err.Error())
 	}
@@ -65,10 +67,11 @@ func TestCreateTaskSuccess(t *testing.T) {
 		testsetup.Except(t, task.Label, taskDto.Label)
 	}
 
+	testsetup.Success(t, "label task => "+task.Label, "label taskdto => "+taskDto.Label)
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
-func TestCreateTaskError(t *testing.T) {
+func TestCreate_MongoCtxCanceled(t *testing.T) {
 	var (
 		err  error
 		user *auth.User
@@ -79,10 +82,135 @@ func TestCreateTaskError(t *testing.T) {
 		testsetup.Error(t, err.Error())
 	}
 
-	_, err = taskS.Create(ctxCanceled, taskDto, user.ID)
+	_, err = service.Create(ctxCanceled, taskDto, user.ID)
 	// on veut une erreur donc on teste que err n'est pas nil
 	if err == nil {
 		testsetup.ErrorSuccess(t)
+	} else {
+		testsetup.Success(t, "context canceled", err.Error())
+	}
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestGetAllByUser_Success(t *testing.T) {
+	var (
+		err   error
+		user  *auth.User
+		task1 *Task
+		task2 *Task
+		tasks []Task
+	)
+	excepted := 2
+
+	user, err = userService.Register(ctx, userDto)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	task1, err = service.Create(ctx, taskDto, user.ID)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	task2, err = service.Create(ctx, taskDto, user.ID)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	tasks, err = service.GetAllByUser(ctx, user.ID)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	if len(tasks) != excepted {
+		testsetup.Except(t, strconv.Itoa(len(tasks)), strconv.Itoa(excepted))
+	}
+
+	if tasks[0].ID != task1.ID {
+		testsetup.Except(t, tasks[0].ID.Hex(), task1.ID.Hex())
+	}
+
+	if tasks[1].ID != task2.ID {
+		testsetup.Except(t, tasks[1].ID.Hex(), task2.ID.Hex())
+	}
+
+	if tasks[0].Label != task1.Label {
+		testsetup.Except(t, tasks[0].Label, task1.Label)
+	}
+
+	if tasks[1].Label != task2.Label {
+		testsetup.Except(t, tasks[1].Label, task2.Label)
+	}
+
+	testsetup.Success(t, "len(tasks) => "+strconv.Itoa(len(tasks)), "len(tasks) => "+strconv.Itoa(excepted))
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestGetAllByUser_MongoCtxCanceld(t *testing.T) {
+	var (
+		err  error
+		user *auth.User
+	)
+
+	user, err = userService.Register(ctx, userDto)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	_, err = service.Create(ctx, taskDto, user.ID)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	_, err = service.Create(ctx, taskDto, user.ID)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	_, err = service.GetAllByUser(ctxCanceled, user.ID)
+	// on veut une erreur donc on teste que err n'est pas nil
+	if err == nil {
+		testsetup.ErrorSuccess(t)
+	} else {
+		testsetup.Success(t, "context canceled", err.Error())
+	}
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestGetAllByUser_TaskIsNotValidate(t *testing.T) {
+	var (
+		err   error
+		user  *auth.User
+		tasks []Task
+	)
+
+	user, err = userService.Register(ctx, userDto)
+	if err != nil {
+		testsetup.Error(t, err.Error())
+	}
+
+	// on insère un document mal formé
+	_, err = initializer.Db.Collection("tasks").InsertOne(ctx, bson.M{
+		"id_user": user.ID,
+		"label":   1234,
+		"done":    false,
+	}, options.InsertOne().SetBypassDocumentValidation(true))
+	if err != nil {
+		testsetup.Error(t, "Erreur lors de l'insertion du document mal formé : "+err.Error())
+	}
+
+	tasks, err = service.GetAllByUser(ctx, user.ID)
+	if tasks != nil {
+		testsetup.Except(t, "nil", "not nil")
+	}
+
+	// on veut une erreur donc on teste que err n'est pas nil
+	if err == nil {
+		testsetup.ErrorSuccess(t)
+	} else {
+		testsetup.Success(t, "error decoding key label: cannot decode 32-bit integer into a string type", err.Error())
 	}
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")

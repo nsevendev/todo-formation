@@ -44,17 +44,22 @@ func (t *taskRepo) Create(ctx context.Context, task *Task) error {
 }
 
 func (t *taskRepo) GetAllByUser(ctx context.Context, idUser primitive.ObjectID) ([]Task, error) {
-	cursor, err := t.collection.Find(ctx, bson.M{"id_user": idUser})
+	var (
+		err    error
+		cursor *mongo.Cursor
+	)
+
+	cursor, err = t.collection.Find(ctx, bson.M{"id_user": idUser})
 	if err != nil {
 		logger.Ef("impossible de récupérer les tâches de l'utilisateur _id: %s", idUser.Hex())
-		return nil, errors.New("impossible de récupérer les tâches")
+		return nil, errors.New("impossible de récupérer les tâches : " + err.Error())
 	}
 	defer cursor.Close(ctx)
 
 	var tasks []Task
-	if err := cursor.All(ctx, &tasks); err != nil {
+	if err = cursor.All(ctx, &tasks); err != nil {
 		logger.Ef("impossible de récupérer les tâches de l'utilisateur _id: %s", idUser.Hex())
-		return nil, errors.New("impossible de récupérer les tâches")
+		return nil, errors.New("impossible de récupérer les tâches : " + err.Error())
 	}
 
 	return tasks, nil

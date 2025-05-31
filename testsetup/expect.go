@@ -13,3 +13,7 @@ func Error(t *testing.T, err string) {
 func ErrorSuccess(t *testing.T) {
 	t.Errorf("expected error, but got none")
 }
+
+func Success(t *testing.T, value string, expect string) {
+	t.Logf("value %s, expect %s", value, expect)
+}
