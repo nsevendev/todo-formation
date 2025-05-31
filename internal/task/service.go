@@ -9,7 +9,7 @@ import (
 )
 
 type taskService struct {
-	taskRepo taskRepoInterface
+	taskRepo TaskRepoInterface
 	userRepo auth.UserRepoInterface
 }
 
@@ -24,7 +24,7 @@ type TaskServiceInterface interface {
 	DeleteAllTasks(ctx context.Context) error
 }
 
-func NewTaskService(taskRepo taskRepoInterface, userRepo auth.UserRepoInterface) TaskServiceInterface {
+func NewTaskService(taskRepo TaskRepoInterface, userRepo auth.UserRepoInterface) TaskServiceInterface {
 	return &taskService{
 		taskRepo: taskRepo,
 		userRepo: userRepo,
@@ -33,15 +33,15 @@ func NewTaskService(taskRepo taskRepoInterface, userRepo auth.UserRepoInterface)
 
 func (t *taskService) Create(ctx context.Context, taskCreateDto TaskCreateDto, IdUser primitive.ObjectID) (*Task, error) {
 	task := &Task{
-		Label: taskCreateDto.Label,
-		Done:  false,
+		Label:  taskCreateDto.Label,
+		Done:   false,
 		IdUser: IdUser,
 	}
 
 	if err := t.taskRepo.Create(ctx, task); err != nil {
 		return nil, err
 	}
-	
+
 	return task, nil
 }
 

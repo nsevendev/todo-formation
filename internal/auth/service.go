@@ -91,9 +91,9 @@ func (s *userService) Login(ctx context.Context, userLoginDto UserLoginDto) (str
 
 func (s *userService) generateToken(user *User) (string, error) {
 	if string(s.jwtKey) == "" {
-        return "", errors.New("secret JWT manquant")
-    }
-	
+		return "", errors.New("secret JWT manquant")
+	}
+
 	expirationTime := time.Now().Add(24 * time.Hour) // change here for time expiration
 	claims := &tokenClaims{
 		IdUser: user.ID.Hex(),
