@@ -2,7 +2,7 @@ package testsetup
 
 import (
 	"context"
-	"github.com/nsevenpack/logger/v2/logger"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -11,7 +11,9 @@ func CleanCollections(ctx context.Context, db *mongo.Database, collections ...st
 	for _, col := range collections {
 		_, err := db.Collection(col).DeleteMany(ctx, bson.M{})
 		if err != nil {
-			logger.Ff("Erreur de nettoyage pour %s: %v", col, err)
+			fmt.Printf("Failed to clean collection '%s': %v\n", col, err)
+		} else {
+			fmt.Printf("Collection '%s' has been cleaned successfully.\n", col)
 		}
 	}
 }

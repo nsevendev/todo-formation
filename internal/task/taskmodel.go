@@ -7,9 +7,9 @@ import (
 )
 
 type Task struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Label	 string             `bson:"label" json:"label"`
-	Done	 bool               `bson:"done" json:"done"`
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Label     string             `bson:"label" json:"label"`
+	Done      bool               `bson:"done" json:"done"`
 	CreatedAt primitive.DateTime `bson:"created_at" json:"created_at"`
 	UpdatedAt primitive.DateTime `bson:"updated_at" json:"updated_at"`
 
@@ -34,4 +34,18 @@ func (u *Task) SetTimeStamps() {
 		u.CreatedAt = now
 	}
 	u.UpdatedAt = now
+}
+
+func CreateDtoFaker() TaskCreateDto {
+	return TaskCreateDto{
+		Label: "Task " + time.Now().Format("2006-01-02 15:04:05"),
+	}
+}
+
+func CreateDtosFaker(n int) []TaskCreateDto {
+	tasks := make([]TaskCreateDto, n)
+	for i := 0; i < n; i++ {
+		tasks[i] = CreateDtoFaker()
+	}
+	return tasks
 }

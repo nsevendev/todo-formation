@@ -74,3 +74,7 @@ todof/internal/task/service.go:116.2,116.12 1 0
 todof/internal/task/taskmodel.go:31.32,33.22 2 1
 todof/internal/task/taskmodel.go:33.22,35.3 1 1
 todof/internal/task/taskmodel.go:36.2,36.19 1 1
+todof/internal/task/taskmodel.go:39.37,43.2 1 1
+todof/internal/task/taskmodel.go:45.45,47.25 2 0
+todof/internal/task/taskmodel.go:47.25,49.3 1 0
+todof/internal/task/taskmodel.go:50.2,50.14 1 0

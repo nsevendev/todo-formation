@@ -9,11 +9,11 @@ import (
 )
 
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Email    string             `bson:"email" json:"email"`
-	Password string             `bson:"password" json:"-"`
-	Role     string             `bson:"role" json:"role"`
-	Username string             `bson:"username" json:"username"`
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Email     string             `bson:"email" json:"email"`
+	Password  string             `bson:"password" json:"-"`
+	Role      string             `bson:"role" json:"role"`
+	Username  string             `bson:"username" json:"username"`
 	CreatedAt primitive.DateTime `bson:"created_at" json:"created_at"`
 	UpdatedAt primitive.DateTime `bson:"updated_at" json:"updated_at"`
 }
@@ -55,4 +55,21 @@ func (u *User) SetTimeStamps() {
 		u.CreatedAt = now
 	}
 	u.UpdatedAt = now
+}
+
+func CreateDtoFaker() UserCreateDto {
+	return UserCreateDto{
+		Email:    "user" + time.Now().Format("2006-01-02 15:04:05") + "@example.com",
+		Password: "password",
+		Username: "user" + time.Now().Format("2006-01-02 15:04:05"),
+		Role:     "user",
+	}
+}
+
+func CreateDtosFaker(n int) []UserCreateDto {
+	users := make([]UserCreateDto, n)
+	for i := 0; i < n; i++ {
+		users[i] = CreateDtoFaker()
+	}
+	return users
 }
