@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -44,14 +45,14 @@ func TestCreate_OneTaskCreated(t *testing.T) {
 		userCreated *auth.User
 		taskCreated *Task
 	)
-	testsetup.LogNameTest(t, "one Tache created for one user")
+	testsetup.LogI(t, "one Tache created for one user")
 
 	userCreated, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
-	testsetup.IsNull(t, err)
-	testsetup.Equal(t, taskCreated.Label, taskDto.Label)
-	testsetup.Equal(t, taskCreated.IdUser, userCreated.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, taskCreated.Label, taskDto.Label)
+	assert.Equal(t, taskCreated.IdUser, userCreated.ID)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -62,12 +63,12 @@ func TestCreate_ErrorDatabase(t *testing.T) {
 		user *auth.User
 	)
 
-	testsetup.LogNameTest(t, "create task with context canceled")
+	testsetup.LogI(t, "create task with context canceled")
 
 	user, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	_, err = serviceTask.Create(ctxCanceled, taskDto, user.ID)
-	testsetup.IsNotNull(t, err)
+	assert.NotNil(t, err)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -81,22 +82,22 @@ func TestGetAllByUser_GetAllTaskByUser(t *testing.T) {
 		tasks []Task
 	)
 
-	testsetup.LogNameTest(t, "get all tasks by user")
+	testsetup.LogI(t, "get all tasks by user")
 
 	user, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	task1, err = serviceTask.Create(ctx, taskDto, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	task2, err = serviceTask.Create(ctx, taskDto, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	tasks, err = serviceTask.GetAllByUser(ctx, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 
-	testsetup.Equal(t, len(tasks), 2)
-	testsetup.Equal(t, tasks[0].ID, task1.ID)
-	testsetup.Equal(t, tasks[1].ID, task2.ID)
-	testsetup.Equal(t, tasks[0].Label, task1.Label)
-	testsetup.Equal(t, tasks[1].Label, task2.Label)
+	assert.Equal(t, len(tasks), 2)
+	assert.Equal(t, tasks[0].ID, task1.ID)
+	assert.Equal(t, tasks[1].ID, task2.ID)
+	assert.Equal(t, tasks[0].Label, task1.Label)
+	assert.Equal(t, tasks[1].Label, task2.Label)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -108,18 +109,18 @@ func TestGetAllByUser_GetAllTaskByUserWithUserNotExist(t *testing.T) {
 		tasks []Task
 	)
 
-	testsetup.LogNameTest(t, "get all tasks by user with user not exist")
+	testsetup.LogI(t, "get all tasks by user with user not exist")
 
 	user, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	_, err = serviceTask.Create(ctx, taskDto, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	_, err = serviceTask.Create(ctx, taskDto, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	tasks, err = serviceTask.GetAllByUser(ctx, primitive.NewObjectID())
-	testsetup.IsNull(t, err)
-	testsetup.IsEmptySlice(t, tasks)
-	testsetup.Equal(t, len(tasks), 0)
+	assert.Nil(t, err)
+	assert.Empty(t, tasks)
+	assert.Equal(t, 0, len(tasks))
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -130,16 +131,17 @@ func TestGetAllByUser_ErrorDatabase(t *testing.T) {
 		user *auth.User
 	)
 
-	testsetup.LogNameTest(t, "get all tasks by user with context canceled")
+	testsetup.LogI(t, "get all tasks by user with context canceled")
 
 	user, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	_, err = serviceTask.Create(ctx, taskDto, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	_, err = serviceTask.Create(ctx, taskDto, user.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
+
 	_, err = serviceTask.GetAllByUser(ctxCanceled, user.ID)
-	testsetup.IsNotNull(t, err)
+	assert.NotNil(t, err)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -151,10 +153,10 @@ func TestGetAllByUser_TaskIsNotValidate(t *testing.T) {
 		tasks []Task
 	)
 
-	testsetup.LogNameTest(t, "get all tasks by user with task not validate")
+	testsetup.LogI(t, "get all tasks by user with task not validate")
 
 	user, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 
 	// on insère un document mal formé
 	_, err = initializer.Db.Collection("tasks").InsertOne(ctx, bson.M{
@@ -162,11 +164,11 @@ func TestGetAllByUser_TaskIsNotValidate(t *testing.T) {
 		"label":   1234,
 		"done":    false,
 	}, options.InsertOne().SetBypassDocumentValidation(true))
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 
 	tasks, err = serviceTask.GetAllByUser(ctx, user.ID)
-	testsetup.IsEmptySlice(t, tasks)
-	testsetup.IsNotNull(t, err)
+	assert.Empty(t, tasks)
+	assert.NotNil(t, err)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -179,21 +181,21 @@ func TestUpdateOneDonePropertyByUser_Success(t *testing.T) {
 		tasks       []Task
 	)
 
-	testsetup.LogNameTest(t, "update one done property by user success")
+	testsetup.LogI(t, "update one done property by user success")
 
 	userCreated, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
-	testsetup.IsNull(t, err)
-	testsetup.Equal(t, taskCreated.Done, false)
+	assert.Nil(t, err)
+	assert.Equal(t, taskCreated.Done, false)
 
 	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated.ID, taskCreated.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	tasks, err = serviceTask.GetAllByUser(ctx, userCreated.ID)
-	testsetup.IsNull(t, err)
-	testsetup.Equal(t, len(tasks), 1)
-	testsetup.Equal(t, tasks[0].ID, taskCreated.ID)
-	testsetup.Equal(t, tasks[0].Done, true)
+	assert.Nil(t, err)
+	assert.Equal(t, len(tasks), 1)
+	assert.Equal(t, tasks[0].ID, taskCreated.ID)
+	assert.Equal(t, tasks[0].Done, true)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -204,12 +206,12 @@ func TestUpdateOneDonePropertyByUser_WithTaskNotExist(t *testing.T) {
 		userCreated *auth.User
 	)
 
-	testsetup.LogNameTest(t, "update one done property by user with task not exist")
+	testsetup.LogI(t, "update one done property by user with task not exist")
 
 	userCreated, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated.ID, primitive.NewObjectID())
-	testsetup.IsNotNull(t, err)
+	assert.NotNil(t, err)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -221,15 +223,15 @@ func TestUpdateOneDonePropertyByUser_WithUserNotExist(t *testing.T) {
 		taskCreated *Task
 	)
 
-	testsetup.LogNameTest(t, "update one done property by user with user not exist")
+	testsetup.LogI(t, "update one done property by user with user not exist")
 
 	userCreated, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 
 	err = serviceTask.UpdateOneDonePropertyByUser(ctx, primitive.NewObjectID(), taskCreated.ID)
-	testsetup.IsNotNull(t, err)
+	assert.NotNil(t, err)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
@@ -242,18 +244,18 @@ func TestUpdateOneDonePropertyByUser_WithUserExistButHasNotTask(t *testing.T) {
 		taskCreated  *Task
 	)
 
-	testsetup.LogNameTest(t, "update one done property by user with user exist but has not task")
+	testsetup.LogI(t, "update one done property by user with user exist but has not task")
 
 	userCreated, err = serviceUser.Register(ctx, userDto)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	userDto2 := auth.CreateDtoFaker()
 	userCreated2, err = serviceUser.Register(ctx, userDto2)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
-	testsetup.IsNull(t, err)
+	assert.Nil(t, err)
 
 	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated2.ID, taskCreated.ID)
-	testsetup.IsNotNull(t, err)
+	assert.NotNil(t, err)
 
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }

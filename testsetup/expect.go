@@ -22,10 +22,6 @@ func expectSuccess(t *testing.T, value any, expected any) {
 	t.Logf("🟢 Value : %v | Expect : %v", value, expected)
 }
 
-func LogNameTest(t *testing.T, name string) {
-	t.Logf("🔵 Test: %s", name)
-}
-
 func Equal(t *testing.T, value any, expected any) {
 	if value != expected {
 		expectFail(t, value, expected, "not equal")
