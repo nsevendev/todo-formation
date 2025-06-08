@@ -1,20 +1,20 @@
-name: todof-preprod
+name: todof-${APP_ENV}
 services:
-  todof-go-preprod:
+  preprod:
     build:
-      target: prod
+      target: ${APP_ENV}
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: todof-go-preprod
-    image: todof:preprod
+    container_name: todof_${APP_ENV}
+    image: todof:${APP_ENV}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-nseven"
-      - "traefik.http.routers.todof-go-preprod.rule=${HOST_TRAEFIK}"
-      - "traefik.http.routers.todof-go-preprod.entrypoints=websecure"
-      - "traefik.http.routers.todof-go-preprod.tls=true"
-      - "traefik.http.routers.todof-go-preprod.tls.certresolver=le"
-      - "traefik.http.services.todof-go-preprod.loadbalancer.server.port=${PORT}"
+      - "traefik.http.routers.todof-go-prod.rule=${HOST_TRAEFIK}"
+      - "traefik.http.routers.todof-go-prod.entrypoints=websecure"
+      - "traefik.http.routers.todof-go-prod.tls=true"
+      - "traefik.http.routers.todof-go-prod.tls.certresolver=le"
+      - "traefik.http.services.todof-go-prod.loadbalancer.server.port=${PORT}"
     volumes:
       - ../:/app
     env_file:
@@ -23,17 +23,24 @@ services:
       - traefik-nseven
       - todof
     depends_on:
-      - todof-db-preprod
+      - db
 
-  todof-db-preprod:
+  db:
     image: mongo:7
-    container_name: todof-db-preprod
+    container_name: todof_db${APP_ENV}
     restart: unless-stopped
     volumes:
       - todof-db-preprod-data:/data/db
       - ../docker/mongo-init:/docker-entrypoint-initdb.d
     networks:
       - traefik-nseven
+      - todof
+
+  redis:
+    image: redis:7
+    container_name: todof_redis${APP_ENV}
+    restart: unless-stopped
+    networks:
       - todof
 
 networks:

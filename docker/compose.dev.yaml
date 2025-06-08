@@ -24,14 +24,14 @@ services:
       - traefik-nseven
       - todof
     depends_on:
-      - dbdev
+      - db
 
   db:
     image: mongo:7
     container_name: todof_db_${APP_ENV}
     restart: unless-stopped
     volumes:
-      - todof-db-${APP_ENV}-data:/data/db
+      - todof-db-dev-data:/data/db
       - ../docker/mongo-init:/docker-entrypoint-initdb.d
     ports:
       - "${DB_PORT_EX}:27017"
@@ -55,4 +55,4 @@ networks:
     driver: bridge
 
 volumes:
-  todof-db-${APP_ENV}-data:
+  todof-db-dev-data:
