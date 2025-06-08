@@ -10,7 +10,7 @@ import (
 	"testing"
 	"todof/internal/auth"
 	initializer "todof/internal/init"
-	"todof/testsetup"
+	"todof/mod/testsetup"
 )
 
 var (
