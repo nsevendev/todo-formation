@@ -1,7 +1,7 @@
 package init
 
 import (
-	"todof/internal/config"
+	"github.com/nsevenpack/env/env"
 	"todof/internal/job"
 	"todof/migration"
 	"todof/mod/migratormongodb"
@@ -12,10 +12,10 @@ import (
 
 func init() {
 	// START GET .ENV
-	appEnv := config.Get("APP_ENV")
+	appEnv := env.Get("APP_ENV")
 
 	// REDIS
-	job.Redis(config.Get("REDIS_ADDR"))
+	job.Redis(env.Get("REDIS_ADDR"))
 	job.StartWorker()
 
 	// LOGGER

@@ -2,13 +2,13 @@ package auth
 
 import (
 	"context"
+	"github.com/nsevenpack/env/env"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
-	"todof/internal/config"
 	initializer "todof/internal/init"
 	"todof/internal/job"
 
@@ -37,8 +37,8 @@ var tokenString string
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
-	s = NewUserService(r, config.Get("JWT_SECRET"))
-	job.Redis(config.Get("REDIS_ADDR"))
+	s = NewUserService(r, env.Get("JWT_SECRET"))
+	job.Redis(env.Get("REDIS_ADDR"))
 	job.StartWorker()
 	ctx := context.Background()
 
@@ -94,7 +94,7 @@ func TestRegister(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	serviceWithJWTEmpty := NewUserService(r, config.Get(""))
+	serviceWithJWTEmpty := NewUserService(r, env.Get(""))
 
 	tests := []struct {
 		name     string
@@ -159,7 +159,7 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-func TestValidateToken(t *testing.T){
+func TestValidateToken(t *testing.T) {
 	tests := []struct {
 		name          string
 		tokenString   string
@@ -222,60 +222,60 @@ func TestGetProfilCurrentUser(t *testing.T) {
 }
 
 func TestGetIdUserInContext(t *testing.T) {
-    tests := []struct {
-        name      string
-        setup     func(c *gin.Context)
-        isAborted bool
-        expectID  primitive.ObjectID
-    }{
-        {
-            name: "test success",
-            setup: func(c *gin.Context) {
-                c.Set("id_user", ids[0])
-            },
-            isAborted: false,
-            expectID:  ids[0],
-        },
-        {
-            name: "test sans id_user dans le contexte",
-            setup: func(c *gin.Context) {
-            },
-            isAborted: true,
-        },
-    }
+	tests := []struct {
+		name      string
+		setup     func(c *gin.Context)
+		isAborted bool
+		expectID  primitive.ObjectID
+	}{
+		{
+			name: "test success",
+			setup: func(c *gin.Context) {
+				c.Set("id_user", ids[0])
+			},
+			isAborted: false,
+			expectID:  ids[0],
+		},
+		{
+			name: "test sans id_user dans le contexte",
+			setup: func(c *gin.Context) {
+			},
+			isAborted: true,
+		},
+	}
 
-    for _, tt := range tests {
-        w := httptest.NewRecorder()
-        c, _ := gin.CreateTestContext(w)
-        tt.setup(c)
+	for _, tt := range tests {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		tt.setup(c)
 
-        func() {
-            defer func() {
-                if r := recover(); r != nil {
-                    if !tt.isAborted {
-                        t.Errorf("%s: panique inattendue : %v", tt.name, r)
-                    }
-                }
-            }()
-            
-            id := s.GetIdUserInContext(c)
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					if !tt.isAborted {
+						t.Errorf("%s: panique inattendue : %v", tt.name, r)
+					}
+				}
+			}()
 
-            if c.IsAborted() != tt.isAborted {
-                t.Errorf("%s: expected abort %v, got aborted %v", tt.name, tt.isAborted, c.IsAborted())
-            }
+			id := s.GetIdUserInContext(c)
 
-            if !tt.isAborted && id != tt.expectID {
-                t.Errorf("%s: expected id %v, got %v", tt.name, tt.expectID, id)
-            }
-        }()
-    }
+			if c.IsAborted() != tt.isAborted {
+				t.Errorf("%s: expected abort %v, got aborted %v", tt.name, tt.isAborted, c.IsAborted())
+			}
+
+			if !tt.isAborted && id != tt.expectID {
+				t.Errorf("%s: expected id %v, got %v", tt.name, tt.expectID, id)
+			}
+		}()
+	}
 }
 
 func TestDeleteOneByUser(t *testing.T) {
 	tests := []struct {
-		name    string
-		id      primitive.ObjectID
-		isErr   bool
+		name  string
+		id    primitive.ObjectID
+		isErr bool
 	}{
 		{"test succès avec un utilisateur existant", ids[0], false},
 		{"test avec un ID valide mais inexistant dans la base", primitive.NewObjectID(), false},
@@ -361,7 +361,7 @@ func TestDeleteAllByAdmin(t *testing.T) {
 			if deletedCount != tt.deletedCount {
 				t.Errorf("%s: got deletedCount %v, expect deletedCount %v", tt.name, deletedCount, tt.deletedCount)
 			}
-			
+
 		default:
 			deletedCount, err := s.DeleteAllByAdmin(ctx)
 
@@ -376,10 +376,10 @@ func TestDeleteAllByAdmin(t *testing.T) {
 	}
 }
 
-//repo
-func TestFindNonAdmin(t *testing.T){
+// repo
+func TestFindNonAdmin(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		isErr bool
 	}{
 		{"test success", false},
@@ -395,11 +395,11 @@ func TestFindNonAdmin(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		
+
 		case "test echec du cursor":
 			_, err := c.InsertOne(ctx, bson.M{
 				"email": true,
-				"role": "user",
+				"role":  "user",
 			}, options.InsertOne().SetBypassDocumentValidation(true))
 			if err != nil {
 				t.Fatalf("Erreur lors de l'insertion du document mal formé: %v", err)
@@ -410,7 +410,7 @@ func TestFindNonAdmin(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		
+
 		default:
 			_, err := r.FindNonAdmin(ctx)
 
@@ -439,7 +439,7 @@ func TestRequireAuth(t *testing.T) {
 			},
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenString, _ := token.SignedString([]byte(config.Get("JWT_SECRET")))
+		tokenString, _ := token.SignedString([]byte(env.Get("JWT_SECRET")))
 		return tokenString
 	}
 

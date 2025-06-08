@@ -1,16 +1,15 @@
 package main
 
 import (
+	"github.com/nsevenpack/env/env"
 	"todof/docs"
 	_ "todof/docs"
 	_ "todof/internal/init"
 
-	"strings"
-	"todof/app/router"
-	"todof/internal/config"
-
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/logger/v2/logger"
+	"strings"
+	"todof/app/router"
 )
 
 // @title API todo-formation
@@ -38,8 +37,8 @@ func logRoutes(s *gin.Engine) {
 
 // run and log the server
 func run(s *gin.Engine) {
-	port := config.Get("PORT")
-	hostTraefik := extractStringInBacktick(config.Get("HOST_TRAEFIK"))
+	port := env.Get("PORT")
+	hostTraefik := extractStringInBacktick(env.Get("HOST_TRAEFIK"))
 	host := "0.0.0.0"
 
 	docs.SwaggerInfo.Host = hostTraefik
