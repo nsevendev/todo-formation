@@ -21,3 +21,9 @@
 - Aller sur https://todof.local/swagger/index.html  
   (ATTENTION LE HOST CHANGE EN FONCTION DE L'ENVIRONNEMENT)
   (todof.local EST LE HOST PAR DEFAUT EN DEV)
+
+## Lancement des tests
+
+- creer un fichier `.env.test` à la racine du projet
+- ajouter la variable `APP_ENV=test` dans ce fichier
+- lancer la commande `make t` pour lancer les tests ou tous autres commande make de tests
