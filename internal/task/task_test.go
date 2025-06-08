@@ -171,6 +171,93 @@ func TestGetAllByUser_TaskIsNotValidate(t *testing.T) {
 	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
+func TestUpdateOneDonePropertyByUser_Success(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+		taskCreated *Task
+		tasks       []Task
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user success")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+	testsetup.Equal(t, taskCreated.Done, false)
+
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated.ID, taskCreated.ID)
+	testsetup.IsNull(t, err)
+	tasks, err = serviceTask.GetAllByUser(ctx, userCreated.ID)
+	testsetup.IsNull(t, err)
+	testsetup.Equal(t, len(tasks), 1)
+	testsetup.Equal(t, tasks[0].ID, taskCreated.ID)
+	testsetup.Equal(t, tasks[0].Done, true)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_WithTaskNotExist(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user with task not exist")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated.ID, primitive.NewObjectID())
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_WithUserNotExist(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+		taskCreated *Task
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user with user not exist")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, primitive.NewObjectID(), taskCreated.ID)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_WithUserExistButHasNotTask(t *testing.T) {
+	var (
+		err          error
+		userCreated  *auth.User
+		userCreated2 *auth.User
+		taskCreated  *Task
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user with user exist but has not task")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	userDto2 := auth.CreateDtoFaker()
+	userCreated2, err = serviceUser.Register(ctx, userDto2)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated2.ID, taskCreated.ID)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
 /*
 func TestUpdateOneDonePropertyByUser(t *testing.T) {
 	tests := []struct {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"todof/docs"
 	_ "todof/docs"
 	_ "todof/internal/init"
 
@@ -15,7 +16,6 @@ import (
 // @title API todo-formation
 // @version 1.0
 // @description API pour créer des todo avec utilisateurs. Pour tester les routes protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token} (remplacez {votre token} par un token valide obtenu via la route /user/login).
-// @host todof.local
 // @schemes https
 // @securityDefinitions.apikey BearerAuth
 // @in headers
@@ -41,6 +41,8 @@ func run(s *gin.Engine) {
 	port := config.Get("PORT")
 	hostTraefik := extractStringInBacktick(config.Get("HOST_TRAEFIK"))
 	host := "0.0.0.0"
+
+	docs.SwaggerInfo.Host = hostTraefik
 
 	logger.S("Server is running on in container docker : " + host + ":" + port)
 	logger.Sf("Server is running on navigator on : https://%v", hostTraefik)
