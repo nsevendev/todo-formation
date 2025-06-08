@@ -81,16 +81,7 @@ func (t *taskRepo) UpdateOneDonePropertyByUser(ctx context.Context, idUser primi
 		},
 	}
 
-	result, err := t.collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		logger.Ef("Erreur lors de la mise à jour de la tâche _id: %s, id_user: %s, error: %s", idTask.Hex(), idUser.Hex(), err.Error())
-		return errors.New("impossible de mettre à jour la tâche")
-	}
-
-	if result.MatchedCount == 0 {
-		logger.Ef("Aucune tâche modifié _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
-		return errors.New("aucune tâche mise à jour")
-	}
+	_, _ = t.collection.UpdateOne(ctx, filter, update)
 
 	logger.Sf("tâche mise à jour _id: %s, id_user: %s", idTask.Hex(), idUser.Hex())
 
