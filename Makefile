@@ -35,7 +35,7 @@ upb: ## Demarre l'environnement avec build
 	docker compose $(ENV_FILE) $(COMPOSE_FILES) up ${APP_ENV} db redis -d --build
 
 upbnod: ## Demarre l'environnement avec build
-	docker compose $(ENV_FILE) $(COMPOSE_FILES) up -d ${APP_ENV} db redis -d --build
+	docker compose $(ENV_FILE) $(COMPOSE_FILES) up ${APP_ENV} db redis --build
 
 down: ## Arrête les conteneurs
 	docker compose $(ENV_FILE) $(COMPOSE_FILES) down ${APP_ENV} db redis
