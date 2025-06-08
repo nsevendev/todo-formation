@@ -18,9 +18,9 @@ import (
 // @Produce json
 // @Security BearerAuth
 // @Param task body task.TaskCreateDto true "DTO de création de la task"
-// @Success 201 {object} doc.ResponseModel "Tâche créée avec succès"
-// @Failure 401 {object} doc.ResponseModel "Invalide token"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 201 {object} ginresponse.JsonFormatterSwag "Tâche créée avec succès"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /task [post]
 func (t *taskController) Create(c *gin.Context) {
 	var taskCreateDto task.TaskCreateDto
@@ -28,8 +28,8 @@ func (t *taskController) Create(c *gin.Context) {
 		logger.Ef("Erreur de validation : %s", err.Error())
 		ginresponse.BadRequest(c, "Erreur de validation", ginresponse.ErrorModel{
 			Message: err.Error(),
-			Type: "Validation",
-			Detail: fmt.Sprintf("%v", err),
+			Type:    "Validation",
+			Detail:  fmt.Sprintf("%v", err),
 		})
 		return
 	}

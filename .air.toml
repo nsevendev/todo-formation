@@ -2,10 +2,10 @@ root = "."
 tmp_dir = "tmp/air"
 
 [build]
-cmd = "swag init -o doc -g cmd/main.go app/controller internal doc && go build -o ./tmp/air/main ./cmd/main.go"
+cmd = "swag init -o docs -g main.go --parseInternal --pd && go clean && go build -o ./tmp/air/main ./main.go"
 bin = "tmp/air/main"
 include_ext = ["go"]
-exclude_dir = ["tmp", "doc"]
+exclude_dir = ["tmp", "doc", "docs"]
 watch_dir = "."
 
 [log]

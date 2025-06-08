@@ -1,11 +1,13 @@
 package main
 
 import (
-	"os"
+	"todof/docs"
+	_ "todof/docs"
+	_ "todof/internal/init"
+
 	"strings"
 	"todof/app/router"
-	_ "todof/doc"
-	_ "todof/internal/init"
+	"todof/internal/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nsevenpack/logger/v2/logger"
@@ -14,8 +16,7 @@ import (
 // @title API todo-formation
 // @version 1.0
 // @description API pour créer des todo avec utilisateurs. Pour tester les routes protégées, cliquez sur le bouton Authorize et saisissez : Bearer {votre token} (remplacez {votre token} par un token valide obtenu via la route /user/login).
-// @host todof.local
-// @BasePath /api/v1
+// @schemes https
 // @securityDefinitions.apikey BearerAuth
 // @in headers
 // @name Authorization
@@ -37,9 +38,11 @@ func logRoutes(s *gin.Engine) {
 
 // run and log the server
 func run(s *gin.Engine) {
-	port := os.Getenv("PORT")
-	hostTraefik := extractStringInBacktick(os.Getenv("HOST_TRAEFIK"))
+	port := config.Get("PORT")
+	hostTraefik := extractStringInBacktick(config.Get("HOST_TRAEFIK"))
 	host := "0.0.0.0"
+
+	docs.SwaggerInfo.Host = hostTraefik
 
 	logger.S("Server is running on in container docker : " + host + ":" + port)
 	logger.Sf("Server is running on navigator on : https://%v", hostTraefik)

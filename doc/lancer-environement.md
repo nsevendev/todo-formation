@@ -13,8 +13,11 @@
 
 - Lancer la commande `make up` pour demarrer les containers
 - Arrêter les containers avec `make down`
+**Pour afficher toutes les commandes "make" tapez "make" dans le terminal**
 
 ## Acceder au swagger
 
 - Lancer les container
-- Aller sur https://todof.local/swagger/index.html
+- Aller sur https://todof.local/swagger/index.html  
+  (ATTENTION LE HOST CHANGE EN FONCTION DE L'ENVIRONNEMENT)
+  (todof.local EST LE HOST PAR DEFAUT EN DEV)

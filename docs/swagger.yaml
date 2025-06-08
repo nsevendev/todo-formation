@@ -1,4 +1,3 @@
-basePath: /api/v1
 definitions:
   auth.UserCreateDto:
     properties:
@@ -36,12 +35,18 @@ definitions:
     - email
     - password
     type: object
-  doc.InsufficientPermissionsResponseModel:
+  ginresponse.JsonFormatterSwag:
     properties:
+      data:
+        type: object
       error:
+        type: object
+      message:
         type: string
+      meta:
+        $ref: '#/definitions/ginresponse.JsonSwagMeta'
     type: object
-  doc.Meta:
+  ginresponse.JsonSwagMeta:
     properties:
       method:
         type: string
@@ -51,15 +56,6 @@ definitions:
         type: integer
       timestamp:
         type: string
-    type: object
-  doc.ResponseModel:
-    properties:
-      data: {}
-      error: {}
-      message:
-        type: string
-      meta:
-        $ref: '#/definitions/doc.Meta'
     type: object
   task.TaskCreateDto:
     properties:
@@ -84,7 +80,6 @@ definitions:
     required:
     - label
     type: object
-host: todof.local
 info:
   contact: {}
   description: 'API pour créer des todo avec utilisateurs. Pour tester les routes
@@ -94,6 +89,29 @@ info:
   version: "1.0"
 paths:
   /task:
+    get:
+      description: Récupére les tasks crée par l'utilisateur authentifié via le token
+        dans le header
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tâches récupérées avec succès
+          schema:
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
+        "401":
+          description: Invalide token
+          schema:
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
+      security:
+      - BearerAuth: []
+      summary: Récupérer toutes les tasks de l'utilisateur connecté
+      tags:
+      - task
     post:
       consumes:
       - application/json
@@ -111,15 +129,15 @@ paths:
         "201":
           description: Tâche créée avec succès
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
-          description: Invalide token
+          description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Créer une task
@@ -141,15 +159,15 @@ paths:
         "200":
           description: Tâche mise à jour avec succès
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Met à jour la propriété done d'une task spécifique de l'utilisateur
@@ -180,15 +198,15 @@ paths:
         "200":
           description: Tâche mise à jour avec succès
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Met à jour le label d'une task spécifique de l'utilisateur connecté
@@ -210,15 +228,15 @@ paths:
         "200":
           description: Tâche supprimée avec succès
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime une task spécifique de l'utilisateur connecté
@@ -233,19 +251,19 @@ paths:
         "200":
           description: X tâches supprimés
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime les tâches par un admin
@@ -268,19 +286,19 @@ paths:
         "200":
           description: X tâches supprimés
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime une ou plusieurs tâche(s) spécifique par un admin
@@ -303,15 +321,15 @@ paths:
         "200":
           description: Les tâches ont été supprimées avec succès
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime une ou plusieurs task(s) spécifique de l'utilisateur connecté
@@ -328,39 +346,16 @@ paths:
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime l'utilisateur connecté
       tags:
       - user
-    get:
-      description: Récupére les tasks crée par l'utilisateur authentifié via le token
-        dans le header
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Tâches récupérées avec succès
-          schema:
-            $ref: '#/definitions/doc.ResponseModel'
-        "401":
-          description: Invalide token
-          schema:
-            $ref: '#/definitions/doc.ResponseModel'
-        "500":
-          description: Erreur interne
-          schema:
-            $ref: '#/definitions/doc.ResponseModel'
-      security:
-      - BearerAuth: []
-      summary: Récupérer toutes les tasks de l'utilisateur connecté
-      tags:
-      - task
   /user/login:
     post:
       consumes:
@@ -379,15 +374,15 @@ paths:
         "200":
           description: Connexion réussie
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "400":
           description: Erreur de validation
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur d'authentification
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       summary: Authentifier un utilisateur
       tags:
       - user
@@ -401,15 +396,15 @@ paths:
         "200":
           description: Profil utilisateur récupéré avec succès
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
-          description: Invalide token
+          description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Récupérer le profil de l'utilisateur connecté
@@ -430,16 +425,18 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: "1"
+        "200":
+          description: Utilisateur créé avec succès
+          schema:
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "400":
           description: Erreur de validation
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       summary: Créer un utilisateur
       tags:
       - user
@@ -460,19 +457,19 @@ paths:
         "200":
           description: X utilisateurs supprimés
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime un ou plusieurs utilisateur(s) spécifique par un admin
@@ -487,24 +484,26 @@ paths:
         "200":
           description: X utilisateurs supprimés
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "401":
           description: Token invalide
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "403":
           description: Insufficient permissions
           schema:
-            $ref: '#/definitions/doc.InsufficientPermissionsResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
         "500":
           description: Erreur interne
           schema:
-            $ref: '#/definitions/doc.ResponseModel'
+            $ref: '#/definitions/ginresponse.JsonFormatterSwag'
       security:
       - BearerAuth: []
       summary: Supprime les utilisateurs par un admin
       tags:
       - admin
+schemes:
+- https
 securityDefinitions:
   BearerAuth:
     in: headers

@@ -1,10 +1,11 @@
 package router
 
 import (
-	"os"
 	"todof/app/controller/taskcontroller"
 	"todof/app/controller/usercontroller"
+	"todof/docs"
 	"todof/internal/auth"
+	"todof/internal/config"
 	"todof/internal/task"
 
 	initializer "todof/internal/init"
@@ -17,8 +18,10 @@ import (
 )
 
 func Router(r *gin.Engine) {
+	pathApiV1 := "api/v1"
+
 	userRepo := auth.NewUserRepo(initializer.Db)
-	userService := auth.NewUserService(userRepo, os.Getenv("JWT_SECRET"))
+	userService := auth.NewUserService(userRepo, config.Get("JWT_SECRET"))
 	authMiddle := auth.NewAuthMiddleware(userService)
 	userController := usercontroller.NewUserController(userService)
 
@@ -26,9 +29,10 @@ func Router(r *gin.Engine) {
 	taskService := task.NewTaskService(taskRepo, userRepo)
 	taskController := taskcontroller.NewTaskController(taskService, userService)
 
+	docs.SwaggerInfo.BasePath = "/" + pathApiV1
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	v1 := r.Group("api/v1")
+	v1 := r.Group(pathApiV1)
 
 	v1Task := v1.Group("/task")
 	v1Task.Use(authMiddle.RequireAuth())

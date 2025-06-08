@@ -14,21 +14,21 @@ import (
 // @Security BearerAuth
 // @Produce json
 // @Param id path string true "ID de la task à supprimer"
-// @Success 200 {object} doc.ResponseModel "Tâche supprimée avec succès"
-// @Failure 401 {object} doc.ResponseModel "Token invalide"
-// @Failure 500 {object} doc.ResponseModel "Erreur interne"
+// @Success 200 {object} ginresponse.JsonFormatterSwag "Tâche supprimée avec succès"
+// @Failure 401 {object} ginresponse.JsonFormatterSwag "Token invalide"
+// @Failure 500 {object} ginresponse.JsonFormatterSwag "Erreur interne"
 // @Router /task/{id}/user [delete]
 func (t *taskController) DeleteOneByUser(c *gin.Context) {
 	id := c.Param("id")
 	taskId, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
+	if err != nil {
 		logger.Ef("Erreur lors de la conversion de l'ID de la tâche : %s", err.Error())
-        ginresponse.BadRequest(c, "Id de la tâche invalide", err.Error())
-        return
-    }
+		ginresponse.BadRequest(c, "Id de la tâche invalide", err.Error())
+		return
+	}
 
 	idUser := t.userService.GetIdUserInContext(c)
-	
+
 	if err := t.taskService.DeleteOneByUser(c, idUser, taskId); err != nil {
 		logger.Ef("Erreur lors de la suppression de la tâche : %s", err.Error())
 		ginresponse.InternalServerError(c, "Erreur lors de la suppression de la tâche", err.Error())
