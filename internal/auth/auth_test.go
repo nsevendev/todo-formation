@@ -10,6 +10,7 @@ import (
 	"time"
 	"todof/internal/config"
 	initializer "todof/internal/init"
+	"todof/internal/job"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -32,11 +33,13 @@ var ids []primitive.ObjectID
 var users []*User
 var tokenString string
 
-//service
+// service
 func TestMain(m *testing.M) {
 	c = initializer.Db.Collection("users")
 	r = NewUserRepo(initializer.Db)
 	s = NewUserService(r, config.Get("JWT_SECRET"))
+	job.Redis(config.Get("REDIS_ADDR"))
+	job.StartWorker()
 	ctx := context.Background()
 
 	cancelCtx, cancelFunc = context.WithCancel(ctx)
@@ -54,14 +57,14 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestRegister(t *testing.T){
+func TestRegister(t *testing.T) {
 	tests := []struct {
-		name	 string
+		name     string
 		email    string
 		password string
 		username string
 		role     string
-		isUser	 bool
+		isUser   bool
 		isErr    bool
 	}{
 		{"test avec user admin valid", "admin@gmail.com", "password", "admin", "admin", true, false},
@@ -158,10 +161,10 @@ func TestLogin(t *testing.T) {
 
 func TestValidateToken(t *testing.T){
 	tests := []struct {
-		name string
-		tokenString string
+		name          string
+		tokenString   string
 		isTokenClaims bool
-		isErr bool
+		isErr         bool
 	}{
 		{"test success", tokenString, true, false},
 	}
@@ -179,12 +182,12 @@ func TestValidateToken(t *testing.T){
 	}
 }
 
-func TestGetProfilCurrentUser(t *testing.T){
+func TestGetProfilCurrentUser(t *testing.T) {
 	tests := []struct {
-		name string
-		id primitive.ObjectID
+		name   string
+		id     primitive.ObjectID
 		isUser bool
-		isErr bool
+		isErr  bool
 	}{
 		{"test success", ids[0], true, false},
 		{"test id valide mais inexistant", primitive.NewObjectID(), false, false},
@@ -299,11 +302,11 @@ func TestDeleteOneByUser(t *testing.T) {
 	}
 }
 
-func TestDeleteByAdmin(t *testing.T){
+func TestDeleteByAdmin(t *testing.T) {
 	tests := []struct {
-		name string
+		name         string
 		deletedCount int
-		isErr bool
+		isErr        bool
 	}{
 		{"test delete success", 1, false},
 		{"test echec mongo", 0, false},
@@ -336,11 +339,11 @@ func TestDeleteByAdmin(t *testing.T){
 	}
 }
 
-func TestDeleteAllByAdmin(t *testing.T){
+func TestDeleteAllByAdmin(t *testing.T) {
 	tests := []struct {
-		name string
+		name         string
 		deletedCount int64
-		isErr bool
+		isErr        bool
 	}{
 		{"test success", 0, false},
 		{"test echec mongo", 0, true},
@@ -418,7 +421,7 @@ func TestFindNonAdmin(t *testing.T){
 	}
 }
 
-//middleware
+// middleware
 func TestRequireAuth(t *testing.T) {
 
 	router.GET("/protected", middleware.RequireAuth(), func(c *gin.Context) {
@@ -521,11 +524,11 @@ func TestRequireRole(t *testing.T) {
 	}
 }
 
-//usermodel
+// usermodel
 func TestHashPassword(t *testing.T) {
 	tests := []struct {
-		name         string
-		password  string
+		name     string
+		password string
 		isErr    bool
 	}{
 		{"test success", "password", false},
@@ -554,10 +557,10 @@ func TestCheckPassword(t *testing.T) {
 	if err != nil {
 		t.Fatalf("erreur de génération du hash pour test: %v", err)
 	}
-	
+
 	tests := []struct {
-		name         string
-		password   string
+		name     string
+		password string
 		isMatch  bool
 	}{
 		{"test success", "password", true},

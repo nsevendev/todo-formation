@@ -14,6 +14,10 @@ func init() {
 	// START GET .ENV
 	appEnv := config.Get("APP_ENV")
 
+	// REDIS
+	job.Redis(config.Get("REDIS_ADDR"))
+	job.StartWorker()
+
 	// LOGGER
 	logger.Init(appEnv)
 
@@ -32,12 +36,4 @@ func init() {
 	if err := migrator.Apply(); err != nil {
 		logger.Ff("Erreur lors de l'application des migrations : %v", err)
 	}
-
-	// REDIS
-	if job.ClientRedis == nil {
-		logger.Ef("❌ ClientRedis n'est pas initialisé, impossible de démarrer les jobs")
-		return
-	}
-	job.Redis(config.Get("REDIS_ADDR"))
-	job.StartWorker()
 }

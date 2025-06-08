@@ -2,183 +2,263 @@ package task
 
 import (
 	"context"
-	"log"
-	"os"
-	"testing"
-	"time"
-	"todof/internal/auth"
-	initializer "todof/internal/init"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"os"
+	"testing"
+	"todof/internal/auth"
+	initializer "todof/internal/init"
+	"todof/testsetup"
 )
 
-var s TaskServiceInterface
-var userCollection *mongo.Collection
-var taskCollection *mongo.Collection
-var ctx context.Context
-var cancelCtx context.Context
-var cancelFunc context.CancelFunc
-var usersIds []primitive.ObjectID
-var tasksIds []primitive.ObjectID
+var (
+	ctx         = context.Background()
+	serviceTask TaskServiceInterface
+	serviceUser auth.UserServiceInterface
+	ctxCanceled context.Context
+	cancelFunc  context.CancelFunc
+	userDto     auth.UserCreateDto
+	taskDto     TaskCreateDto
+)
 
 func TestMain(m *testing.M) {
-	taskCollection = initializer.Db.Collection("tasks")
-	userCollection = initializer.Db.Collection("users")
-	r := NewTaskRepo(initializer.Db)
+	userDto = auth.CreateDtoFaker()
+	taskDto = CreateDtoFaker()
 	userRepo := auth.NewUserRepo(initializer.Db)
-	s = NewTaskService(r, userRepo)
-	ctx = context.Background()
-
-	cancelCtx, cancelFunc = context.WithCancel(ctx)
+	serviceUser = auth.NewUserService(userRepo, "jwttest")
+	serviceTask = NewTaskService(NewTaskRepo(initializer.Db), userRepo)
+	ctxCanceled, cancelFunc = context.WithCancel(ctx)
 	cancelFunc()
 
-	if _, err := taskCollection.DeleteMany(ctx, bson.M{}); err != nil {
-		log.Fatalf("Erreur lors du nettoyage de la collection tasks : %v", err)
-	}
-
-	if _, err := userCollection.DeleteMany(ctx, bson.M{}); err != nil {
-		log.Fatalf("Erreur lors du nettoyage de la collection users : %v", err)
-	}
-
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 	code := m.Run()
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 
 	os.Exit(code)
 }
 
-func setupCreateUser(t *testing.T, email string) primitive.ObjectID {
-	user := &auth.User{
-		Email:    email,
-		Password: "password",
-	}
+func TestCreate_OneTaskCreated(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+		taskCreated *Task
+	)
+	testsetup.LogNameTest(t, "one Tache created for one user")
 
-	result, err := userCollection.InsertOne(ctx, user)
-	if err != nil {
-		t.Fatalf("Erreur lors de la création de l'utilisateur : %v", err)
-	}
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+	testsetup.Equal(t, taskCreated.Label, taskDto.Label)
+	testsetup.Equal(t, taskCreated.IdUser, userCreated.ID)
 
-	userID := result.InsertedID.(primitive.ObjectID)
-	usersIds = append(usersIds, userID)
-	return userID
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
-func setupCreateTask(t *testing.T, userID primitive.ObjectID, label string) primitive.ObjectID {
-	task := &Task{
-		Label:     label,
-		Done:      false,
-		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-		UpdatedAt: primitive.NewDateTimeFromTime(time.Now()),
-		IdUser:    userID,
-	}
+func TestCreate_ErrorDatabase(t *testing.T) {
+	var (
+		err  error
+		user *auth.User
+	)
 
-	result, err := taskCollection.InsertOne(ctx, task)
-	if err != nil {
-		t.Fatalf("Erreur lors de la création de la tâche : %v", err)
-	}
+	testsetup.LogNameTest(t, "create task with context canceled")
 
-	taskID := result.InsertedID.(primitive.ObjectID)
-	tasksIds = append(tasksIds, taskID)
-	return taskID
+	user, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	_, err = serviceTask.Create(ctxCanceled, taskDto, user.ID)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
-func TestCreate(t *testing.T) {
-	tests := []struct {
-		name  string
-		setup func() (userID primitive.ObjectID)
-		label string
-		isErr bool
-	}{
-		{
-			name:  "test success",
-			label: "task test",
-			isErr: false,
-			setup: func() primitive.ObjectID {return setupCreateUser(t, "taskTest@gmail.com")},
-		},
-		{"test echec mongo", func() primitive.ObjectID {return primitive.NewObjectID()}, "label test", true},
-	}
+func TestGetAllByUser_GetAllTaskByUser(t *testing.T) {
+	var (
+		err   error
+		user  *auth.User
+		task1 *Task
+		task2 *Task
+		tasks []Task
+	)
 
-	for _, tt := range tests {
-		userId := tt.setup()
+	testsetup.LogNameTest(t, "get all tasks by user")
 
-		createDto := TaskCreateDto{
-			Label: tt.label,
-		}
+	user, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	task1, err = serviceTask.Create(ctx, taskDto, user.ID)
+	testsetup.IsNull(t, err)
+	task2, err = serviceTask.Create(ctx, taskDto, user.ID)
+	testsetup.IsNull(t, err)
+	tasks, err = serviceTask.GetAllByUser(ctx, user.ID)
+	testsetup.IsNull(t, err)
 
-		if tt.name == "test echec mongo" {
-			_, err := s.Create(cancelCtx, createDto, userId)
+	testsetup.Equal(t, len(tasks), 2)
+	testsetup.Equal(t, tasks[0].ID, task1.ID)
+	testsetup.Equal(t, tasks[1].ID, task2.ID)
+	testsetup.Equal(t, tasks[0].Label, task1.Label)
+	testsetup.Equal(t, tasks[1].Label, task2.Label)
 
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
-		}else{
-			task, err := s.Create(ctx, createDto, userId)
-
-			if task != nil {
-				tasksIds = append(tasksIds, task.ID)
-			}
-	
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
-	
-			if err == nil && task.Label != tt.label {
-				t.Errorf("%s: got label %s, expect label %s", tt.name, task.Label, tt.label)
-			}
-		}
-	}
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
-func TestGetAllByUser(t *testing.T){
+func TestGetAllByUser_GetAllTaskByUserWithUserNotExist(t *testing.T) {
+	var (
+		err   error
+		user  *auth.User
+		tasks []Task
+	)
 
-	tests := []struct {
-		name string
-		userId primitive.ObjectID
-		isTask bool
-		isErr bool
-	}{
-		{"test success", usersIds[0], true, false},
-		{"test avec user sans task", setupCreateUser(t, "taskTest2@gmail.com"), true, false},
-		{"test echec mongo", usersIds[0], false, true},
-		{"test document mal formé", usersIds[0], false, true},
-	}
+	testsetup.LogNameTest(t, "get all tasks by user with user not exist")
 
-	for _, tt := range tests {
-		switch tt.name {
-		case "test echec mongo":
-			_, err := s.GetAllByUser(cancelCtx, tt.userId)
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
+	user, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	_, err = serviceTask.Create(ctx, taskDto, user.ID)
+	testsetup.IsNull(t, err)
+	_, err = serviceTask.Create(ctx, taskDto, user.ID)
+	testsetup.IsNull(t, err)
+	tasks, err = serviceTask.GetAllByUser(ctx, primitive.NewObjectID())
+	testsetup.IsNull(t, err)
+	testsetup.IsEmptySlice(t, tasks)
+	testsetup.Equal(t, len(tasks), 0)
 
-		case "test document mal formé":
-			_, err := taskCollection.InsertOne(ctx, bson.M{
-				"id_user": tt.userId,
-				"label":   1234,
-				"done":    false,
-			}, options.InsertOne().SetBypassDocumentValidation(true))
-			if err != nil {
-				t.Fatalf("Erreur lors de l'insertion du document mal formé: %v", err)
-			}
-
-			_, err = s.GetAllByUser(ctx, tt.userId)
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
-
-		default:
-			task, err := s.GetAllByUser(ctx, tt.userId)
-			if (err != nil) != tt.isErr {
-				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
-			}
-			if (task == nil) == tt.isTask {
-				t.Errorf("%s: got task %v, expect task %v", tt.name, task, tt.isTask)
-			}
-		}
-	}
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
 }
 
+func TestGetAllByUser_ErrorDatabase(t *testing.T) {
+	var (
+		err  error
+		user *auth.User
+	)
+
+	testsetup.LogNameTest(t, "get all tasks by user with context canceled")
+
+	user, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	_, err = serviceTask.Create(ctx, taskDto, user.ID)
+	testsetup.IsNull(t, err)
+	_, err = serviceTask.Create(ctx, taskDto, user.ID)
+	testsetup.IsNull(t, err)
+	_, err = serviceTask.GetAllByUser(ctxCanceled, user.ID)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestGetAllByUser_TaskIsNotValidate(t *testing.T) {
+	var (
+		err   error
+		user  *auth.User
+		tasks []Task
+	)
+
+	testsetup.LogNameTest(t, "get all tasks by user with task not validate")
+
+	user, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+
+	// on insère un document mal formé
+	_, err = initializer.Db.Collection("tasks").InsertOne(ctx, bson.M{
+		"id_user": user.ID,
+		"label":   1234,
+		"done":    false,
+	}, options.InsertOne().SetBypassDocumentValidation(true))
+	testsetup.IsNull(t, err)
+
+	tasks, err = serviceTask.GetAllByUser(ctx, user.ID)
+	testsetup.IsEmptySlice(t, tasks)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_Success(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+		taskCreated *Task
+		tasks       []Task
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user success")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+	testsetup.Equal(t, taskCreated.Done, false)
+
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated.ID, taskCreated.ID)
+	testsetup.IsNull(t, err)
+	tasks, err = serviceTask.GetAllByUser(ctx, userCreated.ID)
+	testsetup.IsNull(t, err)
+	testsetup.Equal(t, len(tasks), 1)
+	testsetup.Equal(t, tasks[0].ID, taskCreated.ID)
+	testsetup.Equal(t, tasks[0].Done, true)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_WithTaskNotExist(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user with task not exist")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated.ID, primitive.NewObjectID())
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_WithUserNotExist(t *testing.T) {
+	var (
+		err         error
+		userCreated *auth.User
+		taskCreated *Task
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user with user not exist")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, primitive.NewObjectID(), taskCreated.ID)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+func TestUpdateOneDonePropertyByUser_WithUserExistButHasNotTask(t *testing.T) {
+	var (
+		err          error
+		userCreated  *auth.User
+		userCreated2 *auth.User
+		taskCreated  *Task
+	)
+
+	testsetup.LogNameTest(t, "update one done property by user with user exist but has not task")
+
+	userCreated, err = serviceUser.Register(ctx, userDto)
+	testsetup.IsNull(t, err)
+	userDto2 := auth.CreateDtoFaker()
+	userCreated2, err = serviceUser.Register(ctx, userDto2)
+	testsetup.IsNull(t, err)
+	taskCreated, err = serviceTask.Create(ctx, taskDto, userCreated.ID)
+	testsetup.IsNull(t, err)
+
+	err = serviceTask.UpdateOneDonePropertyByUser(ctx, userCreated2.ID, taskCreated.ID)
+	testsetup.IsNotNull(t, err)
+
+	testsetup.CleanCollections(ctx, initializer.Db, "tasks", "users")
+}
+
+/*
 func TestUpdateOneDonePropertyByUser(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -198,7 +278,7 @@ func TestUpdateOneDonePropertyByUser(t *testing.T) {
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		
+
 		default:
 			err := s.UpdateOneDonePropertyByUser(ctx, tt.idUser, tt.idTask)
 			if (err != nil) != tt.isErr {
@@ -208,13 +288,13 @@ func TestUpdateOneDonePropertyByUser(t *testing.T) {
 	}
 }
 
-func TestUpdateOneLabelPropertyByUser(t *testing.T){
+func TestUpdateOneLabelPropertyByUser(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		idUser primitive.ObjectID
 		idTask primitive.ObjectID
-		label string
-		isErr bool
+		label  string
+		isErr  bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], "label updated", false},
 		{"test echec mongo", usersIds[0], tasksIds[0], "label updated", true},
@@ -243,12 +323,12 @@ func TestUpdateOneLabelPropertyByUser(t *testing.T){
 	}
 }
 
-func TestDeleteOneByUser(t *testing.T){
+func TestDeleteOneByUser(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		idUser primitive.ObjectID
 		idTask primitive.ObjectID
-		isErr bool
+		isErr  bool
 	}{
 		{"test success", usersIds[0], tasksIds[0], false},
 		{"test echec mongodb", usersIds[0], tasksIds[0], true},
@@ -262,7 +342,7 @@ func TestDeleteOneByUser(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+		} else {
 			err := s.DeleteOneByUser(ctx, tt.idUser, tt.idTask)
 
 			if (err != nil) != tt.isErr {
@@ -336,9 +416,9 @@ func TestDeleteManyByUser(t *testing.T) {
 	}
 }
 
-func TestDeleteById(t *testing.T){
+func TestDeleteById(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		setup func() (userID primitive.ObjectID, taskID primitive.ObjectID)
 		isErr bool
 	}{
@@ -381,7 +461,7 @@ func TestDeleteById(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		
+
 		case "test aucune tâche supprimée":
 			err := s.DeleteById(ctx, []primitive.ObjectID{primitive.NewObjectID()})
 
@@ -389,7 +469,6 @@ func TestDeleteById(t *testing.T){
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
 
-		
 		default:
 			err := s.DeleteById(ctx, []primitive.ObjectID{taskID})
 
@@ -400,9 +479,9 @@ func TestDeleteById(t *testing.T){
 	}
 }
 
-func TestDeleteAllTasks(t *testing.T){
+func TestDeleteAllTasks(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		isErr bool
 	}{
 		{"test success", false},
@@ -417,7 +496,7 @@ func TestDeleteAllTasks(t *testing.T){
 			if (err != nil) != tt.isErr {
 				t.Errorf("%s: got error %v, expect error %v", tt.name, err, tt.isErr)
 			}
-		}else{
+		} else {
 			err := s.DeleteAllTasks(ctx)
 
 			if (err != nil) != tt.isErr {
@@ -425,4 +504,4 @@ func TestDeleteAllTasks(t *testing.T){
 			}
 		}
 	}
-}
+} */

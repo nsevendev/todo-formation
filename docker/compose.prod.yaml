@@ -1,12 +1,12 @@
-name: todof-prod
+name: todof-${APP_ENV}
 services:
-  todof-go-prod:
+  prod:
     build:
-      target: prod
+      target: ${APP_ENV}
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: todof-go-prod
-    image: todof:prod
+    container_name: todof_${APP_ENV}
+    image: todof:${APP_ENV}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-nseven"
@@ -23,17 +23,24 @@ services:
       - traefik-nseven
       - todof
     depends_on:
-      - todof-db-prod
+      - db
 
-  todof-db-prod:
+  db:
     image: mongo:7
-    container_name: todof-db-prod
+    container_name: todof_db${APP_ENV}
     restart: unless-stopped
     volumes:
       - todof-db-prod-data:/data/db
       - ../docker/mongo-init:/docker-entrypoint-initdb.d
     networks:
       - traefik-nseven
+      - todof
+
+  redis:
+    image: redis:7
+    container_name: todof_redis${APP_ENV}
+    restart: unless-stopped
+    networks:
       - todof
 
 networks:
