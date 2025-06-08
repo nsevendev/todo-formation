@@ -59,9 +59,9 @@ func (u *User) SetTimeStamps() {
 
 func CreateDtoFaker() UserCreateDto {
 	return UserCreateDto{
-		Email:    "user" + time.Now().Format("2006-01-02 15:04:05") + "@example.com",
+		Email:    "user" + time.Now().Format("2006-01-02_15-04-05.000") + "@example.com",
 		Password: "password",
-		Username: "user" + time.Now().Format("2006-01-02 15:04:05"),
+		Username: "user" + time.Now().Format("2006-01-02_15-04-05.000"),
 		Role:     "user",
 	}
 }
