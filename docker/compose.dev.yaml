@@ -1,0 +1,58 @@
+name: todof-${APP_ENV}
+services:
+  dev:
+    build:
+      target: ${APP_ENV}
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: todof_${APP_ENV}
+    image: todof:${APP_ENV}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-nseven"
+      - "traefik.http.routers.todof-go.rule=${HOST_TRAEFIK}"
+      - "traefik.http.routers.todof-go.entrypoints=websecure"
+      - "traefik.http.routers.todof-go.tls=true"
+      - "traefik.http.routers.todof-go.tls.certresolver=default"
+      - "traefik.http.services.todof-go.loadbalancer.server.port=${PORT}"
+      - "traefik.http.services.todof-go.loadbalancer.server.scheme=http"
+    volumes:
+      - ../:/app
+    env_file:
+      - ../.env
+    networks:
+      - traefik-nseven
+      - todof
+    depends_on:
+      - dbdev
+
+  db:
+    image: mongo:7
+    container_name: todof_db_${APP_ENV}
+    restart: unless-stopped
+    volumes:
+      - todof-db-${APP_ENV}-data:/data/db
+      - ../docker/mongo-init:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT_EX}:27017"
+    networks:
+      - traefik-nseven
+      - todof
+
+  redis:
+    image: redis:7
+    container_name: todof_redis_${APP_ENV}
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - todof
+
+networks:
+  traefik-nseven:
+    external: true
+  todof:
+    driver: bridge
+
+volumes:
+  todof-db-${APP_ENV}-data:
