@@ -80,7 +80,6 @@ definitions:
     required:
     - label
     type: object
-host: todof.local
 info:
   contact: {}
   description: 'API pour créer des todo avec utilisateurs. Pour tester les routes
