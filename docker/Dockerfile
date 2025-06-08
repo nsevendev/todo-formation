@@ -17,7 +17,7 @@ FROM base AS build
 WORKDIR /app
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dist/todof main.go
-CMD ["ls", "-l", "/app/dist/todof"]
+CMD ["ls", "-l", "/app/dist"]
 
 FROM alpine:3.21 AS prod
 WORKDIR /app
@@ -25,5 +25,6 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates
 # uniquement le binaire
 COPY --from=build /app/dist/todof .
+RUN ls -l /app
 RUN chmod +x /app/todof
 CMD ["./todof"]
