@@ -25,6 +25,6 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates
 # uniquement le binaire
 COPY --from=build /app/dist/todof .
-RUN ls -l /app
+COPY go.mod .
 RUN chmod +x /app/todof
 CMD ["./todof"]
