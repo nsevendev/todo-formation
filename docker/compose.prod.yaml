@@ -15,8 +15,6 @@ services:
       - "traefik.http.routers.todof-go-prod.tls=true"
       - "traefik.http.routers.todof-go-prod.tls.certresolver=le"
       - "traefik.http.services.todof-go-prod.loadbalancer.server.port=${PORT}"
-    volumes:
-      - ../:/app
     env_file:
       - ../.env
     networks:
