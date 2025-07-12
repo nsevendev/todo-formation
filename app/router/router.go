@@ -36,8 +36,8 @@ func Router(r *gin.Engine) {
 
 	v1Task := v1.Group("/task")
 	v1Task.Use(authMiddle.RequireAuth())
-	v1Task.POST("/", taskController.Create)
-	v1Task.GET("/", taskController.GetAllByUser)
+	v1Task.POST("", taskController.Create)
+	v1Task.GET("", taskController.GetAllByUser)
 	v1Task.PUT("/:id/done/user", taskController.UpdateOneDonePropertyByUser)
 	v1Task.PUT("/:id/label/user", taskController.UpdateOneLabelPropertyByUser)
 	v1Task.DELETE("/:id/user", taskController.DeleteOneByUser)
@@ -49,7 +49,7 @@ func Router(r *gin.Engine) {
 	v1User.POST("/register", userController.Create)
 	v1User.POST("/login", userController.Login)
 	v1User.GET("/profil", authMiddle.RequireAuth(), userController.GetProfilCurrentUser)
-	v1User.DELETE("/", authMiddle.RequireAuth(), userController.DeleteOneByUser)
+	v1User.DELETE("", authMiddle.RequireAuth(), userController.DeleteOneByUser)
 	v1User.DELETE("/users", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteByAdmin)
 	v1User.DELETE("/users/all", authMiddle.RequireAuth(), authMiddle.RequireRole("admin"), userController.DeleteAllByAdmin)
 
